@@ -112,11 +112,12 @@
                 btn.classList.remove('copied');
               }
             }, 1500);
-          }).catch(() => {
+        }).catch(() => {
             btn.textContent = '✗ failed';
             setTimeout(() => {
               if (document.contains(btn)) btn.textContent = 'copy';
             }, 1500);
+          });
         });
         pre.appendChild(btn);
       });
