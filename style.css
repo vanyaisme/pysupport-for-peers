@@ -1,1061 +1,1103 @@
-    :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3250;
-      --accent: #5b8dee;
-      --accent2: #a78bfa;
-      --green: #34d399;
-      --orange: #fb923c;
-      --red: #f87171;
-      --yellow: #fbbf24;
-      --text: #e2e8f0;
-      --muted: #8b95b3;
-      --code-bg: #12141f;
-    }
-
-    [data-theme="light"] {
-      --bg: #f5f0e8;
-      --surface: #ece6da;
-      --surface2: #e2dace;
-      --border: #d0c8b8;
-      --accent: #4a72b8;
-      --accent2: #7c5cbf;
-      --green: #1a8a5e;
-      --orange: #c06a1a;
-      --red: #c44040;
-      --yellow: #a07810;
-      --text: #2c2a26;
-      --muted: #7a7265;
-      --code-bg: #e8e0d2;
-    }
-
-    [data-theme="light"] .kw {
-      color: #7c3aed;
-    }
-
-    [data-theme="light"] .fn {
-      color: #2563eb;
-    }
-
-    [data-theme="light"] .str {
-      color: #16713a;
-    }
-
-    [data-theme="light"] .num {
-      color: #c2410c;
-    }
-
-    [data-theme="light"] .cmt {
-      color: #9a9080;
-    }
-
-    [data-theme="light"] .op {
-      color: #0e7490;
-    }
-
-    [data-theme="light"] .var {
-      color: var(--text);
-    }
-
-    [data-theme="light"] .builtin {
-      color: #a16207;
-    }
-
-    [data-theme="light"] .inline-code {
-      color: #2563eb;
-    }
-
-    [data-theme="light"] .note {
-      background: rgba(74, 114, 184, 0.08);
-      color: #3a5f99;
-    }
-
-    [data-theme="light"] .warn {
-      background: rgba(192, 106, 26, 0.08);
-      color: #8a5010;
-    }
-
-    [data-theme="light"] .tip {
-      background: rgba(26, 138, 94, 0.08);
-      color: #166d48;
-    }
-
-    [data-theme="light"] td.true {
-      color: #1a8a5e;
-    }
-
-    [data-theme="light"] td.false {
-      color: #c44040;
-    }
-
-    [data-theme="light"] .badge-blue {
-      background: rgba(74, 114, 184, 0.15);
-    }
-
-    [data-theme="light"] .badge-green {
-      background: rgba(26, 138, 94, 0.15);
-    }
-
-    [data-theme="light"] .badge-orange {
-      background: rgba(192, 106, 26, 0.15);
-    }
-
-    [data-theme="light"] .badge-purple {
-      background: rgba(124, 92, 191, 0.15);
-    }
-
-    [data-theme="light"] .badge-red {
-      background: rgba(196, 64, 64, 0.15);
-    }
-
-    [data-theme="light"] .badge-yellow {
-      background: rgba(160, 120, 16, 0.15);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      font-size: 15px;
-      line-height: 1.7;
-      padding: 32px 20px 60px;
-    }
-
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .header h1 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      color: #e2e8f0;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .header p {
-      color: var(--muted);
-      font-size: 1rem;
-      margin-top: 8px;
-    }
-
-    .toc {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px 32px 24px;
-      margin-bottom: 48px;
-      position: relative;
-    }
-
-    .toc-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-
-    .toc h2 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--muted);
-    }
-
-    /* 1. Your existing button CSS, slightly tweaked for flexbox */
-    .toc .theme-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 6px;
-      transition: color 0.15s, background 0.15s;
-      opacity: 0.5;
-      line-height: 1;
-      /* Add these to perfectly center the SVG: */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .toc .theme-btn:hover {
-      opacity: 1;
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    /* 2. Set the size of your SVGs (replacing your old font-size: 1.6rem) */
-    .toc .theme-btn svg {
-      width: 24px;
-      height: 24px;
-      display: none;
-      /* Hide both by default */
-    }
-
-    /* 3. Default state (Dark mode): Show Sun */
-    .toc .theme-btn .icon-sun {
-      display: block;
-    }
-
-    /* 4. Light mode state: Hide Sun, Show Moon */
-    html[data-theme="light"] .toc .theme-btn .icon-sun {
-      display: none;
-    }
-
-    html[data-theme="light"] .toc .theme-btn .icon-moon {
-      display: block;
-    }
-
-    .toc-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 2px;
-    }
-
-    .toc a {
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.88rem;
-      padding: 7px 12px;
-      border-radius: 8px;
-      transition: background 0.15s, color 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .toc a:hover {
-      background: var(--surface2);
-      color: var(--accent);
-    }
-
-    .toc a .toc-num {
-      font-family: 'Fira Code', 'Cascadia Code', monospace;
-      font-size: 0.7rem;
-      color: var(--muted);
-      min-width: 18px;
-      opacity: 0.6;
-    }
-
-    .section {
-      margin-bottom: 52px;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 24px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-
-    .section-num {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--muted);
-      flex-shrink: 0;
-      font-family: 'Fira Code', 'Cascadia Code', monospace;
-      letter-spacing: 0.5px;
-    }
-
-    .section h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .scenario {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 18px;
-      overflow: hidden;
-    }
-
-    .scenario-title {
-      background: var(--surface2);
-      padding: 12px 20px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-blue {
-      background: rgba(91, 141, 238, 0.2);
-      color: var(--accent);
-    }
-
-    .badge-green {
-      background: rgba(52, 211, 153, 0.2);
-      color: var(--green);
-    }
-
-    .badge-orange {
-      background: rgba(251, 146, 60, 0.2);
-      color: var(--orange);
-    }
-
-    .badge-purple {
-      background: rgba(167, 139, 250, 0.2);
-      color: var(--accent2);
-    }
-
-    .badge-red {
-      background: rgba(248, 113, 113, 0.2);
-      color: var(--red);
-    }
-
-    .badge-yellow {
-      background: rgba(251, 191, 36, 0.2);
-      color: var(--yellow);
-    }
-
-    .scenario-body {
-      padding: 16px 20px;
-      overflow: hidden;
-    }
-
-    .scenario-body p {
-      color: var(--text);
-      margin-bottom: 10px;
-      font-size: 0.93rem;
-    }
-
-    .scenario-body p:last-child {
-      margin-bottom: 0;
-    }
-
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px 18px;
-      overflow-x: auto;
-      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-      font-size: 0.83rem;
-      line-height: 1.65;
-      margin: 10px 0;
-    }
-
-    .kw {
-      color: #c792ea;
-      font-weight: 600;
-    }
-
-    .fn {
-      color: #82aaff;
-    }
-
-    .str {
-      color: #c3e88d;
-    }
-
-    .num {
-      color: #f78c6c;
-    }
-
-    .cmt {
-      color: #546e7a;
-      font-style: italic;
-    }
-
-    .op {
-      color: #89ddff;
-    }
-
-    .var {
-      color: var(--text);
-    }
-
-    .builtin {
-      color: #ffcb6b;
-    }
-
-    .note {
-      background: rgba(91, 141, 238, 0.1);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 8px 8px 0;
-      padding: 10px 14px;
-      margin: 12px 0;
-      font-size: 0.88rem;
-      color: #b8cbf5;
-    }
-
-    .warn {
-      background: rgba(251, 146, 60, 0.1);
-      border-left: 3px solid var(--orange);
-      border-radius: 0 8px 8px 0;
-      padding: 10px 14px;
-      margin: 12px 0;
-      font-size: 0.88rem;
-      color: #fcd6b3;
-    }
-
-    .tip {
-      background: rgba(52, 211, 153, 0.1);
-      border-left: 3px solid var(--green);
-      border-radius: 0 8px 8px 0;
-      padding: 10px 14px;
-      margin: 12px 0;
-      font-size: 0.88rem;
-      color: #a7f3d0;
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin: 10px 0;
-    }
-
-    @media (max-width: 640px) {
-      .two-col {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0;
-      font-size: 0.87rem;
-    }
-
-    th {
-      background: var(--surface2);
-      padding: 8px 12px;
-      text-align: left;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    td {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-    }
-
-    tr:nth-child(even) td {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    /* ── Roadmap table row highlights ── */
-    .roadmap-row-blue          { background: rgba(91,141,238,.08); }
-    .roadmap-row-purple        { background: rgba(167,139,250,.08); }
-    .roadmap-row-green         { background: rgba(52,211,153,.08); }
-    .roadmap-row-orange        { background: rgba(251,146,60,.08); }
-    .roadmap-row-red           { background: rgba(239,68,68,.08); }
-    .roadmap-row-yellow        { background: rgba(250,204,21,.08); }
-    .roadmap-row-blue-strong   { background: rgba(91,141,238,.12); }
-    .roadmap-row-purple-strong { background: rgba(167,139,250,.12); }
-    .roadmap-row-green-strong  { background: rgba(52,211,153,.12); }
-
-    td.true {
-      color: var(--green);
-      font-weight: 600;
-    }
-
-    td.false {
-      color: var(--red);
-      font-weight: 600;
-    }
-
-    .inline-code {
-      font-family: 'Fira Code', monospace;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 0.82rem;
-      color: #82aaff;
-    }
-
-    td code {
-      font-family: 'Fira Code', monospace;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 0.82rem;
-      color: #82aaff;
-    }
-
-    /* ── Scroll margin so anchors don't hide under viewport top ── */
-    .section {
-      scroll-margin-top: 24px;
-    }
-
-    /* ── Persistent sidebar navigation ── */
-    .sidebar-nav {
-      position: fixed;
-      left: max(0px, calc(50% - 530px));
-      top: 50%;
-      transform: translateX(-100%) translateY(-50%);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 8px 6px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-left: none;
-      border-radius: 0 10px 10px 0;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-      opacity: 0;
-    }
-
-    .sidebar-hover-zone {
-      position: fixed;
-      left: max(0px, calc(50% - 546px));
-      top: 0;
-      width: 16px;
-      height: 100%;
-      z-index: 99;
-    }
-
-    .sidebar-hover-zone:hover~.sidebar-nav,
-    .sidebar-nav:hover {
-      transform: translateX(0) translateY(-50%);
-      opacity: 1;
-    }
-
-    .sidebar-nav a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 24px;
-      font-size: 0.65rem;
-      font-family: 'Fira Code', monospace;
-      color: var(--muted);
-      text-decoration: none;
-      border-radius: 4px;
-      transition: color 0.15s, background 0.15s;
-    }
-
-    .sidebar-nav a:hover {
-      color: var(--text);
-      background: var(--surface2);
-    }
-
-    .sidebar-nav a.active {
-      color: var(--accent);
-      background: rgba(91, 141, 238, 0.12);
-      font-weight: 700;
-    }
-
-    .back-to-top {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s, background 0.15s, color 0.15s;
-      z-index: 100;
-    }
-
-    .back-to-top.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .back-to-top:hover {
-      background: var(--surface2);
-      color: var(--text);
-    }
-
-    /* ── Collapsible scenario cards ── */
-    .scenario-title::after {
-      content: '▾';
-      margin-left: auto;
-      font-size: 0.7rem;
-      color: var(--muted);
-      transition: transform 0.2s;
-      flex-shrink: 0;
-    }
-
-    .scenario.collapsed .scenario-title::after {
-      transform: rotate(-90deg);
-    }
-
-    .scenario.collapsed .scenario-body {
-      display: none;
-    }
-
-    .section-toggle {
-      font-size: 0.7rem;
-      color: var(--muted);
-      cursor: pointer;
-      margin-left: auto;
-      padding: 3px 10px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background: transparent;
-      transition: color 0.15s, border-color 0.15s;
-      flex-shrink: 0;
-      font-family: inherit;
-      align-self: center;
-    }
-
-    .section-toggle:hover {
-      color: var(--text);
-      border-color: var(--muted);
-    }
-
-    /* ── Code copy button ── */
-    pre {
-      position: relative;
-    }
-
-    .copy-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      padding: 3px 8px;
-      font-size: 0.65rem;
-      font-family: inherit;
-      color: var(--muted);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.15s, color 0.15s;
-      z-index: 5;
-    }
-
-    pre:hover .copy-btn {
-      opacity: 1;
-    }
-
-    .copy-btn:hover {
-      color: var(--text);
-    }
-
-    .copy-btn.copied {
-      color: var(--green);
-      opacity: 1;
-    }
-
-    /* ═══════════════════════════════════════════════
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #22263a;
+  --border: #2e3250;
+  --accent: #5b8dee;
+  --accent2: #a78bfa;
+  --green: #34d399;
+  --orange: #fb923c;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --text: #e2e8f0;
+  --muted: #8b95b3;
+  --code-bg: #12141f;
+}
+
+[data-theme="light"] {
+  --bg: #f5f0e8;
+  --surface: #ece6da;
+  --surface2: #e2dace;
+  --border: #d0c8b8;
+  --accent: #4a72b8;
+  --accent2: #7c5cbf;
+  --green: #1a8a5e;
+  --orange: #c06a1a;
+  --red: #c44040;
+  --yellow: #a07810;
+  --text: #2c2a26;
+  --muted: #7a7265;
+  --code-bg: #e8e0d2;
+}
+
+[data-theme="light"] .kw {
+  color: #7c3aed;
+}
+
+[data-theme="light"] .fn {
+  color: #2563eb;
+}
+
+[data-theme="light"] .str {
+  color: #16713a;
+}
+
+[data-theme="light"] .num {
+  color: #c2410c;
+}
+
+[data-theme="light"] .cmt {
+  color: #9a9080;
+}
+
+[data-theme="light"] .op {
+  color: #0e7490;
+}
+
+[data-theme="light"] .var {
+  color: var(--text);
+}
+
+[data-theme="light"] .builtin {
+  color: #a16207;
+}
+
+[data-theme="light"] .inline-code {
+  color: #2563eb;
+}
+
+[data-theme="light"] .note {
+  background: rgba(74, 114, 184, 0.08);
+  color: #3a5f99;
+}
+
+[data-theme="light"] .warn {
+  background: rgba(192, 106, 26, 0.08);
+  color: #8a5010;
+}
+
+[data-theme="light"] .tip {
+  background: rgba(26, 138, 94, 0.08);
+  color: #166d48;
+}
+
+[data-theme="light"] td.true {
+  color: #1a8a5e;
+}
+
+[data-theme="light"] td.false {
+  color: #c44040;
+}
+
+[data-theme="light"] .badge-blue {
+  background: rgba(74, 114, 184, 0.15);
+}
+
+[data-theme="light"] .badge-green {
+  background: rgba(26, 138, 94, 0.15);
+}
+
+[data-theme="light"] .badge-orange {
+  background: rgba(192, 106, 26, 0.15);
+}
+
+[data-theme="light"] .badge-purple {
+  background: rgba(124, 92, 191, 0.15);
+}
+
+[data-theme="light"] .badge-red {
+  background: rgba(196, 64, 64, 0.15);
+}
+
+[data-theme="light"] .badge-yellow {
+  background: rgba(160, 120, 16, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 32px 20px 60px;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  color: #e2e8f0;
+  -webkit-text-fill-color: transparent;
+}
+
+.header p {
+  color: var(--muted);
+  font-size: 1rem;
+  margin-top: 8px;
+}
+
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 32px 24px;
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.toc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.toc h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+
+/* 1. Your existing button CSS, slightly tweaked for flexbox */
+.toc .theme-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+  opacity: 0.5;
+  line-height: 1;
+  /* Add these to perfectly center the SVG: */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toc .theme-btn:hover {
+  opacity: 1;
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* 2. Set the size of your SVGs (replacing your old font-size: 1.6rem) */
+.toc .theme-btn svg {
+  width: 24px;
+  height: 24px;
+  display: none;
+  /* Hide both by default */
+}
+
+/* 3. Default state (Dark mode): Show Sun */
+.toc .theme-btn .icon-sun {
+  display: block;
+}
+
+/* 4. Light mode state: Hide Sun, Show Moon */
+html[data-theme="light"] .toc .theme-btn .icon-sun {
+  display: none;
+}
+
+html[data-theme="light"] .toc .theme-btn .icon-moon {
+  display: block;
+}
+
+.toc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 2px;
+}
+
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 7px 12px;
+  border-radius: 8px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toc a:hover {
+  background: var(--surface2);
+  color: var(--accent);
+}
+
+.toc a .toc-num {
+  font-family: "Fira Code", "Cascadia Code", monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  min-width: 18px;
+  opacity: 0.6;
+}
+
+.section {
+  margin-bottom: 52px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.section-num {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--muted);
+  flex-shrink: 0;
+  font-family: "Fira Code", "Cascadia Code", monospace;
+  letter-spacing: 0.5px;
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.scenario {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.scenario-title {
+  background: var(--surface2);
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-blue {
+  background: rgba(91, 141, 238, 0.2);
+  color: var(--accent);
+}
+
+.badge-green {
+  background: rgba(52, 211, 153, 0.2);
+  color: var(--green);
+}
+
+.badge-orange {
+  background: rgba(251, 146, 60, 0.2);
+  color: var(--orange);
+}
+
+.badge-purple {
+  background: rgba(167, 139, 250, 0.2);
+  color: var(--accent2);
+}
+
+.badge-red {
+  background: rgba(248, 113, 113, 0.2);
+  color: var(--red);
+}
+
+.badge-yellow {
+  background: rgba(251, 191, 36, 0.2);
+  color: var(--yellow);
+}
+
+.scenario-body {
+  padding: 16px 20px;
+  overflow: hidden;
+}
+
+.scenario-body p {
+  color: var(--text);
+  margin-bottom: 10px;
+  font-size: 0.93rem;
+}
+
+.scenario-body p:last-child {
+  margin-bottom: 0;
+}
+
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.83rem;
+  line-height: 1.65;
+  margin: 10px 0;
+}
+
+.kw {
+  color: #c792ea;
+  font-weight: 600;
+}
+
+.fn {
+  color: #82aaff;
+}
+
+.str {
+  color: #c3e88d;
+}
+
+.num {
+  color: #f78c6c;
+}
+
+.cmt {
+  color: #546e7a;
+  font-style: italic;
+}
+
+.op {
+  color: #89ddff;
+}
+
+.var {
+  color: var(--text);
+}
+
+.builtin {
+  color: #ffcb6b;
+}
+
+.note {
+  background: rgba(91, 141, 238, 0.1);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.88rem;
+  color: #b8cbf5;
+}
+
+.warn {
+  background: rgba(251, 146, 60, 0.1);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.88rem;
+  color: #fcd6b3;
+}
+
+.tip {
+  background: rgba(52, 211, 153, 0.1);
+  border-left: 3px solid var(--green);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 0.88rem;
+  color: #a7f3d0;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 10px 0;
+}
+
+@media (max-width: 640px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.87rem;
+}
+
+th {
+  background: var(--surface2);
+  padding: 8px 12px;
+  text-align: left;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+}
+
+tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── Roadmap table row highlights ── */
+.roadmap-row-blue {
+  background: rgba(91, 141, 238, 0.08);
+}
+.roadmap-row-purple {
+  background: rgba(167, 139, 250, 0.08);
+}
+.roadmap-row-green {
+  background: rgba(52, 211, 153, 0.08);
+}
+.roadmap-row-orange {
+  background: rgba(251, 146, 60, 0.08);
+}
+.roadmap-row-red {
+  background: rgba(239, 68, 68, 0.08);
+}
+.roadmap-row-yellow {
+  background: rgba(250, 204, 21, 0.08);
+}
+.roadmap-row-blue-strong {
+  background: rgba(91, 141, 238, 0.12);
+}
+.roadmap-row-purple-strong {
+  background: rgba(167, 139, 250, 0.12);
+}
+.roadmap-row-green-strong {
+  background: rgba(52, 211, 153, 0.12);
+}
+
+td.true {
+  color: var(--green);
+  font-weight: 600;
+}
+
+td.false {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.inline-code {
+  font-family: "Fira Code", monospace;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.82rem;
+  color: #82aaff;
+}
+
+td code {
+  font-family: "Fira Code", monospace;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.82rem;
+  color: #82aaff;
+}
+
+/* ── Scroll margin so anchors don't hide under viewport top ── */
+.section {
+  scroll-margin-top: 24px;
+}
+
+/* ── Persistent sidebar navigation ── */
+.sidebar-nav {
+  position: fixed;
+  left: max(0px, calc(50% - 530px));
+  top: 50%;
+  transform: translateX(-100%) translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+  opacity: 0;
+}
+
+.sidebar-hover-zone {
+  position: fixed;
+  left: max(0px, calc(50% - 546px));
+  top: 0;
+  width: 16px;
+  height: 100%;
+  z-index: 99;
+}
+
+.sidebar-hover-zone:hover ~ .sidebar-nav,
+.sidebar-nav:hover {
+  transform: translateX(0) translateY(-50%);
+  opacity: 1;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  font-size: 0.65rem;
+  font-family: "Fira Code", monospace;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 4px;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.sidebar-nav a:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.sidebar-nav a.active {
+  color: var(--accent);
+  background: rgba(91, 141, 238, 0.12);
+  font-weight: 700;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.25s,
+    background 0.15s,
+    color 0.15s;
+  z-index: 100;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ── Collapsible scenario cards ── */
+.scenario-title::after {
+  content: "▾";
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.scenario.collapsed .scenario-title::after {
+  transform: rotate(-90deg);
+}
+
+.scenario.collapsed .scenario-body {
+  display: none;
+}
+
+.section-toggle {
+  font-size: 0.7rem;
+  color: var(--muted);
+  cursor: pointer;
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+  flex-shrink: 0;
+  font-family: inherit;
+  align-self: center;
+}
+
+.section-toggle:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+/* ── Code copy button ── */
+pre {
+  position: relative;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 3px 8px;
+  font-size: 0.65rem;
+  font-family: inherit;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+  z-index: 5;
+}
+
+pre:hover .copy-btn {
+  opacity: 1;
+}
+
+.copy-btn:hover {
+  color: var(--text);
+}
+
+.copy-btn.copied {
+  color: var(--green);
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════
        PYTHON RUNNER STYLES
     ═══════════════════════════════════════════════ */
 
-    /* ── Run button (sits left of copy button) ── */
-    .run-btn {
-      position: absolute;
-      top: 6px;
-      right: 56px;
-      padding: 3px 8px;
-      font-size: 0.65rem;
-      font-family: inherit;
-      color: var(--green);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.15s, color 0.15s, background 0.15s, border-color 0.15s;
-      z-index: 5;
-      line-height: 1.4;
-      letter-spacing: 0.2px;
-    }
+/* ── Run button (sits left of copy button) ── */
+.run-btn {
+  position: absolute;
+  top: 6px;
+  right: 56px;
+  padding: 3px 8px;
+  font-size: 0.65rem;
+  font-family: inherit;
+  color: var(--green);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+  z-index: 5;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+}
 
-    pre:hover .run-btn {
-      opacity: 1;
-    }
+pre:hover .run-btn {
+  opacity: 1;
+}
 
-    .run-btn:hover {
-      background: rgba(52, 211, 153, 0.12);
-      border-color: var(--green);
-    }
+.run-btn:hover {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: var(--green);
+}
 
-    .run-btn.loading {
-      color: var(--yellow);
-      border-color: var(--yellow);
-      opacity: 1;
-      cursor: wait;
-    }
+.run-btn.loading {
+  color: var(--yellow);
+  border-color: var(--yellow);
+  opacity: 1;
+  cursor: wait;
+}
 
-    .run-btn.active {
-      color: var(--accent);
-      opacity: 1;
-      background: rgba(91, 141, 238, 0.1);
-      border-color: var(--accent);
-    }
+.run-btn.active {
+  color: var(--accent);
+  opacity: 1;
+  background: rgba(91, 141, 238, 0.1);
+  border-color: var(--accent);
+}
 
-    /* ── pre state when output panel is open below ── */
-    pre.py-open {
-      border-bottom-left-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-      margin-bottom: 0 !important;
-    }
+/* ── pre state when output panel is open below ── */
+pre.py-open {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  margin-bottom: 0 !important;
+}
 
-    /* ── Output panel ── */
-    .py-output {
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      overflow: hidden;
-      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-      font-size: 0.83rem;
-      margin: 0 0 10px;
-    }
+/* ── Output panel ── */
+.py-output {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.83rem;
+  margin: 0 0 10px;
+}
 
-    .py-output-bar {
-      background: var(--surface2);
-      padding: 5px 12px 5px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.65rem;
-      color: var(--muted);
-      user-select: none;
-    }
+.py-output-bar {
+  background: var(--surface2);
+  padding: 5px 12px 5px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.65rem;
+  color: var(--muted);
+  user-select: none;
+}
 
-    .py-output-label {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-weight: 600;
-      font-family: 'Fira Code', monospace;
-    }
+.py-output-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-family: "Fira Code", monospace;
+}
 
-    .py-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--green);
-      flex-shrink: 0;
-    }
+.py-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
 
-    .py-dot.err {
-      background: var(--red);
-    }
+.py-dot.err {
+  background: var(--red);
+}
 
-    .py-dot.info {
-      background: var(--accent);
-    }
+.py-dot.info {
+  background: var(--accent);
+}
 
-    .py-dot.warn {
-      background: var(--yellow);
-    }
+.py-dot.warn {
+  background: var(--yellow);
+}
 
-    .py-output-close {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 0.8rem;
-      padding: 1px 3px;
-      line-height: 1;
-      opacity: 0.55;
-      transition: opacity 0.15s, color 0.15s;
-      border-radius: 3px;
-    }
+.py-output-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 1px 3px;
+  line-height: 1;
+  opacity: 0.55;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+  border-radius: 3px;
+}
 
-    .py-output-close:hover {
-      opacity: 1;
-      color: var(--text);
-      background: var(--surface);
-    }
+.py-output-close:hover {
+  opacity: 1;
+  color: var(--text);
+  background: var(--surface);
+}
 
-    .py-output-body {
-      padding: 12px 16px;
-      white-space: pre-wrap;
-      line-height: 1.65;
-      color: var(--text);
-      max-height: 300px;
-      overflow-y: auto;
-      background: var(--code-bg);
-    }
+.py-output-body {
+  padding: 12px 16px;
+  white-space: pre-wrap;
+  line-height: 1.65;
+  color: var(--text);
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--code-bg);
+}
 
-    .py-output-body.err {
-      color: var(--red);
-    }
+.py-output-body.err {
+  color: var(--red);
+}
 
-    .py-output-body.info {
-      color: var(--muted);
-      font-style: italic;
-      line-height: 1.7;
-    }
+.py-output-body.info {
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.7;
+}
 
-    .py-output-body .py-repr {
-      color: var(--orange);
-    }
+.py-output-body .py-repr {
+  color: var(--orange);
+}
 
-    .py-output-body img {
-      max-width: 100%;
-      border-radius: 6px;
-      display: block;
-      margin: 6px 0 2px;
-    }
+.py-output-body img {
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+  margin: 6px 0 2px;
+}
 
-    /* ── Input form for argv / input() snippets ── */
-    .py-form {
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      overflow: hidden;
-      margin: 0 0 10px;
-      background: var(--surface);
-    }
+/* ── Input form for argv / input() snippets ── */
+.py-form {
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  margin: 0 0 10px;
+  background: var(--surface);
+}
 
-    .py-form-bar {
-      background: var(--surface2);
-      padding: 5px 12px 5px 14px;
-      font-size: 0.65rem;
-      color: var(--muted);
-      border-bottom: 1px solid var(--border);
-      font-family: 'Fira Code', monospace;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      letter-spacing: 0.2px;
-    }
+.py-form-bar {
+  background: var(--surface2);
+  padding: 5px 12px 5px 14px;
+  font-size: 0.65rem;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  font-family: "Fira Code", monospace;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: 0.2px;
+}
 
-    .py-form-body {
-      padding: 14px 16px;
-    }
+.py-form-body {
+  padding: 14px 16px;
+}
 
-    .py-form label {
-      display: block;
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-bottom: 5px;
-      font-family: 'Fira Code', monospace;
-    }
+.py-form label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+  font-family: "Fira Code", monospace;
+}
 
-    .py-form input[type="text"] {
-      width: 100%;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      padding: 6px 10px;
-      color: var(--text);
-      font-family: 'Fira Code', monospace;
-      font-size: 0.82rem;
-      margin-bottom: 12px;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
+.py-form input[type="text"] {
+  width: 100%;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: "Fira Code", monospace;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
 
-    .py-form input[type="text"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(91, 141, 238, 0.15);
-    }
+.py-form input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(91, 141, 238, 0.15);
+}
 
-    .py-form-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 2px;
-    }
+.py-form-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 2px;
+}
 
-    .py-btn-run {
-      padding: 5px 14px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.78rem;
-      font-family: inherit;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      transition: opacity 0.15s;
-    }
+.py-btn-run {
+  padding: 5px 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition: opacity 0.15s;
+}
 
-    .py-btn-run:hover {
-      opacity: 0.88;
-    }
+.py-btn-run:hover {
+  opacity: 0.88;
+}
 
-    .py-btn-cancel {
-      padding: 5px 10px;
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.78rem;
-      font-family: inherit;
-      transition: color 0.15s, border-color 0.15s;
-    }
+.py-btn-cancel {
+  padding: 5px 10px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: inherit;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
 
-    .py-btn-cancel:hover {
-      color: var(--text);
-      border-color: var(--muted);
-    }
+.py-btn-cancel:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
 
-    /* ── Loading / status toast (bottom-right) ── */
-    #py-toast {
-      position: fixed;
-      bottom: 78px;
-      right: 28px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 16px;
-      font-size: 0.8rem;
-      color: var(--text);
-      z-index: 400;
-      display: none;
-      gap: 10px;
-      align-items: center;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-      max-width: 280px;
-      line-height: 1.4;
-    }
+/* ── Loading / status toast (bottom-right) ── */
+#py-toast {
+  position: fixed;
+  bottom: 78px;
+  right: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  color: var(--text);
+  z-index: 400;
+  display: none;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  max-width: 280px;
+  line-height: 1.4;
+}
 
-    #py-toast.on {
-      display: flex;
-    }
+#py-toast.on {
+  display: flex;
+}
 
-    .py-spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: py-spin 0.65s linear infinite;
-      flex-shrink: 0;
-    }
+.py-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: py-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
 
-    @keyframes py-spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
+@keyframes py-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-    /* hide run-btn and py-output in print */
+/* hide run-btn and py-output in print */
 
-    /* ── Print / PDF styles ── */
-    @media print {
-      body {
-        background: #fff;
-        color: #1a1a1a;
-        font-size: 11pt;
-        padding: 0;
-      }
+/* ── Print / PDF styles ── */
+@media print {
+  body {
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 11pt;
+    padding: 0;
+  }
 
-      .sidebar-nav,
-      .sidebar-hover-zone,
-      .back-to-top,
-      .theme-btn,
-      .copy-btn,
-      .run-btn,
-      .py-output,
-      .py-form,
-      #py-toast,
-      .section-toggle,
-      .toc {
-        display: none !important;
-      }
+  .sidebar-nav,
+  .sidebar-hover-zone,
+  .back-to-top,
+  .theme-btn,
+  .copy-btn,
+  .run-btn,
+  .py-output,
+  .py-form,
+  #py-toast,
+  .section-toggle,
+  .toc {
+    display: none !important;
+  }
 
-      .container {
-        max-width: 100%;
-      }
+  .container {
+    max-width: 100%;
+  }
 
-      .section {
-        page-break-inside: avoid;
-      }
+  .section {
+    page-break-inside: avoid;
+  }
 
-      .scenario {
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
+  .scenario {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
 
-      pre {
-        page-break-inside: avoid;
-        break-inside: avoid;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        border: 1px solid #ccc;
-        background: #f5f5f5 !important;
-      }
+  pre {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border: 1px solid #ccc;
+    background: #f5f5f5 !important;
+  }
 
-      .section-header {
-        page-break-after: avoid;
-        break-after: avoid;
-      }
+  .section-header {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
 
-      .scenario.collapsed .scenario-body {
-        display: block !important;
-      }
+  .scenario.collapsed .scenario-body {
+    display: block !important;
+  }
 
-      .scenario-title::after {
-        display: none;
-      }
+  .scenario-title::after {
+    display: none;
+  }
 
-      .scenario {
-        border: 1px solid #ddd;
-      }
+  .scenario {
+    border: 1px solid #ddd;
+  }
 
-      .scenario-title {
-        background: #f0f0f0 !important;
-        border-bottom: 1px solid #ddd;
-      }
+  .scenario-title {
+    background: #f0f0f0 !important;
+    border-bottom: 1px solid #ddd;
+  }
 
-      .section-header {
-        border-bottom: 1px solid #ccc;
-      }
+  .section-header {
+    border-bottom: 1px solid #ccc;
+  }
 
-      .note,
-      .warn,
-      .tip {
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-    }
+  .note,
+  .warn,
+  .tip {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
 
-    @media (max-width: 768px) {
-
-      .sidebar-nav,
-      .sidebar-hover-zone {
-        display: none;
-      }
-    }
+@media (max-width: 768px) {
+  .sidebar-nav,
+  .sidebar-hover-zone {
+    display: none;
+  }
+}

@@ -50,7 +50,7 @@
 - [x] **P2-6**: Add `td code { ... }` CSS rule (duplicates `.inline-code` styles so all `<code>` in `<td>` cells are automatically styled without class changes)
 - [x] **P2-7**: Created `manifest.json` for PWA installability; added `<link rel="manifest" href="manifest.json">` to `index.html` `<head>`
 - [x] **P2-8**: Created `sw.js` Service Worker caching `index.html`, `style.css`, `runner.js`, `manifest.json`; registered in `runner.js` on load; CDN resources bypass cache
-- [ ] **P2-9**: Run Prettier HTML formatter on `index.html` to fix inconsistent section wrapper indentation (lines ~1216, ~1261, ~1318 and others)
+- [x] **P2-9**: Ran Prettier on `index.html` and `style.css`; `runner.js` skipped (Prettier parse error due to IIFE + embedded Python string templates — JS is valid but Prettier cannot handle the pattern)
 - [x] **P2-10**: Add a JS comment in the sidebar nav generation code documenting why `id="roadmap"` is excluded from sidebar links
 
 ---
