@@ -38,7 +38,7 @@
 
 ### Architecture
 - [x] **P1-14**: Split monolith into separate files — extract inline `<style>` block (~1,046 lines) to `style.css`, extract inline `<script>` block (~632 lines) to `runner.js`, update `<head>` references, test all functionality (theme toggle, copy buttons, Pyodide runner, sidebar nav, collapsible cards)
-- [ ] **P1-15**: Resolve `'Fira Code'` font — either add Google Fonts `<link>` import OR remove `'Fira Code'` from the `font-family` stack entirely (fallback chain `'Cascadia Code'` → `'Consolas'` → `monospace` is acceptable)
+- [x] **P1-15**: Resolve `'Fira Code'` font — added Google Fonts `<link>` preconnect + Fira Code wght@400;500 import to both `index.html` and `python-guide_final.html`
 
 ---
 
