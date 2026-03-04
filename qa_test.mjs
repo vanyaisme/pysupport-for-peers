@@ -3,7 +3,7 @@
  * Runs with Playwright Firefox (headless).
  * Covers all 11 Testing Checklist items from the plan.
  */
-import { chromium } from 'playwright';
+import { webkit } from 'playwright';
 
 const BASE = 'http://localhost:8765/index.html';
 const RESULTS = [];
@@ -21,7 +21,10 @@ function warn(item, detail = '') {
   console.warn(`⚠️  WARN  ${item}${detail ? ' — ' + detail : ''}`);
 }
 
-const browser = await chromium.launch({ headless: true });
+// LibreWolf is preferred for manual/visual testing (open index.html directly in LibreWolf)
+// Playwright's bundled WebKit (Safari engine) is used here for CI/automated headless testing.
+// Note: Playwright Firefox fails on Apple Silicon (arm64) due to XPCOM crash — WebKit is the correct headless choice.
+const browser = await webkit.launch({ headless: true });
 const ctx = await browser.newContext();
 const page = await ctx.newPage();
 
