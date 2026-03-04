@@ -640,3 +640,12 @@ _fc`);
         // window.addEventListener('load', () => setTimeout(() => getPy().catch(()=>{}), 2000));
 
       })();
+
+// Register Service Worker for offline caching
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
