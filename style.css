@@ -666,6 +666,12 @@ tr:nth-child(even) td {
   background: rgba(52, 211, 153, 0.12);
 }
 
+/* ── Roadmap stage rows: consistent height ── */
+tr[class^="roadmap-row"] td {
+  height: 86px;
+  vertical-align: middle;
+}
+
 td.true {
   color: var(--green);
   font-weight: 600;
@@ -1550,3 +1556,150 @@ td .inline-code {
   }
 }
 
+/* ── Challenge solution panels ── */
+.sol-scenario {
+  margin-top: 14px;
+  border-style: dashed !important;
+}
+.sol-scenario .scenario-title {
+  background: rgba(91, 141, 238, 0.06) !important;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+[data-theme="light"] .sol-scenario .scenario-title {
+  background: rgba(74, 114, 184, 0.06) !important;
+}
+
+/* ── Challenges stage headers ── */
+.challenges-stage {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 32px 0 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+/* ── Numeric badge sizing ── */
+.badge-num {
+  padding: 2px 6px;
+  min-width: 1.6em;
+  text-align: center;
+}
+
+
+/* ── List containment ── */
+ul, ol {
+  padding-left: 1.5em;
+  margin-left: 0;
+  box-sizing: border-box;
+}
+
+/* ────────────────────────────────────────
+   Overlay landing shared styles
+   ──────────────────────────────────────── */
+
+/* H1 — clean, bold, no gradient */
+.overlay-h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+/* Close button — bare × icon, no box */
+.overlay-close-btn {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--muted);
+  padding: 6px;
+  cursor: pointer;
+  line-height: 0;
+  border-radius: 6px;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+.overlay-close-btn:hover {
+  color: var(--text);
+  transform: scale(1.15) rotate(90deg);
+}
+.overlay-close-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(91,141,238,0.35);
+}
+
+/* Back button — bare ← SVG arrow, no box */
+.overlay-back-btn {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--muted);
+  padding: 6px;
+  cursor: pointer;
+  line-height: 0;
+  border-radius: 6px;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+.overlay-back-btn:hover {
+  color: var(--accent);
+  transform: translateX(-4px);
+}
+.overlay-back-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(91,141,238,0.35);
+}
+
+/* Nav cards — answers-landing navigation */
+.overlay-nav-cards {
+  display: flex;
+  gap: 14px;
+  margin-top: 4px;
+}
+.overlay-nav-card {
+  flex: 1;
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color 0.18s, background 0.18s, transform 0.14s, box-shadow 0.18s;
+}
+.overlay-nav-card:hover {
+  border-color: var(--accent);
+  background: var(--surface2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+.overlay-nav-card.nav-right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+.overlay-nav-card-icon {
+  font-size: 1.15rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.overlay-nav-card-title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.overlay-nav-card-desc {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
