@@ -7,6 +7,7 @@
   function getSectionLevel(secId) {
     const n = parseInt(secId.replace("s", ""), 10);
     if (isNaN(n)) return null;
+    // Sections 1–13 = beginner, 14–21 = intermediate, 22+ = advanced
     if (n <= 13) return "beginner";
     if (n <= 21) return "intermediate";
     return "advanced";
@@ -19,9 +20,11 @@
     if (sec.id === "roadmap") {
       const dot = document.createElement("span");
       dot.className = "lens-roadmap-dot";
+      dot.setAttribute("aria-hidden", "true");
       a.appendChild(dot);
       const label = document.createElement("span");
       label.className = "sidebar-lens-label";
+      label.setAttribute("aria-hidden", "true");
       label.textContent = "Roadmap";
       a.appendChild(label);
     } else {
@@ -31,6 +34,7 @@
       if (sec.id.match(/^s\d+$/)) {
         const label = document.createElement("span");
         label.className = "sidebar-lens-label";
+        label.setAttribute("aria-hidden", "true");
         label.textContent = sec.querySelector("h2")?.textContent.trim() || "";
         a.appendChild(label);
       }
@@ -40,10 +44,13 @@
     links.push(a);
   });
 
+  const roadmapLink = links.find(l => l.dataset.section === "roadmap");
+  let cachedSidebarW = sidebar.offsetWidth;
+  window.addEventListener("resize", () => { cachedSidebarW = sidebar.offsetWidth; });
+
   // ── Lens hover ──
   sidebar.addEventListener("mouseleave", () => {
     links.forEach((l) => l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next"));
-    const roadmapLink = links.find(l => l.dataset.section === "roadmap");
     if (roadmapLink) {
       const dot = roadmapLink.querySelector(".lens-roadmap-dot");
       if (dot) dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
@@ -56,7 +63,6 @@
       if (i > 0) links[i - 1].classList.add("is-lens-prev");
       if (i < links.length - 1) links[i + 1].classList.add("is-lens-next");
 
-      const roadmapLink = links.find(l => l.dataset.section === "roadmap");
       if (roadmapLink) {
         const dot = roadmapLink.querySelector(".lens-roadmap-dot");
         if (dot) {
@@ -67,13 +73,45 @@
       }
     });
   });
+  // ── Keyboard lens (focusin mirrors mouseenter, focusout mirrors mouseleave) ──
+  links.forEach((link, i) => {
+    link.addEventListener("focusin", () => {
+      links.forEach((l) => l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next"));
+      link.classList.add("is-lens-current");
+      if (i > 0) links[i - 1].classList.add("is-lens-prev");
+      if (i < links.length - 1) links[i + 1].classList.add("is-lens-next");
+
+      if (roadmapLink) {
+        const dot = roadmapLink.querySelector(".lens-roadmap-dot");
+        if (dot) {
+          dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
+          const level = getSectionLevel(link.dataset.section);
+          if (level) dot.classList.add("lens-dot-" + level);
+        }
+      }
+    });
+  });
+  sidebar.addEventListener("focusout", () => {
+    requestAnimationFrame(() => {
+      if (sidebar.contains(document.activeElement)) return;
+      links.forEach((l) => l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next"));
+      if (roadmapLink) {
+        const dot = roadmapLink.querySelector(".lens-roadmap-dot");
+        if (dot) dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
+      }
+    });
+  });
 
   // ── Sidebar reveal ──
+  let _rafId = 0;
   document.addEventListener("mousemove", (e) => {
-    const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
-    const sidebarRight = sidebarLeft + sidebar.offsetWidth + 16;
-    sidebar.classList.toggle("is-nav-open", e.clientX >= sidebarLeft && e.clientX <= sidebarRight);
-  });
+    cancelAnimationFrame(_rafId);
+    _rafId = requestAnimationFrame(() => {
+      const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
+      const sidebarRight = sidebarLeft + cachedSidebarW + 16;
+      sidebar.classList.toggle("is-nav-open", e.clientX >= sidebarLeft && e.clientX <= sidebarRight);
+    });
+  }, { passive: true });
   document.addEventListener("mouseleave", () => {
     sidebar.classList.remove("is-nav-open");
   });
