@@ -43,7 +43,6 @@ async function initPyodide() {
       indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",
     });
 
-    // Stdout: accumulate chars, flush on newline
     pyodide.setStdout({
       raw: (charCode) => {
         const ch = String.fromCharCode(charCode);
@@ -149,7 +148,6 @@ function stdinRead() {
   // Flush any pending stdout — this is the input() prompt
   flushStdout();
 
-  // Signal main thread that we need input
   Atomics.store(stdinView, 0, 1);
   self.postMessage({ type: "need_input" });
 
@@ -172,10 +170,8 @@ function stdinRead() {
     throw new Error("__interrupted__");
   }
 
-  // Read bytes from dataSAB
   const byteLen = Atomics.load(stdinView, 1);
   const bytes = dataView.slice(0, byteLen);
-  // Reset flag
   Atomics.store(stdinView, 0, 0);
 
   return new TextDecoder().decode(bytes);
@@ -220,7 +216,6 @@ async function runCode(code) {
   try {
     const kind = detectType(code);
 
-    // Unsupported types
     if (kind === "empty") {
       self.postMessage({ type: "done", images: [] });
       return;
@@ -242,7 +237,6 @@ async function runCode(code) {
       return;
     }
 
-    // Lazy package loads
     if (kind === "matplotlib") await ensurePackage("matplotlib");
     if (kind === "scipy") {
       await ensurePackage("scipy");
@@ -267,7 +261,6 @@ class _WorkerStdin:
 _sys.stdin = _WorkerStdin()
 `);
 
-    // Patch matplotlib show if needed
     if (kind === "matplotlib" || kind === "scipy") {
       pyodide.runPython(`
 import matplotlib
@@ -278,7 +271,6 @@ _show_imgs.clear()
 `);
     }
 
-    // Run code via _run() helper
     pyodide.globals.set("_code_to_run", code);
     pyodide.runPython(`_result = _run(_code_to_run)`);
     const result = pyodide.globals.get("_result");
@@ -294,7 +286,6 @@ _show_imgs.clear()
     if (reprVal)
       self.postMessage({ type: "stdout", text: String(reprVal) + "\n" });
 
-    // Collect matplotlib images
     let images = [];
     if (kind === "matplotlib" || kind === "scipy") {
       const imgs = pyodide.globals.get("_show_imgs");

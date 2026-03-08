@@ -199,14 +199,11 @@
     document.documentElement.dataset.theme !== "light" ? "true" : "false",
   );
 
-  // Listen for clicks
   themeBtn.addEventListener("click", () => {
     const isLight = document.documentElement.dataset.theme === "light";
 
-    // Toggle the HTML attribute
     document.documentElement.dataset.theme = isLight ? "" : "light";
     themeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
-    // Save to local storage
     localStorage.setItem("theme", isLight ? "" : "light");
   });
 
@@ -407,7 +404,6 @@
     }
 
     if (type === "stdout") {
-      // Append to live output panel if open, else buffer
       _stdoutHtml += esc(event.data.text);
       updateLiveOutput();
       return;
@@ -492,7 +488,7 @@
   function showInputPrompt() {
     if (!_currentPre) return;
     ensureLivePanel();
-    removeInputPanel(); // remove any previous
+    removeInputPanel();
 
     const container = document.createElement("div");
     container.className = "py-form";
@@ -508,7 +504,6 @@
     field.addEventListener("keydown", (e) => {
       if (e.key === "Enter") submitInput(field.value);
     });
-    // Insert after the live panel
     (_livePanel || _currentPre.parentElement).insertAdjacentElement(
       "afterend",
       container,
@@ -525,7 +520,6 @@
     Atomics.store(stdinView, 1, Math.min(bytes.length, 65535));
     Atomics.store(stdinView, 0, 2);
     Atomics.notify(stdinView, 0, 1);
-    // Echo the input into the live output
     _stdoutHtml += esc(value + "\n");
     updateLiveOutput();
   }
@@ -547,7 +541,6 @@
 
     let html = _stdoutHtml;
 
-    // Matplotlib images
     for (const b64 of images) {
       html += `<img src="data:image/png;base64,${b64}" alt="matplotlib plot" />`;
     }
@@ -558,7 +551,6 @@
     }
 
     if (_currentPre) {
-      // Determine output kind from html content
       const isErr = html.includes("py-err-inline");
       if (_livePanel && document.contains(_livePanel)) {
         const body = _livePanel.querySelector("#_live_body");
@@ -652,7 +644,6 @@
     if (has("numbers") && !/numbers\s*=/.test(code))
       defs.push("numbers = [4.0, 7.5, 2.1, 9.3, 1.2, 5.6, 8.8, 3.3, 6.7, 0.9]");
 
-    // pandas df context
     const needsPd = /\bpd\./.test(code) && !/import\s+pandas/.test(code);
     const needsDf = has("df");
     const needsS = has("s") && /pd\.Series/.test(code);
@@ -664,14 +655,12 @@
         );
     }
 
-    // scipy standalone context
     if (/pearsonr/.test(code) && !has("channel_a") && !/eeg\[/.test(code)) {
       defs.push("import math as _m");
       defs.push("channel_a = [_m.sin(i*0.15) for i in range(30)]");
       defs.push("channel_b = [_m.cos(i*0.15)+0.1 for i in range(30)]");
     }
 
-    // Expand [...] placeholders
     code = code.replace(/\[([0-9\-., ]+),\s*\.\.\.\s*\]/g, (_, vals) => {
       const arr = vals
         .split(",")
@@ -886,7 +875,6 @@
 
   // ── Main click dispatcher ────────────────────────────────────────
   function handleClick(pre, btn) {
-    // Click loading button to cancel current execution
     if (_running && btn === _currentBtn) {
       interruptRun();
       return;
@@ -897,7 +885,6 @@
       btn.classList.remove("active");
       return;
     }
-    // If form is open, just close it
     if (pre.parentElement.nextElementSibling?.classList.contains("py-form")) {
       clearBelow(pre);
       return;
@@ -939,7 +926,6 @@
 
   // ── Warm up worker on load ───────────────────────────────────────
   window.addEventListener("load", () => {
-    // Pre-init the worker so Pyodide loads in the background
     setTimeout(() => getWorker(), 1500);
   });
 })();

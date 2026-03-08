@@ -2,7 +2,7 @@
 // Caches static assets for offline read-only access.
 // Version: bump CACHE_NAME to force cache refresh after updates.
 
-const CACHE_NAME = "python-guide-v5";
+const CACHE_NAME = "python-guide-v6";
 const ASSETS_TO_CACHE = [
   "/index.html",
   "/style.css",
@@ -12,7 +12,6 @@ const ASSETS_TO_CACHE = [
   "/favicon.png",
 ];
 
-// Install: pre-cache static assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE)),
@@ -20,7 +19,6 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -59,7 +57,7 @@ self.addEventListener("fetch", (event) => {
     url.hostname === "fonts.googleapis.com" ||
     url.hostname === "fonts.gstatic.com"
   ) {
-    return; // let browser handle normally
+    return;
   }
 
   event.respondWith(

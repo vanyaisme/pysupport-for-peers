@@ -72,12 +72,20 @@ The site uses `SharedArrayBuffer` and `Atomics` to allow the Python `input()` fu
 - **Key rule**: never overrides user-assigned variables.
 
 ### 3. Service Worker & Caching
-- **Cache Name**: Currently `python-guide-v4`. Update this when making breaking changes to assets.
+- **Cache Name**: Currently `python-guide-v6`. Update this when making breaking changes to assets.
 - **Offline Support**: Cache-first strategy for tutorial content.
 - **ASSETS_TO_CACHE**: `/index.html`, `/style.css`, `/runner.js`, `/manifest.json`, `/pyodide-worker.js`.
 - **CDN bypass**: `cdn.jsdelivr.net`, `fonts.googleapis.com`, `fonts.gstatic.com` are NOT intercepted.
 - **COOP/COEP injection**: `addIsolationHeaders()` sets `COEP: require-corp` + `COOP: same-origin`.
 - **Lifecycle**: Install → `skipWaiting` + precache. Activate → delete old caches + `clients.claim()`.
+
+### 4. Contextual Lens Sidebar
+The sidebar navigation (`.sidebar-nav`) reveals on `mousemove` near the left edge (≤ 60 px from left) and hides when the mouse leaves, via JS adding/removing the `.is-nav-open` class on `.sidebar-nav`.
+- **Lens labels** (`.sidebar-lens-label`): each nav anchor contains an absolutely-positioned label shown via the `.is-lens-current`, `.is-lens-prev`, and `.is-lens-next` classes driven by `getSectionLevel()` and a `mousemove` handler. Current label is full-size; adjacent labels are smaller and muted.
+- **Roadmap dot** (`.lens-roadmap-dot`): a coloured dot inside each anchor; colour class `.lens-dot-beginner` / `.lens-dot-intermediate` / `.lens-dot-advanced` is set by `getSectionLevel()`.
+- **Reveal logic**: `getSectionLevel(sectionId)` returns `'beginner'`, `'intermediate'`, or `'advanced'` based on which section range the anchor targets.
+- **Visibility**: Only shown on viewports ≥ 1200 px (lens labels hidden at smaller widths via CSS `@media (min-width: 1200px)`).
+- **Mobile**: `.sidebar-nav` is `display: none` at ≤ 768 px; `.mobile-nav-btn` and `.mobile-nav-panel` are used instead.
 
 ## Code Style Guidelines
 ### General
@@ -91,6 +99,13 @@ The site uses `SharedArrayBuffer` and `Atomics` to allow the Python `input()` fu
 - **DOM**: Use `querySelector`, `classList`, and `document.createElement`.
 - **Sectioning**: Use box-drawing characters for major sections:
   `// ── Section Name ──`
+
+**Comments**:
+- **Litmus test**: Does this comment add information a reader *cannot* get from the code itself? If no → delete it.
+- **Comment WHY, not WHAT**: explain intent, design decisions, non-obvious constraints, and workarounds. Never restate what the code already says clearly (parrot comments).
+- **Keep**: protocol flows, magic number explanations, guard condition rationale, SW/SAB lifecycle notes.
+- **Delete**: `// Remove the panel` before `removePanel()`, `// Loop through items` before `forEach`, anything obvious.
+- Section headers (`// ── Name ──`) are fine for orientation — they are not comments, they are structure.
 
 **Error Handling**:
 - Worker hard errors: `error` event listener → toast hide, reset button, show error output.
@@ -116,12 +131,12 @@ The site uses `SharedArrayBuffer` and `Atomics` to allow the Python `input()` fu
 
 **Animations & Responsive**:
 - `@keyframes py-spin` (0.65s linear infinite) for loading toast.
-- `@media (max-width: 768px)`: hides `.sidebar-nav`/`.sidebar-hover-zone`, enables `.mobile-nav-btn` + `.mobile-nav-panel`.
+- `@media (max-width: 768px)`: hides `.sidebar-nav`, enables `.mobile-nav-btn` + `.mobile-nav-panel`.
 - `@media print`: hides interactive UI, forces collapsed scenarios open.
 
 ### HTML
 - **Semantic**: Use proper tags (`<main>`, `<section>`, `<article>`).
-- **Accessibility**: Maintain ARIA attributes (`aria-expanded`, `aria-label`, `tabindex`).
+- **Accessibility**: Maintain ARIA attributes (`aria-expanded`, `aria-label`, `tabindex`). Always add `type="button"` to `<button>` elements that are not form-submit buttons. Always add `<title>` to inline `<svg>` elements.
 - **Callouts**:
   - `.note`: Blue/Info
   - `.warn`: Orange/Warning
