@@ -38,6 +38,8 @@
   <meta property="og:image" content="https://peer-support.live/assets/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="Python for Psychology Students" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="SICT Support Team, Faculty of Psychology and Neuroscience, Maastricht University" />
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
@@ -46,8 +48,16 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3tSDqFGedCMX.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bhZ_Wmh3mUfBsu_Q.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/firacode/v27/uU9NCBsR6Z2vfE9aq3bh3dSDqFGedA.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/dancingscript/v29/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7B7y03Sup8hNP6pg.woff2" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" />
+  </noscript>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"
     integrity="sha384-i3R37b3tF+HWudsUf1VSEOY2YxwSNMqY8DQa9Z0O3xh+NkJ9o+yjcGyIi5huj+nB" crossorigin="anonymous"
     defer></script>
@@ -67,13 +77,15 @@
           "name": "Maastricht University"
         },
         "url": "https://peer-support.live",
-        "email": "tweak.39cloudy@icloud.com"
+        "email": "tweak.39cloudy@icloud.com",
+        "sameAs": "https://www.maastrichtuniversity.nl/about-um/faculties/faculty-psychology-and-neuroscience"
       },
       {
         "@type": "Person",
         "@id": "https://peer-support.live/#author",
         "name": "SICT Support Team",
-        "affiliation": { "@id": "https://peer-support.live/#organization" }
+        "affiliation": { "@id": "https://peer-support.live/#organization" },
+        "sameAs": "https://www.maastrichtuniversity.nl/about-um/faculties/faculty-psychology-and-neuroscience"
       },
       {
         "@type": "WebSite",
@@ -90,6 +102,7 @@
         "description": "Need Python for your psychology degree? Interactive tutorial with real research examples \u2014 EEG data, reaction times, and more. 29 lessons, no setup required.",
         "inLanguage": "en",
         "dateModified": "2026-03-08",
+        "datePublished": "2025-09-01",
         "isPartOf": { "@id": "https://peer-support.live/#website" },
         "author": { "@id": "https://peer-support.live/#author" }
       },
@@ -568,9 +581,9 @@ print(number * 2)              # 14</code></pre>
         <div class="scenario-body">
           <table>
             <tr>
-              <th></th>
-              <th>input()</th>
-              <th>sys.argv</th>
+              <th scope="col"></th>
+              <th scope="col">input()</th>
+              <th scope="col">sys.argv</th>
             </tr>
             <tr>
               <td>When does user type?</td>

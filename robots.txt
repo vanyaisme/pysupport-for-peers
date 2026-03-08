@@ -35,5 +35,12 @@ Disallow: /
 
 User-agent: ChatGPT-User
 Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
 # ── Sitemap ───────────────────────────────────────────────────────────────────
 Sitemap: https://peer-support.live/sitemap.xml

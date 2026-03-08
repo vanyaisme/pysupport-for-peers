@@ -252,6 +252,9 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
   font-size: 0.7rem;
   color: var(--muted);
   min-width: 18px;
+}
+
+[data-theme="light"] .toc a .toc-num {
   opacity: 0.6;
 }
 

@@ -1,0 +1,28 @@
+# peer-support.live
+
+> Interactive Python tutorial for psychology students at Maastricht University — 29 lessons, runs entirely in the browser with no setup required.
+
+## Summary
+
+An educational resource covering Python fundamentals through the lens of psychology research: EEG data, reaction times, statistical testing, and data visualisation. Built for SICT Year 2 students at the Faculty of Psychology and Neuroscience. Uses Pyodide for in-browser code execution — no installation or account needed.
+
+## Topics
+
+- Python basics: variables, loops, functions, data structures
+- Exception handling and debugging
+- Working with real psychology research data (EEG signals, behavioural experiments)
+- Data analysis with Pandas and scipy
+- Data visualisation with Matplotlib
+- Regular expressions for text processing
+- Interactive exercises with immediate feedback
+
+## Key page
+
+https://peer-support.live/
+
+## Provider
+
+SICT Support Team
+Faculty of Psychology and Neuroscience
+Maastricht University
+Contact: tweak.39cloudy@icloud.com
