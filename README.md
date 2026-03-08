@@ -18,29 +18,36 @@ To run this project locally, you can initiate local web server:
     ```
 
 2.  **Serve the files:**
-    The easiest way to run a local server is with Python's built-in `http.server`.
+    Use the included dev server, which sets the COOP/COEP headers required for `input()` to work:
 
     ```bash
-    # From the project root
-    python3 -m http.server 8765
+    python3 serve.py
+    # or on a custom port:
+    python3 serve.py 3000
     ```
 
+    > **Note:** `python3 -m http.server` also works for read-only browsing, but `input()` will not function without the isolation headers.
+
 3.  **Open in browser:**
-    Navigate to `http://localhost:8765` in your browser.
+    Navigate to `http://127.0.0.1:8080` in your browser.
 
 ## Project Structure
 
 ```
 python-html/
-├── index.html           # Main HTML file - structure and content for the Python tutorial page
-├── style.css           # CSS stylesheet - styling and theming for the application
-├── runner.js          # JavaScript file - Pyodide integration and code execution logic
-├── favicon.png        # Favicon image - website icon displayed in browser tabs
-├── manifest.json      # Web app manifest - PWA configuration for installability
-├── sw.js             # Service worker - offline caching and asset management
-├── README.md         # Project documentation - overview and setup instructions
-├── LICENSE           # License file - project licensing terms
-└── .gitignore       # Git ignore rules - specifies files to exclude from version control
+├── index.html           # Tutorial content (29 sections)
+├── style.css            # Styling and theming
+├── runner.js            # UI logic and worker orchestration
+├── pyodide-worker.js    # Pyodide Web Worker (Python execution)
+├── sw.js                # Service Worker — caching and COOP/COEP headers
+├── serve.py             # Local dev server with COOP/COEP headers
+├── _headers             # Production COOP/COEP headers (Cloudflare Pages)
+├── manifest.json        # PWA manifest
+├── favicon.png          # Favicon
+├── AGENTS.md            # AI agent guidelines
+├── README.md            # Project documentation
+├── LICENSE              # License
+└── .gitignore           # Git ignore rules
 ```
 
 ---
@@ -65,16 +72,18 @@ This vanilla JavaScript file. Its major responsibilities include:
     - Manages collapsible content cards.
     - Adds "copy" buttons to all code blocks.
 
-2.  **Pyodide Integration**:
-    - Loads the Pyodide runtime and required packages (e.g., `matplotlib`, `pandas`).
-    - Analyzes code before execution to inject necessary imports or context, allowing snippets to be minimal.
-    - Captures `stdout`/`stderr` and displays it in a output panel below the code.
-    - Detects `input()` and `sys.argv` in a snippet before execution, shows a pre-run form to collect values, then substitutes them as string literals into the code. Works for programs with a fixed number of input calls; `input()` inside loops is not supported.
+2.  **Pyodide Integration** (via Web Worker):
+    - Spawns `pyodide-worker.js` as a Web Worker using `SharedArrayBuffer` + `Atomics` for real-time `input()`.
+    - Streams `stdout`/`stderr` into a live output panel during execution.
+    - Handles native `input()` calls: the worker blocks on `Atomics.wait` while the UI shows an input prompt below the output.
+    - Supports `KeyboardInterrupt` — clicking the run button while code is executing cancels the run.
     - Renders `matplotlib` plots as inline images.
+    - Injects context variables and scaffolding (`pd`, `pearsonr`, etc.) to keep tutorial snippets minimal.
 
 3.  **Service Worker** (`sw.js`):
-    - Pre-caches the four static assets (`index.html`, `style.css`, `runner.js`, `manifest.json`) on first visit so the site can be read offline.
-    - Uses a cache-first strategy, so Pyodide CDN requests could bypass the cache.
+    - Pre-caches five static assets (`index.html`, `style.css`, `runner.js`, `pyodide-worker.js`, `manifest.json`) on first visit for offline reading.
+    - Injects `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` on all same-origin responses, enabling `SharedArrayBuffer` support.
+    - Uses a cache-first strategy; Pyodide CDN requests bypass the cache.
 
 ### `style.css`
 

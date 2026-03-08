@@ -161,7 +161,7 @@
   // ── Wrap all <pre> in .code-wrapper (fixes pinned buttons + scroll) ──
   document.querySelectorAll("pre").forEach((pre) => {
     if (pre.parentElement.classList.contains("code-wrapper")) return;
-    if (pre.parentElement.closest('pre')) return;
+    if (pre.parentElement.closest("pre")) return;
     const wrapper = document.createElement("div");
     wrapper.className = "code-wrapper";
     pre.parentNode.insertBefore(wrapper, pre);
@@ -179,7 +179,7 @@
   });
 
   document.querySelectorAll("pre").forEach((pre) => {
-    if (pre.parentElement.closest('pre')) return;
+    if (pre.parentElement.closest("pre")) return;
     const btn = document.createElement("button");
     btn.className = "copy-btn";
     btn.textContent = "copy";
@@ -243,19 +243,247 @@
   });
 })();
 // ═══════════════════════════════════════════════════════════════════
-// PYTHON RUNNER — Pyodide-powered in-browser execution
+// PYTHON RUNNER — Web Worker + SharedArrayBuffer + Atomics
 // ═══════════════════════════════════════════════════════════════════
 (function () {
   "use strict";
 
-  // ── Package load state ────────────────────────────────────────────
-  let _pyodide = null;
-  let _loadPromise = null;
-  let _mplReady = false;
-  let _pandasReady = false;
-  let _scipyReady = false;
+  // Guard: SharedArrayBuffer requires cross-origin isolation (COOP + COEP headers).
+  // On first page load the Service Worker hasn't activated yet, so those headers
+  // are absent. Bail out here — the SW registration below will reload the page
+  // once the SW is active and headers are in effect.
+  if (!window.crossOriginIsolated) {
+    console.info(
+      "[runner] Not cross-origin isolated yet — skipping init. SW will reload the page.",
+    );
+    return;
+  }
 
-  // ── Toast helper ──────────────────────────────────────────────────
+  // ── SharedArrayBuffer setup ──────────────────────────────────────
+  // stdinSAB: Int32Array[2] → [0]=flag, [1]=byteLength
+  // dataSAB:  Uint8Array[65536] → raw UTF-8 bytes of user input
+  const stdinSAB = new SharedArrayBuffer(8);
+  const dataSAB = new SharedArrayBuffer(65536);
+  const stdinView = new Int32Array(stdinSAB);
+
+  // ── Worker init ─────────────────────────────────────────────────
+  let _worker = null;
+  let _running = false;
+  let _currentPre = null;
+  let _currentBtn = null;
+  let _inputPanel = null; // active input DOM element
+
+  function getWorker() {
+    if (_worker) return _worker;
+    _worker = new Worker("./pyodide-worker.js");
+    _worker.addEventListener("message", handleWorkerMessage);
+    _worker.addEventListener("error", (e) => {
+      toastHide();
+      if (_currentBtn) {
+        _currentBtn.textContent = "▶ run";
+        _currentBtn.classList.remove("loading");
+      }
+      if (_currentPre)
+        showOutput(_currentPre, "err", esc("Worker error: " + e.message));
+      _running = false;
+      removeInputPanel();
+    });
+    _worker.postMessage({ type: "init", stdinSAB, dataSAB });
+    return _worker;
+  }
+
+  // ── Accumulated output buffer (for interleaved stdout/input) ────
+  let _stdoutHtml = "";
+
+  // ── Worker message handler ───────────────────────────────────────
+  function handleWorkerMessage(event) {
+    const { type } = event.data;
+
+    if (type === "ready") {
+      toastHide();
+      return;
+    }
+
+    if (type === "stdout") {
+      // Append to live output panel if open, else buffer
+      _stdoutHtml += esc(event.data.text);
+      updateLiveOutput();
+      return;
+    }
+
+    if (type === "stderr") {
+      _stdoutHtml += `<span class="py-err-inline">${esc(event.data.text)}</span>`;
+      updateLiveOutput();
+      return;
+    }
+
+    if (type === "need_input") {
+      showInputPrompt();
+      return;
+    }
+
+    if (type === "toast") {
+      toastShow(event.data.message);
+      return;
+    }
+
+    if (type === "done") {
+      finishRun(event.data.images || []);
+      return;
+    }
+
+    if (type === "error") {
+      toastHide();
+      removeInputPanel();
+      if (_currentBtn) {
+        _currentBtn.textContent = "▶ run";
+        _currentBtn.classList.remove("loading");
+      }
+      if (_currentPre) showOutput(_currentPre, "err", esc(event.data.message));
+      _running = false;
+      _currentPre = null;
+      _currentBtn = null;
+      return;
+    }
+  }
+
+  // ── Live output panel (shown during streaming stdout) ───────────
+  let _livePanel = null;
+
+  function ensureLivePanel() {
+    if (_livePanel && document.contains(_livePanel)) return;
+    if (!_currentPre) return;
+    clearBelow(_currentPre);
+    _currentPre.parentElement.classList.add("py-open");
+    _livePanel = document.createElement("div");
+    _livePanel.className = "py-output";
+    _livePanel.setAttribute("role", "status");
+    _livePanel.setAttribute("aria-live", "polite");
+    _livePanel.innerHTML = `
+      <div class="py-output-bar">
+        <div class="py-output-label">
+          <span class="py-dot"></span>
+          <span>output</span>
+        </div>
+        <button class="py-output-close" title="Close">✕</button>
+      </div>
+      <div class="py-output-body" id="_live_body"></div>
+    `;
+    _livePanel
+      .querySelector(".py-output-close")
+      .addEventListener("click", () => {
+        _livePanel.remove();
+        _livePanel = null;
+        if (_currentPre) _currentPre.parentElement.classList.remove("py-open");
+      });
+    _currentPre.parentElement.insertAdjacentElement("afterend", _livePanel);
+  }
+
+  function updateLiveOutput() {
+    ensureLivePanel();
+    if (!_livePanel) return;
+    const body = _livePanel.querySelector("#_live_body");
+    if (body) body.innerHTML = _stdoutHtml;
+  }
+
+  // ── Input prompt (injected below live output during need_input) ──
+  function showInputPrompt() {
+    if (!_currentPre) return;
+    ensureLivePanel();
+    removeInputPanel(); // remove any previous
+
+    const container = document.createElement("div");
+    container.className = "py-form";
+    container.style.marginTop = "0";
+    container.innerHTML = `
+      <div class="py-form-body" style="padding: 8px 12px;">
+        <input type="text" id="_py_input_field" class="py-input-field"
+               placeholder="type your answer and press Enter…"
+               aria-label="Python input()" autocomplete="off" />
+      </div>
+    `;
+    const field = container.querySelector("#_py_input_field");
+    field.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") submitInput(field.value);
+    });
+    // Insert after the live panel
+    (_livePanel || _currentPre.parentElement).insertAdjacentElement(
+      "afterend",
+      container,
+    );
+    _inputPanel = container;
+    field.focus();
+  }
+
+  function submitInput(value) {
+    removeInputPanel();
+    const bytes = new TextEncoder().encode(value + "\n");
+    const view = new Uint8Array(dataSAB);
+    view.set(bytes.slice(0, Math.min(bytes.length, 65535)));
+    Atomics.store(stdinView, 1, Math.min(bytes.length, 65535));
+    Atomics.store(stdinView, 0, 2);
+    Atomics.notify(stdinView, 0, 1);
+    // Echo the input into the live output
+    _stdoutHtml += esc(value + "\n");
+    updateLiveOutput();
+  }
+
+  function removeInputPanel() {
+    if (_inputPanel && document.contains(_inputPanel)) _inputPanel.remove();
+    _inputPanel = null;
+  }
+
+  function interruptRun() {
+    if (_worker) _worker.postMessage({ type: "interrupt" });
+  }
+
+  // ── Finish run ──────────────────────────────────────────────────
+  function finishRun(images) {
+    toastHide();
+    removeInputPanel();
+    _running = false;
+
+    let html = _stdoutHtml;
+
+    // Matplotlib images
+    for (const b64 of images) {
+      html += `<img src="data:image/png;base64,${b64}" alt="matplotlib plot" />`;
+    }
+
+    if (!html.trim()) {
+      html =
+        '<span style="color:var(--muted);font-style:italic">✓ ran — no output</span>';
+    }
+
+    if (_currentPre) {
+      // Determine output kind from html content
+      const isErr = html.includes("py-err-inline");
+      if (_livePanel && document.contains(_livePanel)) {
+        const body = _livePanel.querySelector("#_live_body");
+        if (body) body.innerHTML = html;
+        const dot = _livePanel.querySelector(".py-dot");
+        if (dot && isErr) dot.classList.add("err");
+        const label = _livePanel.querySelector(
+          ".py-output-label span:last-child",
+        );
+        if (label && isErr) label.textContent = "error";
+      } else {
+        showOutput(_currentPre, isErr ? "err" : "ok", html);
+      }
+    }
+
+    if (_currentBtn) {
+      _currentBtn.textContent = "▶ run";
+      _currentBtn.classList.remove("loading");
+      _currentBtn.classList.add("active");
+    }
+
+    _livePanel = null;
+    _currentPre = null;
+    _currentBtn = null;
+  }
+
+  // ── Toast helper ─────────────────────────────────────────────────
   const toast = document.createElement("div");
   toast.id = "py-toast";
   toast.innerHTML =
@@ -270,115 +498,18 @@
     toast.classList.remove("on");
   }
 
-  // ── Pyodide loader ────────────────────────────────────────────────
-  async function getPy() {
-    if (_pyodide) return _pyodide;
-    if (!_loadPromise) {
-      toastShow("Loading Python runtime…");
-      _loadPromise = loadPyodide({
-        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/",
-      })
-        .then(async (py) => {
-          _pyodide = py;
-
-          // Set up stdout/stderr capture + REPL-style code runner
-          await py.runPythonAsync(`
-import sys, io, ast, traceback as _tb
-
-class _Buf(io.StringIO):
-    def getvalue_reset(self):
-        v = self.getvalue(); self.seek(0); self.truncate(0); return v
-
-_cap_out = _Buf()
-_cap_err = _Buf()
-sys.stdout = _cap_out
-sys.stderr = _cap_err
-
-def _run(code):
-    ns = {}
-    try:
-        tree = ast.parse(code)
-    except SyntaxError as e:
-        return '', 'SyntaxError: ' + str(e), None
-
-    last_repr = None
-    try:
-        if tree.body and isinstance(tree.body[-1], ast.Expr):
-            expr = tree.body.pop()
-            last_tree = ast.Expression(body=expr.value)
-            ast.fix_missing_locations(last_tree)
-            if tree.body:
-                exec(compile(tree, '<snippet>', 'exec'), ns)
-            val = eval(compile(last_tree, '<snippet>', 'eval'), ns)
-            if val is not None:
-                last_repr = repr(val)
-        else:
-            exec(compile(tree, '<snippet>', 'exec'), ns)
-    except Exception:
-        out = _cap_out.getvalue_reset()
-        err = _cap_err.getvalue_reset()
-        raw = _tb.format_exc()
-        # Trim noisy pyodide paths, keep the useful part
-        lines = raw.splitlines()
-        kept = [l for l in lines if not l.strip().startswith('File "<snippet>"')
-                and 'in <module>' not in l and l.strip() != 'Traceback (most recent call last):']
-        clean = chr(10).join(kept).strip() or raw.strip()
-        return out, (err + clean).strip(), None
-
-    return _cap_out.getvalue_reset(), _cap_err.getvalue_reset(), last_repr
-`);
-
-          // Write mock files so file-I/O snippets can open them
-          const mocks = {
-            "my_text_file.txt":
-              "4.0\n7.5\n2.1\n9.3\n1.2\n5.6\n8.8\n3.3\n6.7\n0.9\n",
-            "some_data.txt":
-              "name,address,house_number\nsanne,maastricht,62\nalice,amsterdam,14\nbob,rotterdam,7\ncarol,eindhoven,33\n",
-            "data.csv":
-              "name,age,grade\nAlice,21,8.5\nBob,25,7.0\nCarol,19,9.2\nDave,22,6.1\n",
-            "output.txt": "",
-          };
-          for (const [name, data] of Object.entries(mocks)) {
-            try {
-              py.FS.writeFile("/home/pyodide/" + name, data);
-            } catch {}
-            try {
-              py.FS.writeFile(name, data);
-            } catch {}
-          }
-          // Generate open.txt (8-channel EEG-like, 20 rows for demo)
-          await py.runPythonAsync(`
-import math, os
-os.makedirs('/home/pyodide', exist_ok=True)
-rows = [' '.join(f'{math.sin(r*0.2+c)*2.1:.4f}' for c in range(8)) for r in range(20)]
-with open('open.txt','w') as f: f.write(chr(10).join(rows)+chr(10))
-`);
-
-          toastHide();
-          return py;
-        })
-        .catch((e) => {
-          toastHide();
-          _loadPromise = null;
-          throw e;
-        });
-    }
-    return _loadPromise;
-  }
-
-  // ── Code text extraction ──────────────────────────────────────────
+  // ── Code text extraction ─────────────────────────────────────────
   function getCode(pre) {
     const clone = pre.cloneNode(true);
     clone.querySelectorAll("button").forEach((b) => b.remove());
     return clone.textContent.trim();
   }
 
-  // ── Pre-processing ────────────────────────────────────────────────
+  // ── Pre-processing ───────────────────────────────────────────────
   function preprocessCode(code) {
     return code
       .split("\n")
       .map((line) => {
-        // Lines starting with Unicode box-drawing chars (e.g. ── ) are visual comments
         if (/^[\u2500-\u257f\u2014\u2013\u2010─\-]{2}/.test(line.trim()))
           return "# " + line;
         return line;
@@ -431,14 +562,14 @@ with open('open.txt','w') as f: f.write(chr(10).join(rows)+chr(10))
         );
     }
 
-    // scipy standalone context (not EEG full solution)
+    // scipy standalone context
     if (/pearsonr/.test(code) && !has("channel_a") && !/eeg\[/.test(code)) {
       defs.push("import math as _m");
       defs.push("channel_a = [_m.sin(i*0.15) for i in range(30)]");
       defs.push("channel_b = [_m.cos(i*0.15)+0.1 for i in range(30)]");
     }
 
-    // Expand [...] placeholders (e.g. [1.6, 0.8, ...])
+    // Expand [...] placeholders
     code = code.replace(/\[([0-9\-., ]+),\s*\.\.\.\s*\]/g, (_, vals) => {
       const arr = vals
         .split(",")
@@ -452,7 +583,7 @@ with open('open.txt','w') as f: f.write(chr(10).join(rows)+chr(10))
     return defs.length ? defs.join("\n") + "\n" + code : code;
   }
 
-  // ── Code type detection ───────────────────────────────────────────
+  // ── Code type detection ──────────────────────────────────────────
   function detectType(raw) {
     const lines = raw
       .split("\n")
@@ -470,7 +601,7 @@ with open('open.txt','w') as f: f.write(chr(10).join(rows)+chr(10))
     return "simple";
   }
 
-  // ── DOM panel helpers ─────────────────────────────────────────────
+  // ── DOM panel helpers ────────────────────────────────────────────
   function esc(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -567,132 +698,27 @@ with open('open.txt','w') as f: f.write(chr(10).join(rows)+chr(10))
     form.querySelector("input")?.focus();
   }
 
-  // ── Core execution ────────────────────────────────────────────────
-  async function execCode(pre, btn, code) {
+  // ── Core execution ───────────────────────────────────────────────
+  function execCode(pre, btn, code) {
+    if (_running) return; // one execution at a time
+    _running = true;
+    _currentPre = pre;
+    _currentBtn = btn;
+    _stdoutHtml = "";
+    _livePanel = null;
+
     btn.textContent = "…";
     btn.classList.add("loading");
     btn.classList.remove("active");
 
-    try {
-      const py = await getPy();
-      code = preprocessCode(code);
-      code = addContext(code);
+    code = preprocessCode(code);
+    code = addContext(code);
 
-      // Load packages as needed
-      if (/matplotlib|plt\./.test(code) && !_mplReady) {
-        toastShow("Loading matplotlib…");
-        await py.loadPackage("matplotlib");
-        await py.runPythonAsync(`
-import matplotlib, math
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-matplotlib.rcParams.update({
-    'figure.facecolor':'#1a1d27','axes.facecolor':'#12141f',
-    'axes.edgecolor':'#2e3250','text.color':'#e2e8f0',
-    'axes.labelcolor':'#c8d0e7','xtick.color':'#8b95b3',
-    'ytick.color':'#8b95b3','grid.color':'#2e3250',
-    'lines.linewidth':1.8,
-})
-_show_imgs = []
-def _cap_show(*a,**kw):
-    import io, base64
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', dpi=110)
-    buf.seek(0); _show_imgs.append(base64.b64encode(buf.read()).decode())
-    plt.clf(); plt.close('all')
-plt.show = _cap_show
-`);
-        _mplReady = true;
-        toastHide();
-      }
-      if (/from\s+scipy|import\s+scipy/.test(code) && !_scipyReady) {
-        toastShow("Loading scipy… (this may take a moment)");
-        await py.loadPackage("scipy");
-        _scipyReady = true;
-        toastHide();
-      }
-      if (/import\s+pandas|\bpd\./.test(code) && !_pandasReady) {
-        toastShow("Loading pandas… (this may take a moment)");
-        await py.loadPackage("pandas");
-        _pandasReady = true;
-        toastHide();
-      }
-
-      if (_mplReady) await py.runPythonAsync("_show_imgs = []");
-
-      // Run
-      await py.runPythonAsync(`_r = _run(${JSON.stringify(code)})`);
-      const stdout = (await py.runPythonAsync("_r[0]")) || "";
-      const stderr = (await py.runPythonAsync("_r[1]")) || "";
-      const lastRepr = await py.runPythonAsync("_r[2]");
-
-      let html = "";
-
-      // Matplotlib plots
-      if (_mplReady && /plt\.show/.test(code)) {
-        const imgCount = await py.runPythonAsync("len(_show_imgs)");
-        for (let i = 0; i < imgCount; i++) {
-          const b64 = await py.runPythonAsync(`_show_imgs[${i}]`);
-          html += `<img src="data:image/png;base64,${b64}" alt="matplotlib plot" />`;
-        }
-      }
-
-      // stdout
-      if (stdout.trim()) html += (html ? "\n" : "") + esc(stdout.trim());
-
-      // REPL-style last expression repr (e.g. int("42"), math.sqrt(16))
-      if (
-        lastRepr &&
-        lastRepr !== "None" &&
-        !stdout.trim() &&
-        !html.includes("<img")
-      )
-        html += `<span class="py-repr">${esc(lastRepr)}</span>`;
-
-      if (!html && !stderr.trim())
-        html =
-          '<span style="color:var(--muted);font-style:italic">✓ ran — no output</span>';
-
-      // file write confirmation
-      if (/open\s*\([^)]*["'][wa]["']/.test(code)) {
-        try {
-          const fname = code.match(/open\s*\(\s*['"]([^'"]+)['"]/)?.[1];
-          const escapedFname = fname
-            ? fname.replace(/\\/g, "\\\\").replace(/'/g, "\\'")
-            : fname;
-          if (fname) {
-            const written = await py.runPythonAsync(`
-try:
-    with open('${escapedFname}','r') as _f: _fc = _f.read()
-except: _fc = ''
-_fc`);
-            if (written && written.trim())
-              html +=
-                (html ? "\n\n" : "") +
-                `<span style="color:var(--muted)">📄 ${esc(fname)} written:</span>\n${esc(written.trim())}`;
-          }
-        } catch {}
-      }
-
-      if (stderr.trim()) {
-        showOutput(pre, "err", esc(stderr.trim()));
-      } else {
-        showOutput(pre, "ok", html);
-      }
-
-      btn.textContent = "▶ run";
-      btn.classList.remove("loading");
-      btn.classList.add("active");
-    } catch (e) {
-      toastHide();
-      btn.textContent = "▶ run";
-      btn.classList.remove("loading");
-      showOutput(pre, "err", esc(String(e.message || e)));
-    }
+    const worker = getWorker();
+    worker.postMessage({ type: "run", code });
   }
 
-  // ── Per-type handlers ─────────────────────────────────────────────
-
+  // ── Per-type handlers ────────────────────────────────────────────
   function handleShell(pre) {
     showOutput(
       pre,
@@ -756,40 +782,13 @@ _fc`);
     );
   }
 
-  function handleInputFn(pre, btn, code) {
-    const rx = /input\s*\(\s*(?:f?["'`]([^"'`]*)["'`])?\s*\)/g;
-    const prompts = [...code.matchAll(rx)].map((m, i) =>
-      (m[1] || `Input ${i + 1}`).trim(),
-    );
-    if (!prompts.length) {
-      execCode(pre, btn, code);
+  // ── Main click dispatcher ────────────────────────────────────────
+  function handleClick(pre, btn) {
+    // Click loading button to cancel current execution
+    if (_running && btn === _currentBtn) {
+      interruptRun();
       return;
     }
-
-    const fields = prompts
-      .map(
-        (p, i) => `
-          <label>${esc(p)}</label>
-          <input type="text" name="i${i}" aria-label="${esc(p)}" placeholder="type your answer…" />
-        `,
-      )
-      .join("");
-
-    showForm(pre, "input() — provide the values below", fields, (form) => {
-      const values = prompts.map(
-        (_, i) => form.querySelector(`[name="i${i}"]`)?.value ?? "",
-      );
-      let idx = 0;
-      const patched = code.replace(/input\s*\([^)]*\)/g, () =>
-        JSON.stringify(values[idx++] ?? ""),
-      );
-      form.remove();
-      execCode(pre, btn, patched);
-    });
-  }
-
-  // ── Main click dispatcher ─────────────────────────────────────────
-  function handleClick(pre, btn) {
     // Toggle: click again to close output
     if (pre.parentElement.nextElementSibling?.classList.contains("py-output")) {
       clearBelow(pre);
@@ -818,17 +817,13 @@ _fc`);
       handleArgv(pre, btn, raw);
       return;
     }
-    if (type === "input_fn") {
-      handleInputFn(pre, btn, raw);
-      return;
-    }
-
+    // input_fn and all other types go through execCode — worker handles input() natively
     execCode(pre, btn, raw);
   }
 
-  // ── Inject run buttons ────────────────────────────────────────────
+  // ── Inject run buttons ───────────────────────────────────────────
   document.querySelectorAll("pre").forEach((pre) => {
-    if (pre.parentElement.closest('pre')) return;
+    if (pre.parentElement.closest("pre")) return;
     const btn = document.createElement("button");
     btn.className = "run-btn";
     btn.textContent = "▶ run";
@@ -840,15 +835,48 @@ _fc`);
     pre.parentElement.appendChild(btn);
   });
 
-  // Optional: quietly warm up Pyodide in the background after load
-  // window.addEventListener('load', () => setTimeout(() => getPy().catch(()=>{}), 2000));
+  // ── Warm up worker on load ───────────────────────────────────────
+  window.addEventListener("load", () => {
+    // Pre-init the worker so Pyodide loads in the background
+    setTimeout(() => getWorker(), 1500);
+  });
 })();
 
-// Register Service Worker for offline caching
+// ── Service Worker registration + cross-origin isolation reload guard ──────
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch((err) => {
-      console.warn("SW registration failed:", err);
-    });
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then((reg) => {
+        // If not yet cross-origin isolated, wait for SW to activate then reload once
+        if (!window.crossOriginIsolated) {
+          if (sessionStorage.getItem("__coi_reloaded")) {
+            // Already tried once — SW headers may not be supported in this environment
+            console.warn(
+              "[runner] crossOriginIsolated unavailable after reload; SharedArrayBuffer may not work.",
+            );
+            return;
+          }
+          const doReload = () => {
+            sessionStorage.setItem("__coi_reloaded", "1");
+            location.reload();
+          };
+          if (reg.active) {
+            // SW already active from a previous page load
+            doReload();
+          } else {
+            // Wait for the newly installed SW to activate
+            const sw = reg.installing || reg.waiting;
+            if (sw) {
+              sw.addEventListener("statechange", (e) => {
+                if (e.target.state === "activated") doReload();
+              });
+            }
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("SW registration failed:", err);
+      });
   });
 }
