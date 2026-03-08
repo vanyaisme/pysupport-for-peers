@@ -1707,3 +1707,34 @@ ul, ol {
   margin-top: 3px;
   line-height: 1.4;
 }
+
+/* ─── Prism.js token colors ───────────────────────────────────────────── */
+/* Ensure <code> inside <pre> inherits the pre's font; keep pre's own background untouched */
+pre[class*="language-"] > code {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background: transparent;
+}
+
+/* Dark theme (default) */
+.token.keyword              { color: #c792ea; font-weight: 600; }
+.token.builtin              { color: #ffcb6b; }
+.token.function             { color: #82aaff; }
+.token.class-name           { color: #82aaff; }
+.token.string               { color: #c3e88d; }
+.token.number               { color: #f78c6c; }
+.token.comment              { color: #546e7a; font-style: italic; }
+.token.operator             { color: #89ddff; }
+.token.punctuation          { color: var(--text); }
+
+/* Light theme overrides */
+[data-theme="light"] .token.keyword    { color: #7c3aed; font-weight: 600; }
+[data-theme="light"] .token.builtin    { color: #a16207; }
+[data-theme="light"] .token.function   { color: #2563eb; }
+[data-theme="light"] .token.class-name { color: #2563eb; }
+[data-theme="light"] .token.string     { color: #16713a; }
+[data-theme="light"] .token.number     { color: #c2410c; }
+[data-theme="light"] .token.comment    { color: #9a9080; font-style: italic; }
+[data-theme="light"] .token.operator   { color: #0e7490; }
+[data-theme="light"] .token.punctuation { color: var(--text); }
