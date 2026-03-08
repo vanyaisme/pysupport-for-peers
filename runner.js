@@ -68,6 +68,16 @@
     });
   });
 
+  // ── Sidebar reveal ──
+  document.addEventListener("mousemove", (e) => {
+    const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
+    const sidebarRight = sidebarLeft + sidebar.offsetWidth + 16;
+    sidebar.classList.toggle("is-nav-open", e.clientX >= sidebarLeft && e.clientX <= sidebarRight);
+  });
+  document.addEventListener("mouseleave", () => {
+    sidebar.classList.remove("is-nav-open");
+  });
+
   const mobileNavBtn = document.createElement("button");
   mobileNavBtn.className = "mobile-nav-btn";
   mobileNavBtn.setAttribute("aria-label", "Open chapter navigation");

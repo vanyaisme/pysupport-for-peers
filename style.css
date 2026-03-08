@@ -755,10 +755,10 @@ td code {
   z-index: 99;
 }
 
-.sidebar-hover-zone:hover~.sidebar-nav,
-.sidebar-nav:hover {
+.sidebar-nav.is-nav-open {
   transform: translateX(0) translateY(-50%);
   opacity: 1;
+  pointer-events: auto;
 }
 
 .sidebar-nav a {
