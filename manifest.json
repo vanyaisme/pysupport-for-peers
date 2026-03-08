@@ -2,7 +2,7 @@
   "name": "Python Guide — SICT Year 2",
   "short_name": "Python Guide",
   "description": "Interactive Python reference guide with in-browser code runner, built for SICT Year 2 students.",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",

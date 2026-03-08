@@ -1,0 +1,39 @@
+# robots.txt — peer-support.live
+# Last updated: 2026-03-08
+
+# ── Search crawlers ──────────────────────────────────────────────────────────
+# All search engines and real-time AI browsing agents are welcome.
+User-agent: *
+Allow: /
+
+# Opted out of text and data mining for AI training purposes.
+# Legal basis: EU Directive 2019/790, Article 4 (right to opt out of TDM).
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: ChatGPT-User
+Allow: /
+# ── Sitemap ───────────────────────────────────────────────────────────────────
+Sitemap: https://peer-support.live/sitemap.xml

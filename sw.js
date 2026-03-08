@@ -2,7 +2,7 @@
 // Caches static assets for offline read-only access.
 // Version: bump CACHE_NAME to force cache refresh after updates.
 
-const CACHE_NAME = "python-guide-v6";
+const CACHE_NAME = "python-guide-v7";
 const ASSETS_TO_CACHE = [
   "/index.html",
   "/style.css",
@@ -57,6 +57,22 @@ self.addEventListener("fetch", (event) => {
     url.hostname === "fonts.googleapis.com" ||
     url.hostname === "fonts.gstatic.com"
   ) {
+    return;
+  }
+
+  // Network-first for HTML — always serve fresh page
+  if (event.request.destination === 'document') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return addIsolationHeaders(response);
+        })
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || fetch(event.request))
+        )
+    );
     return;
   }
 
