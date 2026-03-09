@@ -260,6 +260,7 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
 
 .section {
   margin-bottom: 52px;
+  contain: paint;
 }
 
 .section-header {
@@ -736,6 +737,8 @@ td code {
   left: max(0px, calc(50% - 530px));
   top: 50%;
   transform: translateX(-100%) translateY(-50%);
+  will-change: transform, opacity;
+  contain: paint;
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -841,6 +844,7 @@ td code {
   position: fixed;
   bottom: 28px;
   right: max(8px, calc(50% - 550px));
+  will-change: opacity, transform;
   width: 38px;
   height: 38px;
   border-radius: 10px;
