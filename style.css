@@ -734,7 +734,7 @@ td code {
 .sidebar-nav {
   position: fixed;
   left: max(0px, calc(50% - 530px));
-  top: 50%;
+  top: var(--nav-center-y, 50%);
   transform: translateX(-100%) translateY(-50%);
   will-change: transform, opacity;
   z-index: 100;

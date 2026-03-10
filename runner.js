@@ -232,6 +232,15 @@
           _topBtnVisible = shouldShow;
           topBtn.classList.toggle("visible", shouldShow);
         }
+        const lastSec = sections[sections.length - 1];
+        if (lastSec) {
+          const navH = sidebar.offsetHeight;
+          const center = Math.max(
+            navH / 2,
+            Math.min(window.innerHeight / 2, lastSec.getBoundingClientRect().bottom - navH / 2),
+          );
+          sidebar.style.setProperty("--nav-center-y", center + "px");
+        }
       });
     },
     { passive: true },
