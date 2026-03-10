@@ -1792,3 +1792,25 @@ pre[class*="language-"] > code {
 [data-theme="light"] .token.comment    { color: #9a9080; font-style: italic; }
 [data-theme="light"] .token.operator   { color: #0e7490; }
 [data-theme="light"] .token.punctuation { color: var(--text); }
+
+/* ── Print Overlays ── */
+@media print {
+  #challenges-landing,
+  #answers-landing,
+  #answers-pip-overlay,
+  #answers-exercises-overlay {
+    display: none !important;
+  }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
