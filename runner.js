@@ -134,9 +134,7 @@
 
   // ── Sidebar reveal ──
   let _rafId = 0;
-  document.addEventListener(
-    "mousemove",
-    (e) => {
+  document.addEventListener("mousemove", (e) => {
       cancelAnimationFrame(_rafId);
       _rafId = requestAnimationFrame(() => {
         const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
@@ -811,7 +809,7 @@
     return defs.length ? defs.join("\n") + "\n" + code : code;
   }
 
-  // Code type detection
+  // ── Code type detection ──────────────────────────────────────────
   function detectType(raw) {
     const lines = raw
       .split("\n")
@@ -829,7 +827,7 @@
     return "simple";
   }
 
-  // DOM panel helpers
+  // ── DOM panel helpers ────────────────────────────────────────────
   function esc(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -926,7 +924,7 @@
     form.querySelector("input")?.focus();
   }
 
-  // Core execution
+  // ── Core execution ───────────────────────────────────────────────
   async function execCode(pre, btn, code) {
     if (_running) return;
     _running = true;
@@ -947,7 +945,7 @@
     worker.postMessage({ type: "run", code });
   }
 
-  // Per-type handlers
+  // ── Per-type handlers ────────────────────────────────────────────
   function handleShell(pre) {
     showOutput(
       pre,
@@ -1011,7 +1009,7 @@
     );
   }
 
-  // Main click dispatcher
+  // ── Main click dispatcher ────────────────────────────────────────
   function handleClick(pre, btn) {
     if (_running && btn === _currentBtn) {
       interruptRun();
@@ -1048,7 +1046,7 @@
     execCode(pre, btn, raw);
   }
 
-  // Inject run buttons
+  // ── Inject run buttons ───────────────────────────────────────────
   document.querySelectorAll("pre").forEach((pre) => {
     if (pre.parentElement.closest("pre")) return;
     const btn = document.createElement("button");
@@ -1063,13 +1061,13 @@
     pre.parentElement.appendChild(btn);
   });
 
-  // Warm up worker on load
+  // ── Warm up worker on load ───────────────────────────────────────
   window.addEventListener("load", () => {
     setTimeout(() => getWorker(), 1500);
   });
 })();
 
-// Service Worker registration + cross-origin isolation reload guard
+// ── Service Worker registration + cross-origin isolation reload guard ──────
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
