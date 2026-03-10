@@ -235,11 +235,12 @@
         const lastSec = sections[sections.length - 1];
         if (lastSec) {
           const navH = sidebar.offsetHeight;
-          const center = Math.max(
-            navH / 2,
-            Math.min(window.innerHeight / 2, lastSec.getBoundingClientRect().bottom - navH / 2),
-          );
-          sidebar.style.setProperty("--nav-center-y", center + "px");
+          const center = lastSec.getBoundingClientRect().bottom - navH / 2;
+          if (center < window.innerHeight / 2) {
+            sidebar.style.setProperty("--nav-center-y", center + "px");
+          } else {
+            sidebar.style.removeProperty("--nav-center-y");
+          }
         }
       });
     },
