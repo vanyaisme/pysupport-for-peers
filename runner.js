@@ -604,6 +604,7 @@
     _livePanel
       .querySelector(".py-output-close")
       .addEventListener("click", () => {
+        if (!_livePanel) return;
         _livePanel.remove();
         _livePanel = null;
         if (_currentPre) _currentPre.parentElement.classList.remove("py-open");
