@@ -260,7 +260,6 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
 
 .section {
   margin-bottom: 52px;
-  contain: paint;
 }
 
 .section-header {
@@ -738,7 +737,6 @@ td code {
   top: 50%;
   transform: translateX(-100%) translateY(-50%);
   will-change: transform, opacity;
-  contain: paint;
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -1653,6 +1651,14 @@ ul, ol {
 /* ────────────────────────────────────────
    Overlay landing shared styles
    ──────────────────────────────────────── */
+
+#challenges-landing,
+#answers-landing,
+#answers-pip-overlay,
+#answers-exercises-overlay {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 
 /* H1 — clean, bold, no gradient */
 .overlay-h1 {

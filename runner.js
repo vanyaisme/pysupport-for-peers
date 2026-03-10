@@ -3,6 +3,7 @@
   const sections = document.querySelectorAll(".section[id]");
   const sidebar = document.getElementById("sidebarNav");
   const links = [];
+  let savedScrollY = 0;
 
   function getSectionLevel(secId) {
     const n = parseInt(secId.replace("s", ""), 10);
@@ -139,10 +140,10 @@
       _rafId = requestAnimationFrame(() => {
         const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
         const sidebarRight = sidebarLeft + cachedSidebarW + 16;
-        sidebar.classList.toggle(
-          "is-nav-open",
-          e.clientX >= sidebarLeft && e.clientX <= sidebarRight,
-        );
+        const nearEdge = e.clientX >= sidebarLeft && e.clientX <= sidebarRight;
+        if (nearEdge && sidebar.classList.contains("is-nav-open")) return;
+        if (!nearEdge && !sidebar.classList.contains("is-nav-open")) return;
+        sidebar.classList.toggle("is-nav-open", nearEdge);
       });
     },
     { passive: true },
@@ -375,10 +376,18 @@
     if (toHide) {
       const el = document.getElementById(toHide);
       if (el) el.style.display = "none";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, savedScrollY);
     }
     if (toShow) {
       const el = document.getElementById(toShow);
       if (el) {
+        savedScrollY = window.scrollY;
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.style.position = "fixed";
+        document.body.style.width = "100%";
         el.style.display = "flex";
         const focusable = el.querySelector(
           "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
