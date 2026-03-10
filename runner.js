@@ -380,12 +380,37 @@
     return null;
   }
 
+  function getOverlayFocusableElements(overlay) {
+    return Array.from(
+      overlay.querySelectorAll(
+        'button, [href], input, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) => !el.hasAttribute("disabled"));
+  }
+
   document.addEventListener("keydown", function (e) {
     if (_overlayOpenCount <= 0) return;
-    if (e.key !== "Escape") return;
-    e.preventDefault();
     const activeOverlay = getActiveOverlayElement();
     if (!activeOverlay) return;
+    if (e.key === "Tab") {
+      const focusable = getOverlayFocusableElements(activeOverlay);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const isInsideOverlay = activeOverlay.contains(document.activeElement);
+      if (e.shiftKey) {
+        if (!isInsideOverlay || document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (!isInsideOverlay || document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      return;
+    }
+    if (e.key !== "Escape") return;
+    e.preventDefault();
     const hideBtn = activeOverlay.querySelector(
       `[data-overlay-hide="${activeOverlay.id}"]`,
     );
@@ -413,9 +438,7 @@
           document.body.style.width = "100%";
         }
         el.style.display = "flex";
-        const focusable = el.querySelector(
-          "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
-        );
+        const focusable = getOverlayFocusableElements(el)[0];
         if (focusable) focusable.focus();
       }
     }
