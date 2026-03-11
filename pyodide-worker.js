@@ -314,8 +314,9 @@ function stdinRead() {
 
 // ── Package loader helper ─────────────────────────────────────────────────────
 async function ensurePackage(name) {
+  if (name in pyodide.loadedPackages) return;
   try {
-    await pyodide.loadPackage(name);
+    await pyodide.loadPackage(name, { messageCallback: () => {} });
   } catch (err) {
     const message = `Failed to load required package "${name}": ${err.message}`;
     self.postMessage({ type: "error", message, runId: _currentRunId });
