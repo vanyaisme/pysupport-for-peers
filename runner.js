@@ -154,6 +154,7 @@
   const mobileNavBtn = document.createElement("button");
   mobileNavBtn.className = "mobile-nav-btn";
   mobileNavBtn.setAttribute("aria-label", "Open chapter navigation");
+  mobileNavBtn.setAttribute("aria-expanded", "false");
   mobileNavBtn.textContent = "☰";
   document.body.appendChild(mobileNavBtn);
 
@@ -169,6 +170,7 @@
     a.addEventListener("click", () => {
       mobileNavPanel.classList.remove("open");
       mobileNavBtn.textContent = "☰";
+      mobileNavBtn.setAttribute("aria-expanded", "false");
     });
     mobileNavPanel.appendChild(a);
   });
@@ -178,11 +180,13 @@
     e.stopPropagation();
     const isOpen = mobileNavPanel.classList.toggle("open");
     mobileNavBtn.textContent = isOpen ? "✕" : "☰";
+    mobileNavBtn.setAttribute("aria-expanded", String(isOpen));
   });
   document.addEventListener("click", (e) => {
     if (!mobileNavPanel.contains(e.target) && e.target !== mobileNavBtn) {
       mobileNavPanel.classList.remove("open");
       mobileNavBtn.textContent = "☰";
+      mobileNavBtn.setAttribute("aria-expanded", "false");
     }
   });
 
@@ -193,7 +197,14 @@
       requestAnimationFrame(() => {
         entries.forEach((e) => {
           const link = linkMap.get(e.target.id);
-          if (link) link.classList.toggle("active", e.isIntersecting);
+          if (link) {
+            link.classList.toggle("active", e.isIntersecting);
+            if (e.isIntersecting) {
+              link.setAttribute("aria-current", "location");
+            } else {
+              link.removeAttribute("aria-current");
+            }
+          }
         });
       });
     },
@@ -341,6 +352,7 @@
 
   document.querySelectorAll("pre").forEach((pre) => {
     if (pre.parentElement.closest("pre")) return;
+    const srStatus = document.getElementById("_sr_status");
     const btn = document.createElement("button");
     btn.className = "copy-btn";
     btn.textContent = "copy";
@@ -353,17 +365,21 @@
         .then(() => {
           btn.textContent = "✓";
           btn.classList.add("copied");
+          if (srStatus) srStatus.textContent = "Code copied to clipboard";
           setTimeout(() => {
             if (document.contains(btn)) {
               btn.textContent = "copy";
               btn.classList.remove("copied");
+              if (srStatus) srStatus.textContent = "";
             }
           }, 1500);
         })
         .catch(() => {
           btn.textContent = "✗ failed";
+          if (srStatus) srStatus.textContent = "Copy failed";
           setTimeout(() => {
             if (document.contains(btn)) btn.textContent = "copy";
+            if (srStatus) srStatus.textContent = "";
           }, 1500);
         });
     });
@@ -472,6 +488,8 @@
   });
 })();
 
+const DEBUG = location.hostname === "localhost";
+
 // PYTHON RUNNER — Web Worker + SharedArrayBuffer + Atomics
 (function () {
   "use strict";
@@ -481,9 +499,10 @@
   // are absent. Bail out here — the SW registration below will reload the page
   // once the SW is active and headers are in effect.
   if (!window.crossOriginIsolated) {
-    console.info(
-      "[runner] Not cross-origin isolated yet — skipping init. SW will reload the page.",
-    );
+    if (DEBUG)
+      console.info(
+        "[runner] Not cross-origin isolated yet — skipping init. SW will reload the page.",
+      );
     return;
   }
 
@@ -532,59 +551,42 @@
   let _stdoutParts = [];
 
   // Worker message handler
-  function handleWorkerMessage(event) {
-    const { type } = event.data;
-
-    if (type === "ready") {
+  const MSG = {
+    ready: () => {
       toastHide();
       setRunButtonsEnabled(true);
       if (_resolveReady) {
         _resolveReady();
         _resolveReady = null;
       }
-      return;
-    }
-
-    if (type === "stdout") {
-      _stdoutParts.push({ kind: "stdout", text: String(event.data.text || "") });
+    },
+    stdout: ({ text }) => {
+      _stdoutParts.push({ kind: "stdout", text: String(text || "") });
       updateLiveOutput();
-      return;
-    }
-
-    if (type === "stderr") {
-      _stdoutParts.push({ kind: "stderr", text: String(event.data.text || "") });
+    },
+    stderr: ({ text }) => {
+      _stdoutParts.push({ kind: "stderr", text: String(text || "") });
       updateLiveOutput();
-      return;
-    }
-
-    if (type === "need_input") {
-      showInputPrompt();
-      return;
-    }
-
-    if (type === "toast") {
-      toastShow(event.data.message);
-      return;
-    }
-
-    if (type === "done") {
-      finishRun(event.data.images || []);
-      return;
-    }
-
-    if (type === "error") {
+    },
+    need_input: () => showInputPrompt(),
+    toast: ({ message }) => toastShow(message),
+    done: ({ images }) => finishRun(images || []),
+    error: (data) => {
       toastHide();
       removeInputPanel();
       if (_currentBtn) {
         _currentBtn.textContent = "▶ run";
         _currentBtn.classList.remove("loading");
       }
-      if (_currentPre) showOutput(_currentPre, "err", esc(event.data.message));
+      if (_currentPre) showOutput(_currentPre, "err", esc(data.message));
       _running = false;
       _currentPre = null;
       _currentBtn = null;
-      return;
-    }
+    },
+  };
+
+  function handleWorkerMessage({ data }) {
+    MSG[data.type]?.(data);
   }
 
   // Live output panel (shown during streaming stdout)
@@ -1032,7 +1034,21 @@
     code = addContext(code);
 
     const worker = getWorker();
-    await readyPromise;
+    const _loadTimeout = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Pyodide load timed out — please refresh the page")),
+        30_000,
+      ),
+    );
+    await Promise.race([readyPromise, _loadTimeout]).catch((err) => {
+      if (_currentPre) showOutput(_currentPre, "err", esc(err.message));
+      if (_currentBtn) {
+        _currentBtn.textContent = "▶ run";
+        _currentBtn.classList.remove("loading");
+      }
+      _running = false;
+      throw err;
+    });
     worker.postMessage({ type: "run", code });
   }
 
@@ -1168,9 +1184,10 @@ if ("serviceWorker" in navigator) {
         if (!window.crossOriginIsolated) {
           if (sessionStorage.getItem("__coi_reloaded")) {
             // Already tried once — SW headers may not be supported in this environment
-            console.warn(
-              "[runner] crossOriginIsolated unavailable after reload; SharedArrayBuffer may not work.",
-            );
+            if (DEBUG)
+              console.warn(
+                "[runner] crossOriginIsolated unavailable after reload; SharedArrayBuffer may not work.",
+              );
             return;
           }
           const doReload = () => {
@@ -1192,7 +1209,7 @@ if ("serviceWorker" in navigator) {
         }
       })
       .catch((err) => {
-        console.warn("SW registration failed:", err);
+        if (DEBUG) console.warn("SW registration failed:", err);
       });
   });
 }
