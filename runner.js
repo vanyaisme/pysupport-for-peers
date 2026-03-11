@@ -529,7 +529,7 @@
   }
 
   // Accumulated output buffer (for interleaved stdout/input)
-  let _stdoutHtml = "";
+  let _stdoutParts = [];
 
   // Worker message handler
   function handleWorkerMessage(event) {
@@ -546,13 +546,13 @@
     }
 
     if (type === "stdout") {
-      _stdoutHtml += esc(event.data.text);
+      _stdoutParts.push({ kind: "stdout", text: String(event.data.text || "") });
       updateLiveOutput();
       return;
     }
 
     if (type === "stderr") {
-      _stdoutHtml += `<span class="py-err-inline">${esc(event.data.text)}</span>`;
+      _stdoutParts.push({ kind: "stderr", text: String(event.data.text || "") });
       updateLiveOutput();
       return;
     }
@@ -599,16 +599,34 @@
     _livePanel.className = "py-output";
     _livePanel.setAttribute("role", "status");
     _livePanel.setAttribute("aria-live", "polite");
-    _livePanel.innerHTML = `
-      <div class="py-output-bar">
-        <div class="py-output-label">
-          <span class="py-dot"></span>
-          <span>output</span>
-        </div>
-        <button class="py-output-close" title="Close">✕</button>
-      </div>
-      <div class="py-output-body" id="_live_body"></div>
-    `;
+
+    const bar = document.createElement("div");
+    bar.className = "py-output-bar";
+
+    const labelWrap = document.createElement("div");
+    labelWrap.className = "py-output-label";
+
+    const dot = document.createElement("span");
+    dot.className = "py-dot";
+
+    const label = document.createElement("span");
+    label.textContent = "output";
+
+    labelWrap.append(dot, label);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "py-output-close";
+    closeBtn.title = "Close";
+    closeBtn.type = "button";
+    closeBtn.textContent = "✕";
+
+    bar.append(labelWrap, closeBtn);
+
+    const body = document.createElement("div");
+    body.className = "py-output-body";
+    body.id = "_live_body";
+
+    _livePanel.append(bar, body);
     const panel = _livePanel;
     panel
       .querySelector(".py-output-close")
@@ -620,11 +638,34 @@
     _currentPre.parentElement.insertAdjacentElement("afterend", _livePanel);
   }
 
+  function renderOutputParts(body, parts) {
+    body.textContent = "";
+    parts.forEach((part) => {
+      if (part.kind === "stderr") {
+        const span = document.createElement("span");
+        span.className = "py-err-inline";
+        span.textContent = part.text;
+        body.appendChild(span);
+        return;
+      }
+      body.appendChild(document.createTextNode(part.text));
+    });
+  }
+
+  function appendOutputImages(body, images) {
+    images.forEach((b64) => {
+      const img = document.createElement("img");
+      img.src = `data:image/png;base64,${b64}`;
+      img.alt = "matplotlib plot";
+      body.appendChild(img);
+    });
+  }
+
   function updateLiveOutput() {
     ensureLivePanel();
     if (!_livePanel) return;
     const body = _livePanel.querySelector("#_live_body");
-    if (body) body.innerHTML = _stdoutHtml;
+    if (body) renderOutputParts(body, _stdoutParts);
   }
 
   // Input prompt (injected below live output during need_input)
@@ -636,14 +677,20 @@
     const container = document.createElement("div");
     container.className = "py-form";
     container.style.marginTop = "0";
-    container.innerHTML = `
-      <div class="py-form-body" style="padding: 8px 12px;">
-        <input type="text" id="_py_input_field" class="py-input-field"
-               placeholder="type your answer and press Enter…"
-               aria-label="Python input()" autocomplete="off" />
-      </div>
-    `;
-    const field = container.querySelector("#_py_input_field");
+    const body = document.createElement("div");
+    body.className = "py-form-body";
+    body.style.padding = "8px 12px";
+
+    const field = document.createElement("input");
+    field.type = "text";
+    field.id = "_py_input_field";
+    field.className = "py-input-field";
+    field.placeholder = "type your answer and press Enter…";
+    field.setAttribute("aria-label", "Python input()");
+    field.autocomplete = "off";
+
+    body.appendChild(field);
+    container.appendChild(body);
     field.addEventListener("keydown", (e) => {
       if (e.key === "Enter") submitInput(field.value);
     });
@@ -663,7 +710,7 @@
     Atomics.store(stdinView, 1, Math.min(bytes.length, 65535));
     Atomics.store(stdinView, 0, 2);
     Atomics.notify(stdinView, 0, 1);
-    _stdoutHtml += esc(value + "\n");
+    _stdoutParts.push({ kind: "stdout", text: value + "\n" });
     updateLiveOutput();
   }
 
@@ -682,30 +729,42 @@
     removeInputPanel();
     _running = false;
 
-    let html = _stdoutHtml;
-
-    for (const b64 of images) {
-      html += `<img src="data:image/png;base64,${b64}" alt="matplotlib plot" />`;
-    }
-
-    if (!html.trim()) {
-      html =
-        "<span style='color:var(--muted);font-style:italic'>✓ ran — no output</span>";
-    }
+    const hasErr = _stdoutParts.some((part) => part.kind === "stderr");
+    const hasTextOutput = _stdoutParts.some((part) => part.text.trim());
+    const hasImages = images.length > 0;
 
     if (_currentPre) {
-      const isErr = html.includes("py-err-inline");
       if (_livePanel && document.contains(_livePanel)) {
         const body = _livePanel.querySelector("#_live_body");
-        if (body) body.innerHTML = html;
+        if (body) {
+          renderOutputParts(body, _stdoutParts);
+          appendOutputImages(body, images);
+          if (!hasTextOutput && !hasImages) {
+            const empty = document.createElement("span");
+            empty.style.color = "var(--muted)";
+            empty.style.fontStyle = "italic";
+            empty.textContent = "✓ ran — no output";
+            body.appendChild(empty);
+          }
+        }
         const dot = _livePanel.querySelector(".py-dot");
-        if (dot && isErr) dot.classList.add("err");
+        if (dot && hasErr) dot.classList.add("err");
         const label = _livePanel.querySelector(
           ".py-output-label span:last-child",
         );
-        if (label && isErr) label.textContent = "error";
+        if (label && hasErr) label.textContent = "error";
       } else {
-        showOutput(_currentPre, isErr ? "err" : "ok", html);
+        const outputFragment = document.createDocumentFragment();
+        renderOutputParts(outputFragment, _stdoutParts);
+        appendOutputImages(outputFragment, images);
+        if (!hasTextOutput && !hasImages) {
+          const empty = document.createElement("span");
+          empty.style.color = "var(--muted)";
+          empty.style.fontStyle = "italic";
+          empty.textContent = "✓ ran — no output";
+          outputFragment.appendChild(empty);
+        }
+        showOutput(_currentPre, hasErr ? "err" : "ok", outputFragment);
       }
     }
 
@@ -749,7 +808,7 @@
     return code
       .split("\n")
       .map((line) => {
-        if (/^[\u2500-\u257f\u2014\u2013\u2010─\-]{2}/.test(line.trim()))
+        if (/^[\u2500-\u257f\u2014\u2013\u2010─-]{2}/.test(line.trim()))
           return "# " + line;
         return line;
       })
@@ -844,7 +903,7 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
-      .replace(/"/g, "&#39;");
+      .replace(/'/g, "&#39;");
   }
 
   function clearBelow(pre) {
@@ -862,7 +921,7 @@
     wrapper.classList.remove("py-open");
   }
 
-  function showOutput(pre, kind, contentHTML) {
+  function showOutput(pre, kind, content) {
     clearBelow(pre);
     pre.parentElement.classList.add("py-open");
 
@@ -881,16 +940,38 @@
     panel.className = "py-output";
     panel.setAttribute("role", "status");
     panel.setAttribute("aria-live", "polite");
-    panel.innerHTML = `
-          <div class="py-output-bar">
-            <div class="py-output-label">
-              <span class="py-dot ${dotCls}"></span>
-              <span>${label}</span>
-            </div>
-            <button class="py-output-close" title="Close">✕</button>
-          </div>
-          <div class="py-output-body ${kind === "err" ? "err" : kind === "info" ? "info" : ""}">${contentHTML}</div>
-        `;
+
+    const bar = document.createElement("div");
+    bar.className = "py-output-bar";
+
+    const labelWrap = document.createElement("div");
+    labelWrap.className = "py-output-label";
+
+    const dot = document.createElement("span");
+    dot.className = `py-dot ${dotCls}`.trim();
+
+    const labelEl = document.createElement("span");
+    labelEl.textContent = label;
+
+    labelWrap.append(dot, labelEl);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "py-output-close";
+    closeBtn.title = "Close";
+    closeBtn.type = "button";
+    closeBtn.textContent = "✕";
+
+    bar.append(labelWrap, closeBtn);
+
+    const body = document.createElement("div");
+    body.className = `py-output-body ${kind === "err" ? "err" : kind === "info" ? "info" : ""}`.trim();
+    if (content instanceof Node) {
+      body.appendChild(content);
+    } else {
+      body.textContent = String(content || "");
+    }
+
+    panel.append(bar, body);
     panel.querySelector(".py-output-close").addEventListener("click", () => {
       panel.remove();
       pre.parentElement.classList.remove("py-open");
@@ -940,7 +1021,7 @@
     _running = true;
     _currentPre = pre;
     _currentBtn = btn;
-    _stdoutHtml = "";
+    _stdoutParts = [];
     _livePanel = null;
 
     btn.textContent = "…";
