@@ -1,5 +1,5 @@
 // Service Worker for Python Guide — SICT Year 2
-// Strategy: network-first for documents, cache-first for static assets.
+// Strategy: network-first for documents, stale-while-revalidate for static assets.
 // Version: bump CACHE_NAME to force cache refresh after updates.
 
 const CACHE_NAME = "python-guide-v11";
@@ -72,6 +72,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   const url = new URL(event.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
 
   // Always bypass cache for CDN requests (no CORP headers on CDN — fetch directly via CORS mode)
   if (
@@ -79,6 +80,10 @@ self.addEventListener("fetch", (event) => {
       (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
     )
   ) {
+    return;
+  }
+
+  if (!isSameOrigin) {
     return;
   }
 
@@ -115,15 +120,36 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches
-      .match(event.request)
-      .then((cached) => cached || fetch(event.request))
-      .then((response) => addIsolationHeaders(response))
-      .catch(
-        () =>
-          new Response("Resource unavailable offline", {
-            status: 503,
-          }),
-      ),
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(event.request);
+
+      if (cached) {
+        // SWR can briefly mix old/new assets (for example old CSS with new JS); next navigation converges to fresh cache.
+        event.waitUntil(
+          (async () => {
+            try {
+              const networkResponse = await fetch(event.request);
+              if (networkResponse.ok && networkResponse.type === "basic") {
+                await cache.put(event.request, networkResponse.clone());
+              }
+            } catch {}
+          })(),
+        );
+        return addIsolationHeaders(cached);
+      }
+
+      try {
+        const networkResponse = await fetch(event.request);
+        if (networkResponse.ok && networkResponse.type === "basic") {
+          await cache.put(event.request, networkResponse.clone());
+        }
+        return addIsolationHeaders(networkResponse);
+      } catch {
+        return new Response("Resource unavailable offline", {
+          status: 503,
+        });
+      }
+    })(),
   );
 });
