@@ -4,26 +4,48 @@
 // Security: CDN scripts are fetched and verified via crypto.subtle.digest (SHA-384)
 // before execution. No CDN code runs without passing an integrity check.
 
+const _createObjectURL = URL.createObjectURL.bind(URL);
+const _revokeObjectURL = URL.revokeObjectURL.bind(URL);
+const _cryptoDigest = crypto.subtle.digest.bind(crypto.subtle);
+const _fetch = fetch.bind(self);
+const _importScripts = importScripts.bind(self);
+
 const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/";
 
 // SHA-384 integrity hashes for CDN-fetched scripts.
 // Compute via: curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A
-const INTEGRITY = {
+const INTEGRITY = Object.freeze({
   "pyodide.mjs":
     "sha384-Iww9yGcV6enS7iZOc/arkzRoBL2UMCEwHsvc9CPwSlSSrbQC2K/OnwFh1GF5SUi5",
   "pyodide.asm.js":
     "sha384-H/2VLTcLlId+2q+XryOhG/nGawPSusslAGPNvqdOA4U5cHJX+UFEzL0fEM1jEf0b",
-};
+});
+
+function timingSafeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
 
 async function fetchWithIntegrity(filename) {
+  if (!Object.hasOwn(INTEGRITY, filename)) {
+    throw new Error("No integrity hash for: " + filename);
+  }
   const url = PYODIDE_CDN + filename;
-  const res = await fetch(url);
+  const res = await _fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch ${url}: HTTP ${res.status}`);
   const buf = await res.arrayBuffer();
-  const hashBuf = await crypto.subtle.digest("SHA-384", buf);
-  const b64 = btoa(String.fromCharCode(...new Uint8Array(hashBuf)));
+  const hashBuf = await _cryptoDigest("SHA-384", buf);
+  const b64 = btoa(
+    String.fromCharCode(
+      ...Array.from(new Uint8Array(hashBuf), (byte) => byte)
+    )
+  );
   const computed = "sha384-" + b64;
-  if (computed !== INTEGRITY[filename]) {
+  if (!timingSafeEqual(computed, INTEGRITY[filename])) {
     throw new Error(
       `Integrity check failed for ${filename}\nExpected: ${INTEGRITY[filename]}\nComputed: ${computed}`
     );
@@ -37,22 +59,22 @@ async function loadVerifiedPyodide() {
   // to skip its internal importScripts(CDN) call entirely.
   const asmBytes = await fetchWithIntegrity("pyodide.asm.js");
   const asmBlob = new Blob([asmBytes], { type: "application/javascript" });
-  const asmUrl = URL.createObjectURL(asmBlob);
+  const asmUrl = _createObjectURL(asmBlob);
   try {
-    importScripts(asmUrl);
+    _importScripts(asmUrl);
   } finally {
-    URL.revokeObjectURL(asmUrl);
+    _revokeObjectURL(asmUrl);
   }
 
   // Phase 2: Fetch and verify pyodide.mjs, then load via dynamic import(blobUrl).
   const mjsBytes = await fetchWithIntegrity("pyodide.mjs");
   const mjsBlob = new Blob([mjsBytes], { type: "application/javascript" });
-  const mjsUrl = URL.createObjectURL(mjsBlob);
+  const mjsUrl = _createObjectURL(mjsBlob);
   try {
     const mod = await import(mjsUrl);
     return mod.loadPyodide;
   } finally {
-    URL.revokeObjectURL(mjsUrl);
+    _revokeObjectURL(mjsUrl);
   }
 }
 
@@ -80,7 +102,6 @@ self.onmessage = async (event) => {
     dataView = new Uint8Array(dataSAB);
     await initPyodide();
   } else if (type === "run") {
-    interrupted = false;
     await runCode(event.data.code);
   } else if (type === "interrupt") {
     interrupted = true;
@@ -163,6 +184,15 @@ def _run(code):
                 continue
             filtered.append(line)
         return ('', '\\n'.join(filtered) + '\\n', None)
+    finally:
+        try:
+            del globals()['_result']
+        except Exception:
+            pass
+        try:
+            del globals()['_code_to_run']
+        except Exception:
+            pass
     return ('', '', out_repr)
 `);
 
@@ -226,7 +256,7 @@ function stdinRead() {
     throw new Error("__interrupted__");
   }
 
-  const byteLen = Atomics.load(stdinView, 1);
+  const byteLen = Math.max(0, Math.min(Atomics.load(stdinView, 1), dataView.byteLength));
   const bytes = dataView.slice(0, byteLen);
   Atomics.store(stdinView, 0, 0);
 
@@ -238,8 +268,11 @@ async function ensurePackage(name) {
   try {
     await pyodide.loadPackage(name);
   } catch (err) {
-    const message = `[warn] Failed to load package: ${err.message}`;
-    self.postMessage({ type: "stderr", text: message, data: message });
+    const message = `Failed to load required package "${name}": ${err.message}`;
+    self.postMessage({ type: "error", message });
+    const packageLoadError = new Error(message);
+    packageLoadError.packageLoadReported = true;
+    throw packageLoadError;
   }
 }
 
@@ -259,6 +292,8 @@ function detectType(code) {
 
 // ── Main run function ─────────────────────────────────────────────────────────
 async function runCode(code) {
+  interrupted = false;
+
   if (!pyodide) {
     self.postMessage({
       type: "error",
@@ -268,7 +303,6 @@ async function runCode(code) {
   }
 
   stdoutBuf = "";
-  interrupted = false;
 
   try {
     const kind = detectType(code);
@@ -355,6 +389,8 @@ _show_imgs.clear()
     if (err.message === "__interrupted__") {
       self.postMessage({ type: "stderr", text: "KeyboardInterrupt\n" });
       self.postMessage({ type: "done", images: [] });
+    } else if (err.packageLoadReported) {
+      return;
     } else {
       self.postMessage({ type: "error", message: err.message });
     }

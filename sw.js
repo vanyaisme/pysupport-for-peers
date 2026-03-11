@@ -1,5 +1,5 @@
 // Service Worker for Python Guide — SICT Year 2
-// Caches static assets for offline read-only access.
+// Strategy: network-first for documents, cache-first for static assets.
 // Version: bump CACHE_NAME to force cache refresh after updates.
 
 const CACHE_NAME = "python-guide-v11";
@@ -10,6 +10,11 @@ const ASSETS_TO_CACHE = [
   "/manifest.json",
   "/pyodide-worker.js",
   "/favicon.png?v=5",
+];
+const CDN_BYPASS_HOSTS = [
+  "cdn.jsdelivr.net",
+  "fonts.googleapis.com",
+  "fonts.gstatic.com",
 ];
 
 self.addEventListener("install", (event) => {
@@ -28,29 +33,26 @@ self.addEventListener("install", (event) => {
           );
         }
       });
+      await self.skipWaiting();
     })(),
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_NAME)
-            .map((key) => caches.delete(key)),
-        ),
-      ),
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)),
+      );
+      await self.clients.claim();
+    })(),
   );
-  self.clients.claim();
 });
 
 // Add COOP/COEP headers required for SharedArrayBuffer (Web Worker + Atomics)
 function addIsolationHeaders(response) {
-  if (!response || response.type === "opaque") {
+  if (!response || response.type !== "basic") {
     return response;
   }
 
@@ -64,8 +66,6 @@ function addIsolationHeaders(response) {
   });
 }
 
-// Fetch: serve from cache first, fall back to network
-// Note: Pyodide CDN requests always go to network (too large to cache and must stay fresh)
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     return;
@@ -75,9 +75,9 @@ self.addEventListener("fetch", (event) => {
 
   // Always bypass cache for CDN requests (no CORP headers on CDN — fetch directly via CORS mode)
   if (
-    url.hostname === "cdn.jsdelivr.net" ||
-    url.hostname === "fonts.googleapis.com" ||
-    url.hostname === "fonts.gstatic.com"
+    CDN_BYPASS_HOSTS.some(
+      (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
+    )
   ) {
     return;
   }
@@ -85,18 +85,31 @@ self.addEventListener("fetch", (event) => {
   // Network-first for HTML — always serve fresh page
   if (event.request.destination === "document") {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const clone = response.clone();
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.put(event.request, clone))
-            .catch((err) => console.warn("[sw] cache.put failed:", err));
-          return addIsolationHeaders(response);
-        })
-        .catch(() =>
-          caches.match(event.request).then((cached) => cached || fetch(event.request))
-        )
+      (async () => {
+        try {
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("timeout")), 3000),
+          );
+          const networkResponse = await Promise.race([
+            fetch(event.request),
+            timeoutPromise,
+          ]);
+          if (networkResponse.ok && networkResponse.type === "basic") {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(event.request, networkResponse.clone());
+          }
+          return addIsolationHeaders(networkResponse);
+        } catch {
+          const cached = await caches.match(event.request);
+          if (cached) {
+            return addIsolationHeaders(cached);
+          }
+          return new Response("Offline — please reconnect and reload.", {
+            status: 503,
+            headers: { "Content-Type": "text/html; charset=utf-8" },
+          });
+        }
+      })(),
     );
     return;
   }

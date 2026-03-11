@@ -5,6 +5,7 @@
   const links = [];
   let savedScrollY = 0;
   let _overlayOpenCount = 0;
+  let mobileNavLastFocused = null;
 
   function getSectionLevel(secId) {
     const n = parseInt(secId.replace("s", ""), 10);
@@ -42,31 +43,32 @@
       }
     }
     a.dataset.section = sec.id;
-    sidebar.appendChild(a);
+    if (sidebar) sidebar.appendChild(a);
     links.push(a);
   });
 
   const roadmapLink = links.find((l) => l.dataset.section === "roadmap");
-  let cachedSidebarW = sidebar.offsetWidth;
+  let cachedSidebarW = sidebar ? sidebar.offsetWidth : 0;
   window.addEventListener("resize", () => {
-    cachedSidebarW = sidebar.offsetWidth;
+    cachedSidebarW = sidebar ? sidebar.offsetWidth : 0;
   });
 
   // ── Lens hover ──
-  sidebar.addEventListener("mouseleave", () => {
-    links.forEach((l) => {
-      l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
+  if (sidebar)
+    sidebar.addEventListener("mouseleave", () => {
+      links.forEach((l) => {
+        l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
+      });
+      if (roadmapLink) {
+        const dot = roadmapLink.querySelector(".lens-roadmap-dot");
+        if (dot)
+          dot.classList.remove(
+            "lens-dot-beginner",
+            "lens-dot-intermediate",
+            "lens-dot-advanced",
+          );
+      }
     });
-    if (roadmapLink) {
-      const dot = roadmapLink.querySelector(".lens-roadmap-dot");
-      if (dot)
-        dot.classList.remove(
-          "lens-dot-beginner",
-          "lens-dot-intermediate",
-          "lens-dot-advanced",
-        );
-    }
-  });
   links.forEach((link, i) => {
     link.addEventListener("mouseenter", () => {
       links.forEach((l) => {
@@ -114,23 +116,24 @@
       }
     });
   });
-  sidebar.addEventListener("focusout", () => {
-    requestAnimationFrame(() => {
-      if (sidebar.contains(document.activeElement)) return;
-      links.forEach((l) => {
-        l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
+  if (sidebar)
+    sidebar.addEventListener("focusout", () => {
+      requestAnimationFrame(() => {
+        if (sidebar.contains(document.activeElement)) return;
+        links.forEach((l) => {
+          l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
+        });
+        if (roadmapLink) {
+          const dot = roadmapLink.querySelector(".lens-roadmap-dot");
+          if (dot)
+            dot.classList.remove(
+              "lens-dot-beginner",
+              "lens-dot-intermediate",
+              "lens-dot-advanced",
+            );
+        }
       });
-      if (roadmapLink) {
-        const dot = roadmapLink.querySelector(".lens-roadmap-dot");
-        if (dot)
-          dot.classList.remove(
-            "lens-dot-beginner",
-            "lens-dot-intermediate",
-            "lens-dot-advanced",
-          );
-      }
     });
-  });
 
   // ── Sidebar reveal ──
   let _rafId = 0;
@@ -140,6 +143,7 @@
         const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
         const sidebarRight = sidebarLeft + cachedSidebarW + 16;
         const nearEdge = e.clientX >= sidebarLeft && e.clientX <= sidebarRight;
+        if (!sidebar) return;
         if (nearEdge && sidebar.classList.contains("is-nav-open")) return;
         if (!nearEdge && !sidebar.classList.contains("is-nav-open")) return;
         sidebar.classList.toggle("is-nav-open", nearEdge);
@@ -148,7 +152,7 @@
     { passive: true },
   );
   document.addEventListener("mouseleave", () => {
-    sidebar.classList.remove("is-nav-open");
+    sidebar?.classList.remove("is-nav-open");
   });
 
   const mobileNavBtn = document.createElement("button");
@@ -160,6 +164,8 @@
 
   const mobileNavPanel = document.createElement("nav");
   mobileNavPanel.className = "mobile-nav-panel";
+  mobileNavPanel.setAttribute("role", "navigation");
+  mobileNavPanel.setAttribute("aria-label", "Section navigation");
   sections.forEach((sec) => {
     const num = sec.id.replace("s", "");
     const secH2 = sec.querySelector("h2");
@@ -168,25 +174,76 @@
     a.href = "#" + sec.id;
     a.textContent = label;
     a.addEventListener("click", () => {
-      mobileNavPanel.classList.remove("open");
-      mobileNavBtn.textContent = "☰";
-      mobileNavBtn.setAttribute("aria-expanded", "false");
+      closeMobileNav();
     });
     mobileNavPanel.appendChild(a);
   });
   document.body.appendChild(mobileNavPanel);
+
+  function closeMobileNav() {
+    const wasOpen = mobileNavPanel.classList.contains("open");
+    mobileNavPanel.classList.remove("open");
+    mobileNavBtn.textContent = "☰";
+    mobileNavBtn.setAttribute("aria-expanded", "false");
+    mobileNavBtn.setAttribute("aria-label", "Open chapter navigation");
+    if (wasOpen && mobileNavLastFocused instanceof HTMLElement) {
+      mobileNavLastFocused.focus();
+      mobileNavLastFocused = null;
+    }
+  }
 
   mobileNavBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     const isOpen = mobileNavPanel.classList.toggle("open");
     mobileNavBtn.textContent = isOpen ? "✕" : "☰";
     mobileNavBtn.setAttribute("aria-expanded", String(isOpen));
+    mobileNavBtn.setAttribute(
+      "aria-label",
+      isOpen ? "Close chapter navigation" : "Open chapter navigation",
+    );
+    if (isOpen) {
+      mobileNavLastFocused = document.activeElement;
+      const firstLink = mobileNavPanel.querySelector("a");
+      if (firstLink) firstLink.focus();
+    } else {
+      mobileNavLastFocused = null;
+    }
   });
   document.addEventListener("click", (e) => {
     if (!mobileNavPanel.contains(e.target) && e.target !== mobileNavBtn) {
-      mobileNavPanel.classList.remove("open");
-      mobileNavBtn.textContent = "☰";
-      mobileNavBtn.setAttribute("aria-expanded", "false");
+      closeMobileNav();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!mobileNavPanel.classList.contains("open")) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeMobileNav();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const focusable = [mobileNavBtn].concat(
+      Array.from(mobileNavPanel.querySelectorAll("a")),
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    const isInsidePanel =
+      active === mobileNavBtn || mobileNavPanel.contains(active);
+    if (!isInsidePanel) {
+      e.preventDefault();
+      first.focus();
+      return;
+    }
+    if (e.shiftKey) {
+      if (active === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (active === last) {
+      e.preventDefault();
+      first.focus();
     }
   });
 
@@ -239,12 +296,12 @@
       cancelAnimationFrame(_scrollRafId);
       _scrollRafId = requestAnimationFrame(() => {
         const shouldShow = window.scrollY > 500;
-        if (shouldShow !== _topBtnVisible) {
+        if (topBtn && shouldShow !== _topBtnVisible) {
           _topBtnVisible = shouldShow;
           topBtn.classList.toggle("visible", shouldShow);
         }
         const lastSec = sections[sections.length - 1];
-        if (lastSec) {
+        if (lastSec && sidebar) {
           const navH = sidebar.offsetHeight;
           const center = lastSec.getBoundingClientRect().bottom - navH / 2;
           if (center < window.innerHeight / 2) {
@@ -257,9 +314,10 @@
     },
     { passive: true },
   );
-  topBtn.addEventListener("click", () =>
-    window.scrollTo({ top: 0, behavior: "smooth" }),
-  );
+  if (topBtn)
+    topBtn.addEventListener("click", () =>
+      window.scrollTo({ top: 0, behavior: "smooth" }),
+    );
 
   const themeBtn = document.getElementById("themeToggle");
   const saved = localStorage.getItem("theme");
@@ -267,18 +325,20 @@
   if (saved !== null && VALID_THEMES.has(saved)) {
     document.documentElement.dataset.theme = saved;
   }
-  themeBtn.setAttribute(
-    "aria-pressed",
-    document.documentElement.dataset.theme !== "light" ? "true" : "false",
-  );
+  if (themeBtn)
+    themeBtn.setAttribute(
+      "aria-pressed",
+      document.documentElement.dataset.theme !== "light" ? "true" : "false",
+    );
 
-  themeBtn.addEventListener("click", () => {
-    const isLight = document.documentElement.dataset.theme === "light";
+  if (themeBtn)
+    themeBtn.addEventListener("click", () => {
+      const isLight = document.documentElement.dataset.theme === "light";
 
-    document.documentElement.dataset.theme = isLight ? "" : "light";
-    themeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
-    localStorage.setItem("theme", isLight ? "" : "light");
-  });
+      document.documentElement.dataset.theme = isLight ? "" : "light";
+      themeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
+      localStorage.setItem("theme", isLight ? "" : "light");
+    });
 
   // Collapsible scenario cards
   document.querySelectorAll(".scenario-title").forEach((title) => {
@@ -539,7 +599,7 @@ const DEBUG = location.hostname === "localhost";
         _currentBtn.classList.remove("loading");
       }
       if (_currentPre)
-        showOutput(_currentPre, "err", esc("Worker error: " + e.message));
+        showOutput(_currentPre, "err", "Worker error: " + e.message);
       _running = false;
       removeInputPanel();
     });
@@ -578,7 +638,7 @@ const DEBUG = location.hostname === "localhost";
         _currentBtn.textContent = "▶ run";
         _currentBtn.classList.remove("loading");
       }
-      if (_currentPre) showOutput(_currentPre, "err", esc(data.message));
+      if (_currentPre) showOutput(_currentPre, "err", data.message);
       _running = false;
       _currentPre = null;
       _currentBtn = null;
@@ -586,6 +646,10 @@ const DEBUG = location.hostname === "localhost";
   };
 
   function handleWorkerMessage({ data }) {
+    if (!MSG[data.type]) {
+      console.warn("Unknown worker message:", data.type);
+      return;
+    }
     MSG[data.type]?.(data);
   }
 
@@ -620,6 +684,7 @@ const DEBUG = location.hostname === "localhost";
     closeBtn.className = "py-output-close";
     closeBtn.title = "Close";
     closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Close output panel");
     closeBtn.textContent = "✕";
 
     bar.append(labelWrap, closeBtn);
@@ -784,8 +849,11 @@ const DEBUG = location.hostname === "localhost";
   // Toast helper
   const toast = document.createElement("div");
   toast.id = "py-toast";
-  toast.innerHTML =
-    "<div class='py-spinner'></div><span id='py-toast-msg'></span>";
+  const toastSpinner = document.createElement("div");
+  toastSpinner.className = "py-spinner";
+  const toastMsg = document.createElement("span");
+  toastMsg.id = "py-toast-msg";
+  toast.append(toastSpinner, toastMsg);
   document.body.appendChild(toast);
 
   function toastShow(msg) {
@@ -899,15 +967,6 @@ const DEBUG = location.hostname === "localhost";
   }
 
   // ── DOM panel helpers ────────────────────────────────────────────
-  function esc(s) {
-    return String(s)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
   function clearBelow(pre) {
     const wrapper = pre.parentElement;
     let next = wrapper.nextElementSibling;
@@ -961,6 +1020,7 @@ const DEBUG = location.hostname === "localhost";
     closeBtn.className = "py-output-close";
     closeBtn.title = "Close";
     closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Close output panel");
     closeBtn.textContent = "✕";
 
     bar.append(labelWrap, closeBtn);
@@ -981,38 +1041,67 @@ const DEBUG = location.hostname === "localhost";
     pre.parentElement.insertAdjacentElement("afterend", panel);
   }
 
-  function showForm(pre, hint, fieldsHTML, onRun) {
+  function showForm(pre, hint, fields, onRun) {
     clearBelow(pre);
     pre.parentElement.classList.add("py-open");
 
     const form = document.createElement("div");
     form.className = "py-form";
-    form.innerHTML = `
-          <div class="py-form-bar">
-            <span>${hint}</span>
-            <button class="py-output-close" title="Cancel">✕</button>
-          </div>
-          <div class="py-form-body">
-            ${fieldsHTML}
-            <div class="py-form-actions">
-              <button class="py-btn-run" aria-label="Run Python code">▶ run</button>
-              <button class="py-btn-cancel">cancel</button>
-            </div>
-          </div>
-        `;
+
+    const bar = document.createElement("div");
+    bar.className = "py-form-bar";
+
+    const hintEl = document.createElement("span");
+    hintEl.textContent = String(hint || "");
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "py-output-close";
+    closeBtn.title = "Cancel";
+    closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", "Close input form");
+    closeBtn.textContent = "✕";
+
+    bar.append(hintEl, closeBtn);
+
+    const body = document.createElement("div");
+    body.className = "py-form-body";
+
+    fields.forEach((fieldData) => {
+      const labelEl = document.createElement("label");
+      labelEl.textContent = fieldData.label;
+      const inputEl = document.createElement("input");
+      inputEl.type = "text";
+      inputEl.name = fieldData.name;
+      inputEl.setAttribute("aria-label", fieldData.ariaLabel);
+      inputEl.placeholder = fieldData.placeholder;
+      body.append(labelEl, inputEl);
+    });
+
+    const actions = document.createElement("div");
+    actions.className = "py-form-actions";
+
+    const runBtn = document.createElement("button");
+    runBtn.className = "py-btn-run";
+    runBtn.type = "button";
+    runBtn.setAttribute("aria-label", "Run Python code");
+    runBtn.textContent = "▶ run";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "py-btn-cancel";
+    cancelBtn.type = "button";
+    cancelBtn.textContent = "cancel";
+
+    actions.append(runBtn, cancelBtn);
+    body.appendChild(actions);
+    form.append(bar, body);
+
     const close = () => {
       form.remove();
       pre.parentElement.classList.remove("py-open");
     };
-    form
-      .querySelector(".py-form-body .py-btn-run")
-      .addEventListener("click", () => onRun(form));
-    form
-      .querySelector(".py-form-body .py-btn-cancel")
-      .addEventListener("click", close);
-    form
-      .querySelector(".py-form-bar .py-output-close")
-      .addEventListener("click", close);
+    runBtn.addEventListener("click", () => onRun(form));
+    cancelBtn.addEventListener("click", close);
+    closeBtn.addEventListener("click", close);
     pre.parentElement.insertAdjacentElement("afterend", form);
     form.querySelector("input")?.focus();
   }
@@ -1041,7 +1130,7 @@ const DEBUG = location.hostname === "localhost";
       ),
     );
     await Promise.race([readyPromise, _loadTimeout]).catch((err) => {
-      if (_currentPre) showOutput(_currentPre, "err", esc(err.message));
+      if (_currentPre) showOutput(_currentPre, "err", err.message);
       if (_currentBtn) {
         _currentBtn.textContent = "▶ run";
         _currentBtn.classList.remove("loading");
@@ -1076,7 +1165,9 @@ const DEBUG = location.hostname === "localhost";
       .filter((i) => i > 0)
       .sort((a, b) => a - b);
     if (!indices.length) {
-      execCode(pre, btn, code);
+      execCode(pre, btn, code).catch((err) => {
+        console.error("execCode failed:", err);
+      });
       return;
     }
 
@@ -1088,14 +1179,12 @@ const DEBUG = location.hostname === "localhost";
       hints[4] = "'towards' or 'pursue'";
     }
 
-    const fields = indices
-      .map(
-        (i) => `
-          <label>sys.argv[${i}]${hints[i] ? "  —  " + hints[i] : ""}</label>
-          <input type="text" name="a${i}" aria-label="sys.argv[${i}]" placeholder="${hints[i] || "enter value…"}" />
-        `,
-      )
-      .join("");
+    const fields = indices.map((i) => ({
+      label: `sys.argv[${i}]${hints[i] ? "  —  " + hints[i] : ""}`,
+      name: `a${i}`,
+      ariaLabel: `sys.argv[${i}]`,
+      placeholder: hints[i] || "enter value…",
+    }));
 
     showForm(
       pre,
@@ -1111,7 +1200,9 @@ const DEBUG = location.hostname === "localhost";
           );
         });
         form.remove();
-        execCode(pre, btn, patched);
+        execCode(pre, btn, patched).catch((err) => {
+          console.error("execCode failed:", err);
+        });
       },
     );
   }
@@ -1150,7 +1241,9 @@ const DEBUG = location.hostname === "localhost";
       return;
     }
     // input_fn and all other types go through execCode — worker handles input() natively
-    execCode(pre, btn, raw);
+    execCode(pre, btn, raw).catch((err) => {
+      console.error("execCode failed:", err);
+    });
   }
 
   // ── Inject run buttons ───────────────────────────────────────────
