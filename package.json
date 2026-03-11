@@ -1,5 +1,5 @@
 {
-  "name": "python-tutorial-site",
+  "name": "pysupport-for-peers",
   "private": true,
   "scripts": {
     "lint": "eslint *.js",

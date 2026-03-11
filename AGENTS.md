@@ -1,4 +1,4 @@
-# Agent Guidelines: Python Tutorial Site
+# Agent Guidelines: PySupport
 
 This document provides essential context, architecture details, and style guidelines for AI agents working on this repository.
 

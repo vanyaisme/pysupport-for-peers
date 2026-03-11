@@ -1,7 +1,7 @@
 {
-  "name": "Python Guide — SICT Year 2",
-  "short_name": "Python Guide",
-  "description": "Interactive Python reference guide with in-browser code runner, built for SICT Year 2 students.",
+  "name": "PySupport — UM FPN Year 2",
+  "short_name": "PySupport",
+  "description": "Interactive Python reference guide with in-browser code runner, built for UM FPN Year 2 students.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
