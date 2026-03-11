@@ -660,7 +660,7 @@ const DEBUG = location.hostname === "localhost";
     if (_livePanel && document.contains(_livePanel)) return;
     if (!_currentPre) return;
     clearBelow(_currentPre);
-    _currentPre.parentElement.classList.add("py-open");
+    _currentPre.parentElement?.classList.add("py-open");
     _livePanel = document.createElement("div");
     _livePanel.className = "py-output";
     _livePanel.setAttribute("role", "status");
@@ -700,9 +700,9 @@ const DEBUG = location.hostname === "localhost";
       .addEventListener("click", () => {
         panel.remove();
         if (_livePanel === panel) _livePanel = null;
-        if (_currentPre) _currentPre.parentElement.classList.remove("py-open");
+        if (_currentPre) _currentPre.parentElement?.classList.remove("py-open");
       });
-    _currentPre.parentElement.insertAdjacentElement("afterend", _livePanel);
+    _currentPre.parentElement?.insertAdjacentElement("afterend", _livePanel);
   }
 
   function renderOutputParts(body, parts) {
@@ -984,7 +984,7 @@ const DEBUG = location.hostname === "localhost";
 
   function showOutput(pre, kind, content) {
     clearBelow(pre);
-    pre.parentElement.classList.add("py-open");
+    pre.parentElement?.classList.add("py-open");
 
     const dotCls =
       kind === "err"
@@ -1034,16 +1034,16 @@ const DEBUG = location.hostname === "localhost";
     }
 
     panel.append(bar, body);
-    panel.querySelector(".py-output-close").addEventListener("click", () => {
+    panel.querySelector(".py-output-close")?.addEventListener("click", () => {
       panel.remove();
-      pre.parentElement.classList.remove("py-open");
+      pre.parentElement?.classList.remove("py-open");
     });
-    pre.parentElement.insertAdjacentElement("afterend", panel);
+    pre.parentElement?.insertAdjacentElement("afterend", panel);
   }
 
   function showForm(pre, hint, fields, onRun) {
     clearBelow(pre);
-    pre.parentElement.classList.add("py-open");
+    pre.parentElement?.classList.add("py-open");
 
     const form = document.createElement("div");
     form.className = "py-form";
