@@ -125,6 +125,7 @@ const utf8Decoder = new TextDecoder();
 // ─────────────────────────────────────────────────────────────────────────────
 let stdinView = null; // Int32Array over stdinSAB
 let dataView = null; // Uint8Array  over dataSAB
+let _currentRunId = 0;
 
 // Stdout accumulation buffer — flushed on newline or when input() drains it
 let stdoutBuf = "";
@@ -139,6 +140,7 @@ self.onmessage = async (event) => {
     dataView = new Uint8Array(dataSAB);
     await initPyodide();
   } else if (type === "run") {
+    _currentRunId = event.data.runId ?? 0;
     await runCode(event.data.code);
   } else if (type === "interrupt") {
     interrupted = true;
@@ -177,7 +179,11 @@ async function initPyodide() {
         const ch = String.fromCharCode(charCode);
         stderrBuf += ch;
         if (charCode === 10) {
-          self.postMessage({ type: "stderr", text: stderrBuf });
+          self.postMessage({
+            type: "stderr",
+            text: stderrBuf,
+            runId: _currentRunId,
+          });
           stderrBuf = "";
         }
       },
@@ -258,6 +264,7 @@ def _cap_show():
     self.postMessage({
       type: "error",
       message: `Pyodide init failed: ${err.message}`,
+      runId: _currentRunId,
     });
   }
 }
@@ -265,7 +272,7 @@ def _cap_show():
 // ── stdout flush helper ───────────────────────────────────────────────────────
 function flushStdout() {
   if (!stdoutBuf) return;
-  self.postMessage({ type: "stdout", text: stdoutBuf });
+  self.postMessage({ type: "stdout", text: stdoutBuf, runId: _currentRunId });
   stdoutBuf = "";
 }
 
@@ -275,7 +282,7 @@ function stdinRead() {
   flushStdout();
 
   Atomics.store(stdinView, 0, 1);
-  self.postMessage({ type: "need_input" });
+  self.postMessage({ type: "need_input", runId: _currentRunId });
 
   // Wait in 100 ms slices so interrupt can cancel us
   const deadline = Date.now() + 60_000;
@@ -311,7 +318,7 @@ async function ensurePackage(name) {
     await pyodide.loadPackage(name);
   } catch (err) {
     const message = `Failed to load required package "${name}": ${err.message}`;
-    self.postMessage({ type: "error", message });
+    self.postMessage({ type: "error", message, runId: _currentRunId });
     const packageLoadError = new Error(message);
     packageLoadError.packageLoadReported = true;
     throw packageLoadError;
@@ -340,6 +347,7 @@ async function runCode(code) {
     self.postMessage({
       type: "error",
       message: "Pyodide not initialised yet.",
+      runId: _currentRunId,
     });
     return;
   }
@@ -350,23 +358,25 @@ async function runCode(code) {
     const kind = detectType(code);
 
     if (kind === "empty") {
-      self.postMessage({ type: "done", images: [] });
+      self.postMessage({ type: "done", images: [], runId: _currentRunId });
       return;
     }
     if (kind === "shell") {
       self.postMessage({
         type: "toast",
         message: "Shell commands (!) are not supported in the browser.",
+        runId: _currentRunId,
       });
-      self.postMessage({ type: "done", images: [] });
+      self.postMessage({ type: "done", images: [], runId: _currentRunId });
       return;
     }
     if (kind === "turtle") {
       self.postMessage({
         type: "toast",
         message: "Turtle graphics are not supported in the browser.",
+        runId: _currentRunId,
       });
-      self.postMessage({ type: "done", images: [] });
+      self.postMessage({ type: "done", images: [], runId: _currentRunId });
       return;
     }
 
@@ -414,9 +424,14 @@ _show_imgs.clear()
     const reprVal = result.get(2);
     result.destroy();
 
-    if (stderr) self.postMessage({ type: "stderr", text: stderr });
+    if (stderr)
+      self.postMessage({ type: "stderr", text: stderr, runId: _currentRunId });
     if (reprVal)
-      self.postMessage({ type: "stdout", text: String(reprVal) + "\n" });
+      self.postMessage({
+        type: "stdout",
+        text: String(reprVal) + "\n",
+        runId: _currentRunId,
+      });
 
     let images = [];
     if (kind === "matplotlib" || kind === "scipy") {
@@ -425,16 +440,24 @@ _show_imgs.clear()
       imgs.destroy();
     }
 
-    self.postMessage({ type: "done", images });
+    self.postMessage({ type: "done", images, runId: _currentRunId });
   } catch (err) {
     flushStdout();
     if (err.message === "__interrupted__") {
-      self.postMessage({ type: "stderr", text: "KeyboardInterrupt\n" });
-      self.postMessage({ type: "done", images: [] });
+      self.postMessage({
+        type: "stderr",
+        text: "KeyboardInterrupt\n",
+        runId: _currentRunId,
+      });
+      self.postMessage({ type: "done", images: [], runId: _currentRunId });
     } else if (err.packageLoadReported) {
       return;
     } else {
-      self.postMessage({ type: "error", message: err.message });
+      self.postMessage({
+        type: "error",
+        message: err.message,
+        runId: _currentRunId,
+      });
     }
   }
 }

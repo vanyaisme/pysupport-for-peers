@@ -574,6 +574,7 @@ const DEBUG = location.hostname === "localhost";
   // Worker init
   let _worker = null;
   let _running = false;
+  let _runId = 0;
   let _currentPre = null;
   let _currentBtn = null;
   let _inputPanel = null; // active input DOM element
@@ -646,6 +647,9 @@ const DEBUG = location.hostname === "localhost";
   };
 
   function handleWorkerMessage({ data }) {
+    if (data.type !== "ready") {
+      if (data.runId !== undefined && data.runId !== _runId) return;
+    }
     if (!MSG[data.type]) {
       console.warn("Unknown worker message:", data.type);
       return;
@@ -1114,6 +1118,8 @@ const DEBUG = location.hostname === "localhost";
     _currentBtn = btn;
     _stdoutParts = [];
     _livePanel = null;
+    _runId += 1;
+    const thisRunId = _runId;
 
     btn.textContent = "…";
     btn.classList.add("loading");
@@ -1138,7 +1144,7 @@ const DEBUG = location.hostname === "localhost";
       _running = false;
       throw err;
     });
-    worker.postMessage({ type: "run", code });
+    worker.postMessage({ type: "run", code, runId: thisRunId });
   }
 
   // ── Per-type handlers ────────────────────────────────────────────
