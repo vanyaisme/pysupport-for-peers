@@ -1,7 +1,10 @@
 // pyodide-worker.js — Pyodide execution in a Web Worker
 // Communicates with runner.js via postMessage + SharedArrayBuffer for blocking input()
 
+// TODO: migrate to module worker (type:"module") + static import for SRI support
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js");
+
+const utf8Decoder = new TextDecoder();
 
 // ── SharedArrayBuffer layout ──────────────────────────────────────────────────
 // stdinSAB (Int32Array, 2 cells):
@@ -98,10 +101,8 @@ def _run(code):
         # Strip internal pyodide/snippet noise
         lines = tb.splitlines()
         filtered = []
-        skip_next = False
         for line in lines:
             if 'File "<snippet>"' in line and 'in <module>' in line:
-                skip_next = False
                 filtered.append(line)
                 continue
             if 'File "<snippet>"' in line:
@@ -152,17 +153,19 @@ function stdinRead() {
   self.postMessage({ type: "need_input" });
 
   // Wait in 100 ms slices so interrupt can cancel us
+  const deadline = Date.now() + 60_000;
   while (true) {
     if (interrupted) {
       // Clean up flag and throw so Python sees KeyboardInterrupt
       Atomics.store(stdinView, 0, 0);
       throw new Error("__interrupted__");
     }
-    // (Atomics.waitAsync is not used — workers can call synchronous Atomics.wait)
-    // Synchronous wait — valid because we are in a Worker
-    const waitResult = Atomics.wait(stdinView, 0, 1, 100);
-    if (waitResult === "ok" || waitResult === "not-equal") break;
-    // 'timed-out' → loop and check interrupted
+    Atomics.wait(stdinView, 0, 1, 100);
+    if (Atomics.load(stdinView, 0) === 2) break;
+    if (Date.now() > deadline) {
+      Atomics.store(stdinView, 0, 0);
+      throw new Error("input() timed out after 60 s");
+    }
   }
 
   if (interrupted) {
@@ -174,15 +177,16 @@ function stdinRead() {
   const bytes = dataView.slice(0, byteLen);
   Atomics.store(stdinView, 0, 0);
 
-  return new TextDecoder().decode(bytes);
+  return utf8Decoder.decode(bytes);
 }
 
 // ── Package loader helper ─────────────────────────────────────────────────────
 async function ensurePackage(name) {
   try {
     await pyodide.loadPackage(name);
-  } catch (_) {
-    /* ignore if already loaded */
+  } catch (err) {
+    const message = `[warn] Failed to load package: ${err.message}`;
+    self.postMessage({ type: "stderr", text: message, data: message });
   }
 }
 
@@ -277,7 +281,6 @@ _show_imgs.clear()
 
     flushStdout();
 
-    const stdout = result.get(0) || "";
     const stderr = result.get(1) || "";
     const reprVal = result.get(2);
     result.destroy();
