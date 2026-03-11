@@ -5258,7 +5258,7 @@ print(f"You are roughly {age_years} years old.")</code></pre>
             automatically a module. You can import functions and variables
             from one file into another to keep your code organized.
           </p>
-          <pre><code class="language-python"># File: my_helpers.py
+          <pre><code class="language-bash"># File: my_helpers.py
 def clean_data(text):
     return text.strip().lower()
 
@@ -5365,7 +5365,7 @@ plt.show()</code></pre>
         <div class="scenario">
           <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
             <span class="badge badge-yellow">scipy.stats.pearsonr</span>
-            Pearson correlation (PIP4)
+            EEG — Pearson correlation
           </div>
           <div class="scenario-body">
             <p>
@@ -5373,6 +5373,10 @@ plt.show()</code></pre>
               high correlation between frontal channels of both hemispheres.
             </p>
             <pre><code class="language-python">from scipy.stats import pearsonr
+
+# Simulated EEG channel data (microvolts)
+channel_a = [0.12, -0.34, 0.56, 0.78, -0.23, 0.45, 0.67, -0.11]
+channel_b = [0.15, -0.29, 0.51, 0.82, -0.18, 0.39, 0.71, -0.08]
 
 # Both lists must be 1D and identical length
 r, p = pearsonr(channel_a, channel_b)
@@ -5699,7 +5703,7 @@ import pandas as pd</code></pre>
             <pre><code class="language-python"># Series — one column
 s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
 s['b']       # 20 — access by label
-s[1]         # 20 — access by position
+s.iloc[1]    # 20 — access by position
 
 # DataFrame — table
 df = pd.DataFrame({
@@ -5721,7 +5725,7 @@ print(df)
             Excel, and more
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python"># Read CSV (most common)
+            <pre><code class="language-bash"># Read CSV (most common)
 df = pd.read_csv('participants.csv')
 df = pd.read_csv('participants.csv', sep=';')         # semicolon-separated
 df = pd.read_csv('participants.csv', header=None)    # no header row
@@ -5746,9 +5750,16 @@ df.to_excel('participants_clean.xlsx', index=False)</code></pre>
             to do with any new dataset
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">df.head(5)       # first 5 rows (default)
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+df.head(5)       # first 5 rows (default)
 df.tail(3)       # last 3 rows
-df.info()        # column names, types, non-null counts
+df.info(memory_usage=False)  # column names, types, non-null counts
 df.describe()    # count, mean, std, min, max for numeric columns
 df.shape         # (rows, columns) — e.g. (512, 8)
 df.dtypes        # data type of each column
@@ -5765,17 +5776,24 @@ df.value_counts('condition')  # frequency of each unique value</code></pre>
             — the three ways
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">── Select columns ──────────────────────────────────────────
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+# ── Select columns ──────────────────────────────────────────
 df['participant_id']                # one column → returns Series
 df[['participant_id', 'rt_ms']]    # multiple columns → returns DataFrame
 
-── loc — label-based (use row/column names) ────────────────
+# ── loc — label-based (use row/column names) ────────────────
 df.loc[0]                  # row with index label 0
 df.loc[0, 'participant_id']          # single cell: row 0, column 'participant_id'
 df.loc[0:2, 'participant_id':'condition']  # slice rows AND columns by label
 # NOTE: loc slicing is INCLUSIVE on both ends (unlike Python ranges)
 
-── iloc — position-based (use integer positions) ───────────
+# ── iloc — position-based (use integer positions) ───────────
 df.iloc[0]                 # first row (by position)
 df.iloc[0, 1]              # row 0, column 1
 df.iloc[:3, :2]            # first 3 rows, first 2 columns
@@ -5796,7 +5814,14 @@ df.iloc[-1]                # last row</code></pre>
             — selecting rows that meet a condition
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python"># Basic filter — get rows where rt_ms < 400
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+# Basic filter — get rows where rt_ms < 400
 df[df['rt_ms'] &lt; 400]
 
 # Multiple conditions — use & (and), | (or), ~ (not for Series — do NOT use Python's 'not' here)
@@ -5829,7 +5854,14 @@ df[df['participant_id'].str.contains('0')]</code></pre>
             detecting, removing, filling
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python"># Detect
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03', 'P04'],
+    'condition':      ['control', 'experimental', None, 'control'],
+    'rt_ms':          [412, None, 445, 389]
+})
+
+# Detect
 df.isna()            # True/False table of missing values
 df.isna().sum()       # count of NaN per column
 df['rt_ms'].isna()     # True/False for one column
@@ -5842,7 +5874,7 @@ df.dropna(axis=1)                  # drop columns that have any NaN
 # Fill NaN with a value
 df.fillna(0)                      # replace all NaN with 0
 df['rt_ms'].fillna(df['rt_ms'].mean())  # fill with column average
-df.fillna(method='ffill')          # forward fill (copy previous value)</code></pre>
+df.ffill()                         # forward fill (copy previous value)</code></pre>
             <div class="note">
               💡 Most pandas methods return a <strong>new</strong> DataFrame —
               they don't change the original. To save the result:
@@ -5858,22 +5890,33 @@ df.fillna(method='ffill')          # forward fill (copy previous value)</code></
             and deleting
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python"># Add a new column
-df['valid'] = df['rt_ms'] &lt; 500          # boolean column
-df['rt_z'] = df['rt_ms'] / df['rt_ms'].std()         # computed column
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
 
-# Rename columns
-df.rename(columns={'rt_ms': 'reaction_time'}, inplace=True)
+# Add new columns
+df['valid'] = df['rt_ms'] &lt; 500
+df['rt_z'] = df['rt_ms'] / df['rt_ms'].std()
+print(df)
 
-# Delete a column
-df.drop(columns=['rt_z'], inplace=True)
+# Rename columns (returns new DataFrame — original unchanged)
+renamed = df.rename(columns={'rt_ms': 'reaction_time'})
+print(renamed.columns.tolist())
 
-# Delete rows by index label
-df.drop(index=[0, 2], inplace=True)
+# Drop a column
+trimmed = df.drop(columns=['rt_z'])
+print(trimmed)
 
-# Change column data type
+# Drop rows by index label
+subset = df.drop(index=[0, 2])
+print(subset)
+
+# Change data type
 df['rt_ms'] = df['rt_ms'].astype(float)
-df['participant_id'] = df['participant_id'].astype(str)</code></pre>
+print(df.dtypes)</code></pre>
           </div>
         </div>
 
@@ -5882,7 +5925,14 @@ df['participant_id'] = df['participant_id'].astype(str)</code></pre>
             <span class="badge badge-blue">Sorting</span>
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">df.sort_values('rt_ms')                       # ascending (default)
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+df.sort_values('rt_ms')                       # ascending (default)
 df.sort_values('rt_ms', ascending=False)      # descending
 df.sort_values(['condition', 'rt_ms'])               # sort by multiple columns
 df.sort_index()                                # sort by row index
@@ -5901,7 +5951,14 @@ df.reset_index(drop=True, inplace=True)       # reset to 0,1,2,… after filteri
               function to each group, and combines results. Think of it as a
               pivot table.
             </p>
-            <pre><code class="language-python"># Single aggregation
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+# Single aggregation
 df.groupby('condition')['rt_ms'].mean()    # mean rt_ms for each condition
 df.groupby('condition').size()             # count participants in each group
 
@@ -5926,7 +5983,14 @@ df.groupby(['condition', 'participant_id'])['rt_ms'].mean()
               element, row, or column. Define a plain function and pass it
               to <span class="inline-code">apply()</span> — easier to read and test.
             </p>
-            <pre><code class="language-python"># define a plain function — easy to read
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+# define a plain function — easy to read
 def rt_label(x):
     if x &lt; 400: return 'fast'
     elif x &lt; 450:
@@ -5970,7 +6034,14 @@ pd.concat([df1, df2], axis=1)              # join side by side (axis=1)</code></
             accessor — apply string methods to a whole column
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">df['participant_id'].str.upper()           # "P01", "P02", …
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+df['participant_id'].str.upper()           # "P01", "P02", …
 df['participant_id'].str.lower()           # "p01", "p02", …
 df['participant_id'].str.len()             # length of each string
 df['participant_id'].str.strip()           # remove leading/trailing whitespace
@@ -5986,7 +6057,14 @@ df['participant_id'].str[0]                # first character of each string</cod
             methods
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">df['rt_ms'].mean()      # average
+            <pre><code class="language-python">import pandas as pd
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
+
+df['rt_ms'].mean()      # average
 df['rt_ms'].median()    # middle value
 df['rt_ms'].std()       # standard deviation
 df['rt_ms'].var()       # variance
@@ -5995,7 +6073,7 @@ df['rt_ms'].max()       # maximum
 df['rt_ms'].sum()       # total
 df['rt_ms'].count()     # non-NaN count
 df['rt_ms'].corr(df['condition'].map({'control': 0, 'experimental': 1}))  # Pearson correlation between two columns
-df.corr()               # full correlation matrix of all numeric columns</code></pre>
+df.corr(numeric_only=True)  # full correlation matrix of all numeric columns</code></pre>
           </div>
         </div>
 
@@ -6012,7 +6090,14 @@ df.corr()               # full correlation matrix of all numeric columns</code><
               matplotlib separately (though you still need
               <span class="inline-code">plt.show()</span>).
             </p>
-            <pre><code class="language-python">import matplotlib.pyplot as plt
+            <pre><code class="language-python">import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.DataFrame({
+    'participant_id': ['P01', 'P02', 'P03'],
+    'condition':      ['control', 'experimental', 'control'],
+    'rt_ms':          [412, 378, 445]
+})
 
 df['rt_ms'].plot(kind='hist', bins=10)    # histogram
 df['rt_ms'].plot(kind='box')              # boxplot
@@ -10206,17 +10291,19 @@ turtle.done()</code></pre>
               <span class="badge badge-purple">PIP 1 — Weber's Fraction predictor</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python">
+import sys
 
 # Part 1: Calculate Weber's Fraction from two measured stimuli
 s1 = float(sys.argv[1])
 s2 = float(sys.argv[2])
+
 c = abs(s2 - s1) / s1
-print(f"Weber's Fraction C = {c:.4f}")
+print("Weber's Fraction C =", c)
 
 # Part 2: Predict S2 from S1 using C
 predicted_s2 = s1 + s1 * c
-print(f"Predicted S2 = {predicted_s2:.4f}")</code></pre>
+print("Predicted S2 =", predicted_s2)</code></pre>
               <p>
                 Two-part program: Part 1 computes Weber's Fraction
                 <span class="inline-code">C = |S2-S1| / S1</span>
@@ -10231,103 +10318,117 @@ print(f"Predicted S2 = {predicted_s2:.4f}")</code></pre>
               <span class="badge badge-purple">PIP 2 — Spelling practice program</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import random
-
-words = ["apple", "banana", "cherry"]
-random.shuffle(words)
+              <pre><code class="language-python">
+words = ["apple", "banana", "cherry", "dog", "cat"]
 
 score = 0
 for word in words:
-    print("Memorize this word:", word)
-    input("Press Enter when ready...")
-    print("---")
-    answer = input("Spell the word: ")
+    print("Type this word:", word)
+    answer = input("Your answer: ")
     if answer == word:
         print("Correct!")
         score += 1
     else:
-        print(f"Incorrect. The word was {word}")
+        print("Incorrect. The word was", word)
 
 percentage = score / len(words) * 100
-print(f"\nFinal score: {score}/{len(words)}")
+print("Final score:", score, "out of", len(words))
 if percentage >= 80:
-    print("Very good job!")
+    print("Excellent!")
 elif percentage >= 50:
     print("Good job!")
 else:
-    print("Not a good job. Keep practising!")</code></pre>
+    print("Keep practising!")</code></pre>
               <p>
-                A spelling practice program that shows each word for memorisation,
-                then asks the user to spell it. Gives motivational feedback:
-                &ge;80% &rarr; &ldquo;Very good job!&rdquo;,
-                &ge;50% &rarr; &ldquo;Good job!&rdquo;,
-                otherwise &rarr; &ldquo;Not a good job. Keep practising!&rdquo;
+                We define a list of words to practice with and a <span class="inline-code">score</span>
+                counter starting at zero. Then we loop through every word — displaying it on screen and
+                asking the child to type it. If the answer matches the word exactly, we print
+                <span class="inline-code">Correct!</span> and increment the score, otherwise we reveal
+                the correct spelling. After the loop, we calculate the percentage of correct answers by
+                dividing <span class="inline-code">score</span> by the total number of words and
+                multiplying by 100. That percentage then determines which of the three feedback messages
+                is printed.
               </p>
             </div>
           </div>
 
-          <!-- PIP3 -->
+          <!-- PIP 3 -->
           <div class="scenario">
             <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
-              <span class="badge badge-purple">PIP3 — Vehicle Chase</span>
-              Full solution structure
+              <span class="badge badge-purple">PIP 3 — Vehicle Chase</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python">
+def validate(prompt):
+    while True:
+        value = input(prompt)
+        if not value.isdigit():
+            print("Input must be a number")
+        elif int(value) < 0:
+            print("Input must be non-negative")
+        else:
+            return int(value)
 
-def validate(val_str):
-    try:
-        n = float(val_str)
-    except ValueError:
-        print("Error: not a number")
-        return None
-    if n &lt; 0:
-        print("Error: negative")
-        return None
-    return n
-
-speed1   = validate(sys.argv[1])
-speed2   = validate(sys.argv[2])
-distance = validate(sys.argv[3])
-mode     = sys.argv[4]
-
-if None in (speed1, speed2, distance):
-    print("Invalid input, exiting.")
-    sys.exit(1)
-elif mode == "towards":
-    t = distance / (speed1 + speed2)
-    print(f"Meet after {t:.2f} h, at {speed1 * t:.2f} km from start")
-elif mode == "pursue":
-    if speed1 == speed2:
-        print("Same speed — will never catch up!")
+def calc_time(distance, speed1, speed2, scenario):
+    if scenario == "towards":
+        return distance / (speed1 + speed2)
     else:
-        t = distance / abs(speed1 - speed2)
-        print(f"Caught after {t:.2f} h")</code></pre>
+        return distance / (speed1 - speed2)
+
+speed1 = validate("Input the velocity of the 1st vehicle: ")
+speed2 = validate("Input the velocity of the 2nd vehicle: ")
+distance = validate("Input the initial distance: ")
+scenario = input("Enter scenario (towards/pursue): ")
+
+if scenario == "towards":
+    if speed1 + speed2 == 0:
+        print("Both vehicles are stationary and will never meet")
+    else:
+        time = calc_time(distance, speed1, speed2, scenario)
+        print("The two vehicles will meet after", time, "seconds")
+        print("The first vehicle passed", speed1 * time, "meters before meeting")
+elif scenario == "pursue":
+    if speed1 <= speed2:
+        print("The pursuer is never going to catch up")
+    else:
+        time = calc_time(distance, speed1, speed2, scenario)
+        print("The vehicles will meet after", time, "seconds")
+        print("The first vehicle passed", speed1 * time, "meters before catching up")
+else:
+    print("Unknown scenario")</code></pre>
               <p>
-                The edge case where they <em>never</em> catch up is when both
-                vehicles travel in the same direction at equal speed — the gap
-                never closes.
-                <span class="inline-code">abs(speed1 - speed2)</span> would be
-                0, causing a division-by-zero crash without the check.
+                We define two functions: <span class="inline-code">validate()</span> loops until the user
+                enters a valid non-negative number, using <span class="inline-code">isdigit()</span> to
+                check if the input is numeric before converting it. <span class="inline-code">calc_time()</span>
+                takes <span class="inline-code">distance</span>, <span class="inline-code">speed1</span>,
+                <span class="inline-code">speed2</span> and <span class="inline-code">scenario</span> as
+                parameters and returns the time based on the scenario — dividing by the sum of speeds for
+                <span class="inline-code">towards</span>, or by the difference for
+                <span class="inline-code">pursue</span>. After collecting all inputs, we check the
+                scenario: for <span class="inline-code">towards</span> we guard against both vehicles
+                being stationary, and for <span class="inline-code">pursue</span> we check that the
+                pursuer is actually faster — otherwise they can never catch up. If the conditions are
+                met, we call <span class="inline-code">calc_time()</span> and print both the time and
+                distance travelled.
               </p>
             </div>
           </div>
 
-          <!-- PIP4 -->
+          <!-- PIP 4 -->
           <div class="scenario">
             <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
-              <span class="badge badge-purple">PIP4 — EEG Correlation</span>
-              Full solution structure
+              <span class="badge badge-purple">PIP 4 — EEG Correlation</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python">
+import sys
 import csv
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 
 # 1. Read file
-filename = sys.argv[1]          # "open.txt" or "closed.txt"
-ch_a_idx = int(sys.argv[2]) - 1  # user enters 1-8, convert to 0-indexed
+filename = sys.argv[1]             # "open.txt" or "closed.txt"
+ch_a_idx = int(sys.argv[2]) - 1    # user enters 1-8, convert to 0-indexed
 ch_b_idx = int(sys.argv[3]) - 1
 
 eeg = [[] for _ in range(8)]
@@ -10337,21 +10438,49 @@ with open(filename, "r") as f:
         for i, val in enumerate(row):
             eeg[i].append(float(val))
 
-# 2. Plot both channels
-plt.plot(eeg[ch_a_idx], label=f"Channel {ch_a_idx+1}")
-plt.plot(eeg[ch_b_idx], label=f"Channel {ch_b_idx+1}")
-plt.legend()
+# 2. Plot both channels in separate graphs
+plt.figure()
+plt.plot(eeg[ch_a_idx])
+plt.title(f"Channel {ch_a_idx + 1}")
+plt.show()
+
+plt.figure()
+plt.plot(eeg[ch_b_idx])
+plt.title(f"Channel {ch_b_idx + 1}")
 plt.show()
 
 # 3. Compute and print correlation
 r, p = pearsonr(eeg[ch_a_idx], eeg[ch_b_idx])
 print(f"r = {r:.3f}, p = {p:.3f}")</code></pre>
               <p>
-                The data file has 8 columns (channels) and 512 rows (samples).
-                Each row value belongs to its column's channel list.
-                <span class="inline-code">enumerate(row)</span> gives both the
-                index and value at the same time, so you can append to the
-                right channel list without a separate counter.
+                We start by reading the filename and two channel numbers from the command line.
+                The channel numbers are converted to integers and reduced by one because the user
+                enters a number between 1 and 8, but Python lists start at index 0 — so channel 1
+                becomes index 0, channel 8 becomes index 7.
+              </p>
+              <p>
+                Next we prepare <span class="inline-code">eeg</span> — a list containing 8 empty lists,
+                one for each EEG channel. We then open the file and read it line by line using
+                <span class="inline-code">csv.reader()</span> with a space as delimiter, so each row
+                is split into individual values. For every value in a row, we convert it to a decimal
+                using <span class="inline-code">float()</span> and append it to the corresponding
+                channel list inside <span class="inline-code">eeg</span>. After the loop, each of the
+                8 inner lists contains all 512 recorded measurements for that channel.
+              </p>
+              <p>
+                With the data loaded, we plot the two selected channels. Each channel gets its own
+                <span class="inline-code">figure()</span> call so they appear as separate graphs, and
+                a <span class="inline-code">title()</span> is added showing which channel is displayed.
+                We add 1 back when displaying the title so the user sees the original channel number
+                they entered, not the zero-based index.
+              </p>
+              <p>
+                Finally, we pass the two selected channel lists to <span class="inline-code">pearsonr()</span>
+                which computes how strongly the two channels correlate with each other. It returns two
+                values: <span class="inline-code">r</span>, the correlation coefficient indicating the
+                strength and direction of the relationship, and <span class="inline-code">p</span>, the
+                p-value indicating whether that correlation is statistically significant. Both are
+                printed to the screen.
               </p>
             </div>
           </div>

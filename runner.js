@@ -1255,6 +1255,7 @@ const DEBUG = location.hostname === "localhost";
   // ── Inject run buttons ───────────────────────────────────────────
   document.querySelectorAll("pre").forEach((pre) => {
     if (pre.parentElement.closest("pre")) return;
+    if (!pre.querySelector("code.language-python")) return;
     const btn = document.createElement("button");
     btn.className = "run-btn";
     btn.textContent = "▶ run";

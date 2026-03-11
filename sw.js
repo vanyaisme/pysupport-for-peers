@@ -2,7 +2,7 @@
 // Strategy: network-first for documents, stale-while-revalidate for static assets.
 // Version: bump CACHE_NAME to force cache refresh after updates.
 
-const CACHE_NAME = "python-guide-v12";
+const CACHE_NAME = "python-guide-v13";
 const ASSETS_TO_CACHE = [
   "/index.html",
   "/style.css",

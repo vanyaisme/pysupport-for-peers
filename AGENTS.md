@@ -76,7 +76,7 @@ The site uses `SharedArrayBuffer` and `Atomics` to allow the Python `input()` fu
 - **Key rule**: never overrides user-assigned variables.
 
 ### 3. Service Worker & Caching
-- **Cache Name**: Currently `python-guide-v12`. Update this when making breaking changes to assets.
+- **Cache Name**: Currently `python-guide-v13`. Update this when making breaking changes to assets.
 - **Offline Support**: Cache-first strategy for tutorial content.
 - **ASSETS_TO_CACHE**: `/index.html`, `/style.css`, `/runner.js`, `/manifest.json`, `/pyodide-worker.js`, `/favicon.png?v=5`.
 - **CDN bypass**: `cdn.jsdelivr.net`, `fonts.googleapis.com`, `fonts.gstatic.com` are NOT intercepted.
