@@ -546,7 +546,7 @@ print("Hello", sys.argv[1])  # Hello Alice</code></pre>
           </div>
           <div class="note">
             💡 <strong>What is an index?</strong>
-            An index is the position number of an item. Python always starts counting from <strong>0</strong>, not 1 — so the first item is at index&nbsp;0, the second at index&nbsp;1, and so on. This zero-based counting is used everywhere in Python; it is worth remembering from the start.
+            An index is the position number of an item. Python always starts counting from <strong>0</strong>,  so the first item is at index&nbsp;0, the second at index&nbsp;1, and so on. This zero-based counting is used everywhere in Python.
           </div>
           <p>
             You can pass as many arguments as you need, separated by spaces:
@@ -735,7 +735,7 @@ print(is_leap)  # True — no if needed; the expression itself is True/False</co
         <div class="scenario-body">
           <p>
             <strong>Augmented assignment</strong> means updating a variable using its own current value —
-for example, <code class="inline-code">x += 3</code> is shorthand for <code class="inline-code">x = x + 3</code>. It saves typing and makes the intent clear.
+for example, <code class="inline-code">x += 3</code> is shorthand for <code class="inline-code">x = x + 3</code>.
           </p>
           <table>
             <tr>
@@ -978,9 +978,9 @@ if number &gt; 0:
 else:
     print("Zero or negative")   # runs when condition is False</code></pre>
           <p>
-            Use <span class="inline-code">if/else</span> when there are exactly two mutually exclusive outcomes — for example, a response is either within the acceptable range or it is not.
+            Use <span class="inline-code">if/else</span> when there are two mutually exclusive outcomes (i.e. a response is either within the acceptable range or it is not.)
             If you only care about the <em>true</em> case and want to do nothing otherwise, a plain <span class="inline-code">if</span> without <span class="inline-code">else</span> is simpler and more readable.
-            Reserve <span class="inline-code">else</span> for when the fallback action is genuinely needed — it makes your intent explicit and prevents silent omissions.
+            Use <span class="inline-code">else</span> only when you need/have a fallback (alternative) action.
           </p>
         </div>
       </div>
@@ -1178,7 +1178,7 @@ print(f"Yes responses: {count}")   # 5</code></pre>
             direction it faces.
           </p>
           <div class="note">
-            ⚠️ <strong>Heads up — local Python required:</strong> Turtle graphics opens a separate window and requires a local Python installation (e.g. IDLE or VS Code). It will not run in browser-based environments.
+            ⚠️ <strong>Heads up — it requires Python on your computer :</strong> Turtle graphics opens a separate window and requires a Python installed on your computer in (e.g. PyCharm, VS Code, etc.). It won't run here.
           </div>
           <pre><code class="language-python">import turtle
 
@@ -1583,7 +1583,7 @@ for rt in rt_values:
 
         <p>So far, if your program hits a problem — like the user types a letter when you expected a number — Python
           <strong>crashes</strong> with an error message. That error is called an <strong>exception</strong>. This
-          section shows you how to catch exceptions so your program can recover gracefully.
+          section shows you how to catch exceptions so your program can recover and continue its work.
         </p>
 
         <div class="note">
@@ -1988,8 +1988,7 @@ except IndexError:
         print("Pass")</code></pre>
           <div class="warn">
             ⚠️ Always use <strong>4 spaces</strong> per indent level, never
-            mix tabs and spaces. Configure your editor to convert tabs to
-            spaces.
+            mix tabs and spaces. Most editors can be configured to convert tabs to spaces automatically.
           </div>
         </div>
       </div>
@@ -2018,9 +2017,8 @@ else:
           <div class="tip">
             💡 <strong>Tip:</strong> Use <code class="inline-code">is None</code> /
             <code class="inline-code">is not None</code> — not <code class="inline-code">== None</code>.
-            The <code class="inline-code">is</code> keyword checks that two names point to
-            <em>the exact same object</em>, which is the correct and recommended way to test for
-            <code class="inline-code">None</code>.
+            The <code class="inline-code">is</code> keyword checks whether two variables are
+            <em>exactly the same object</em>, which is recommended way to test for <code class="inline-code">None</code>.
           </div>
         </div>
       </div>
@@ -2223,47 +2221,49 @@ else:
         <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
           <span class="badge badge-purple">Technique 2</span> Reading
           Tracebacks
-        </div>
-        <div class="scenario-body">
-          <p>
-            A traceback is Python's error report. Here's a systematic method
-            for reading one:
-          </p>
-          <ol>
-            <li>
-              <strong>Jump to the last line</strong> — that's the error type
-              and message (e.g.,
-              <code class="inline-code">TypeError: ...</code>)
-            </li>
-            <li>
-              <strong>Read upward</strong> — each block shows a file name,
-              line number, and the code on that line
-            </li>
-            <li>
-              <strong>Find YOUR code</strong> — ignore any frames from library code you don't recognise yet; focus on
-              your own file
-            </li>
-            <li>
-              <strong>Check the line reported</strong> — but also look at the
-              line <em>before</em> it (e.g., SyntaxError often points one line
-              late)
-            </li>
-          </ol>
-          <pre><code class="language-python"># A simple crash — read the traceback it produces
-    score_text = "not-a-number"
-    score = int(score_text)    # ValueError — cannot convert
+          </div>
+          <div class="scenario-body">
+            <p>
+              When your code crashes, Python prints a <em>Traceback</em> — an error report showing exactly what went wrong and
+              where. While it can look daunting, you only need to read three things, starting from the bottom:
+            </p>
+            <pre><code class="language-python">
+              score_text = "not-a-number"
+              score = int(score_text)
 
-    # Traceback (most recent call last):
-    #   File "study.py", line 2, in &lt;module&gt;
-    #     score = int(score_text)
-    # ValueError: invalid literal for int() with base 10: 'not-a-number'
-
-    # Step 1 — last line: "ValueError" — what went wrong
-    # Step 2 — "line 2": where it happened
-    # Step 3 — "int(score_text)": the exact call that failed
-    # Fix: validate score_text before converting</code></pre>
-        </div>
-      </div>
+              # Traceback (most recent call last):
+              # File "study.py", line 2, in &lt;module&gt;
+              # core = int(score_text)
+              # ValueError: invalid literal for int() with base 10: 'not-a-number'
+                  </code></pre>
+            <ol>
+              <li>
+                <strong>Bottom line</strong> — what went wrong.
+                <code class="inline-code">ValueError: invalid literal for int() with base 10: 'not-a-number'</code> tells you the
+                error type, and why it happened.
+              </li>
+              <li>
+                <strong>Line number</strong> — where it happened. <code class="inline-code">line 2</code> tells you which line of
+                your code to look at.
+              </li>
+              <li>
+                <strong>The code shown</strong> — what exactly failed. <code class="inline-code">score = int(score_text)</code> is
+                the exact line that crashed, <code class="inline-code">int()</code> couldn't turn the text <code
+                  class="inline-code">"not-a-number"</code> into a
+                number.
+              </li>
+            </ol>
+            <p>
+              <strong>Fix:</strong> check that
+              <code class="inline-code">score_text</code> is a number before converting it.
+            </p>
+            <div class="tip">
+              💡 <strong>Tip:</strong> Always read a traceback from the
+              bottom up — the last line is the most useful, and everything
+              above it just shows the path Python took to get there.
+            </div>
+          </div>
+          </div>
 
       <div class="scenario">
         <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
@@ -2271,35 +2271,36 @@ else:
         </div>
         <div class="scenario-body">
           <p>
-            When you can’t tell which part of your code is wrong, shrink the
-            problem down to the smallest possible failing case. A tiny input
-            is faster to trace and harder to misread.
+            When you can't tell which part of your code causes the error,
+            start with your initial value that crashed your program, and then reduce it to smaller and smaller versions, checking
+            each time whether it still causes the crash. When the error disappears — your last reduction points in the direction of
+            the real cause.
           </p>
-          <p>
-            Approach: replace your real value with the smallest possible input
-            that still causes the same problem, then read every step.
-          </p>
-          <pre><code class="language-python"># Original problem: some input crashes the program.
-    # Instead of testing every possible value, test the smallest failing case.
-
-    # Shrink to one short string — still triggers the same ValueError
-    score_text = "x"    # smallest bad input
-    print(f"Input: '{score_text}'")
-    print(f"Type: {type(score_text).__name__}")    # .__name__ gives the type's name as a string
-    score = int(score_text)   # ValueError on 'x'
-
-    # Now the error is obvious: int() can't convert 'x'.
-    # Fix: check the input before converting.
-    if score_text.isdigit():
-        score = int(score_text)
-    else:
-        print(f"'{score_text}' is not a valid number")</code></pre>
-          <div class="tip">
-            💡 <strong>Rule of thumb:</strong> if your code works with
-            <code class="inline-code">"5"</code> but not with
-            <code class="inline-code">"hello"</code>, test <code class="inline-code">"x"</code>
-            — the shortest bad input. Fix that case first, then add more inputs.
-          </div>
+           <pre><code class="language-python">
+          score_text = "x"    # even after reducing it to one character — it's still crashes
+          print(f"Input: '{score_text}'")
+          print(f"Type: {type(score_text)}")
+          score = int(score_text)    # ValueError on 'x'
+              </code></pre>
+          <ol>
+            <li>
+              <strong>Shrink the input</strong> — cutting the original
+              value down to a single character
+              (<code class="inline-code">"x"</code>) still triggers the
+              same crash, so there's no need to test anything longer.
+            </li>
+            <li>
+              <strong>Check its type</strong> —
+              <code class="inline-code">type(score_text)</code>
+              confirms it's a string, when we need number.
+            </li>
+            <li>
+              <strong>See the crash clearly</strong> —
+              <code class="inline-code">int(score_text)</code> fails because
+              <code class="inline-code">"x"</code> isn't a valid number.
+              With a small input, the cause becomes obvious.
+            </li>
+          </ol>
         </div>
       </div>
 
@@ -2377,9 +2378,8 @@ else:
       </div>
       <p>
         A <strong>list</strong> is an ordered, changeable collection that holds multiple
-        values in a single variable. Think of it as a numbered row of boxes — box 0,
-        box 1, box 2 — where each box holds one value. You can add, remove, and look up
-        any item by its <strong>index</strong> (position number, always starting at 0).
+        values in a single variable.You can add, remove, and look up
+        any item by its <strong>index</strong>, starting at 0. So the first item is at index 0, second at 1, and so on.
       </p>
       <div class="scenario">
         <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
@@ -2387,11 +2387,12 @@ else:
           (Exercise 31)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">scores = [72, 85, 91]  # quiz scores for three participants
+          <pre><code class="language-python">scores = [72, 85, 91]
 
-scores[0]             # 72 — zero-indexed (first element = index 0)
-scores[-1]            # 91 — last element
-len(scores)           # 3  — number of elements
+scores[0]             # 72 — first item
+scores[1]             # 85 — second item
+scores[-1]            # 91 — last item
+len(scores)           # 3  — total elements
 
 # Print in reverse order (Exercise 32)
 for i in range(len(scores) - 1, -1, -1):
@@ -2941,14 +2942,11 @@ print(perms_admin &amp; perms_viewer)           # frozenset({'read'})</code></pr
           <p>
             A <strong>dictionary</strong> stores data as
             <em>key–value pairs</em>. Keys must be unique and immutable
-            (meaning they cannot be changed — strings, numbers, tuples). Values can be anything. Think of it
-            like a real dictionary: you look up a word (key) to get its
+            (meaning they cannot be changed — strings, numbers, tuples). Values can be anything. Almost like in real dictionary, where you look up a word (key) to get its
             definition (value).
           </p>
           <p>
-            Use a dictionary when you need to look something up by name, not
-            by position. If you catch yourself using parallel lists (one list
-            of names, one list of ages) — that's a sign you need a dictionary.
+            Dictionaries are useful when you are looking for something by its name, not concerned with its position.
           </p>
           <table>
             <tr>
@@ -3256,8 +3254,7 @@ print(students["alice"])</code></pre>
             A <strong>comprehension</strong> is a concise way to build a
             collection (list, dictionary, or set) by transforming and/or
             filtering a sequence of values — all in one <strong>expression</strong> (a piece of code that produces a value). They are
-            <em>common Python style</em>: once mastered, your code becomes
-            shorter, faster to read, and usually faster to execute.
+            often more concise, and can be faster to execute, than loop.
           </p>
           <p>
             <strong>Three types:</strong> list comprehensions
@@ -3817,13 +3814,8 @@ print(results)  # [(1, 'P01'), (2, 'P03')]
             </tr>
           </table>
           <div class="tip">
-            💡 <strong>Tip:</strong> List comprehensions can often replace
-            <code class="inline-code">map()</code> and
-            <code class="inline-code">filter()</code> with
-            <code class="inline-code">lambda</code> functions. Pick whichever
-            you find clearer.
-            <code class="inline-code">map()</code> is excellent when applying
-            an existing function.
+            💡 <strong>Tip:</strong> A list comprehension can often do the
+            same job as <code class="inline-code">map()</code> or <code class="inline-code">filter()</code> with a <code class="inline-code">lambda</code>. Use whichever you prefer. But, if you already have a named function — <code class="inline-code">map()</code> is usually the simpler choice since you can pass the function directly without rewriting it.
           </div>
         </div>
       </div>
@@ -6320,10 +6312,8 @@ print(top)</code></pre>
           </div>
           <div class="scenario-body">
             <p>
-              <strong>PEP 8</strong> is Python’s official style guide. It defines how to format
-              code so it’s readable and consistent — not for the computer, but for humans
-              reading it later (including you). Well-styled code is easier to debug, easier
-              to share, and looks professional.
+              <strong>PEP 8</strong> is Python’s official style guide. It defines how to format the
+              code, so it’s readable and consistent — making it easier to navigate, debug and share with others.
             </p>
           </div>
         </div>
@@ -6384,8 +6374,8 @@ print(top)</code></pre>
             <table>
               <thead>
                 <tr>
-                  <th>Do ✅</th>
-                  <th>Don&apos;t ❌</th>
+                  <th>✅</th>
+                  <th>❌</th>
                 </tr>
               </thead>
               <tbody>
@@ -6429,14 +6419,14 @@ print(top)</code></pre>
               (3) local/project files. Never use
               <code class="inline-code">from module import *</code> — it makes it impossible to know where names come from.
             </p>
-            <pre><code class="language-python"># ✅ Good
+            <pre><code class="language-python"># ✅
 import os
 import sys
 
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ❌ Bad
+# ❌
 import os, sys
 from pandas import *</code></pre>
           </div>
@@ -6477,8 +6467,8 @@ def compute_mean_rt(rt_values):
             <table>
               <thead>
                 <tr>
-                  <th>Instead of…</th>
-                  <th>Write this ✅</th>
+                  <th>❌</th>
+                  <th>✅</th>
                 </tr>
               </thead>
               <tbody>
@@ -6505,8 +6495,8 @@ def compute_mean_rt(rt_values):
               </tbody>
             </table>
             <p>
-              Python reads naturally — <code class="inline-code">if results:</code> reads as
-              “if there are results,” which is clearer than checking length.
+              <code class="inline-code">if results:</code> reads as
+              “if there are results,” making code clearer and easier to understand.
             </p>
           </div>
         </div>
@@ -6516,7 +6506,7 @@ def compute_mean_rt(rt_values):
             <span class="badge badge-yellow">Before &amp; After</span> Same psychology script
           </div>
           <div class="scenario-body">
-            <p><strong>Before (bad style):</strong></p>
+            <p><strong>Before:</strong></p>
             <pre><code class="language-python">import random,math
 RT=[]
 def calcMean(l):
