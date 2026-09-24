@@ -35,6 +35,10 @@ export default [
 
   // ── runner.js — main thread, full browser environment ─────────────────────
   {
+    files: ["scripts/*.cjs"],
+    languageOptions: { globals: globals.node },
+  },
+  {
     files: ["runner.js"],
     languageOptions: {
       globals: {

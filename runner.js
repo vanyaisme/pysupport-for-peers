@@ -42,31 +42,90 @@
         a.appendChild(label);
       }
     }
+    a.setAttribute(
+      "aria-label",
+      sec.id === "roadmap"
+        ? "Roadmap"
+        : `${num}. ${sec.querySelector("h2")?.textContent.trim() || "Section"}`
+    );
     a.dataset.section = sec.id;
     if (sidebar) sidebar.appendChild(a);
     links.push(a);
   });
 
+  let keyboardNavigation = true;
+  function sidebarHasKeyboardFocus() {
+    return keyboardNavigation && sidebar?.contains(document.activeElement);
+  }
+  document.addEventListener(
+    "pointerdown",
+    () => {
+      keyboardNavigation = false;
+      sidebar?.classList.remove("is-keyboard-nav");
+    },
+    true
+  );
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Tab") return;
+      keyboardNavigation = true;
+      if (sidebarHasKeyboardFocus()) sidebar.classList.add("is-keyboard-nav");
+    },
+    true
+  );
+
+  function positionLensLabels() {
+    if (!sidebar) return;
+    const anchor = links[0];
+    if (!anchor) return;
+    // Choose by usable gutter, not by the hovered title, so names never jump sides.
+    const leftSpace = sidebar.offsetLeft + anchor.offsetLeft - 16;
+    const useRight = leftSpace < 180;
+    const availableSpace = useRight
+      ? window.innerWidth - sidebar.offsetLeft - anchor.offsetLeft - anchor.offsetWidth - 22
+      : leftSpace;
+    sidebar.classList.toggle("lens-labels-right", useRight);
+    sidebar.style.setProperty("--lens-label-width", `${Math.max(0, availableSpace)}px`);
+    const visibleLinks = links.filter((link) =>
+      link.matches(".is-lens-current, .is-lens-prev, .is-lens-next")
+    );
+    visibleLinks.forEach((link) => link.style.removeProperty("--lens-label-offset"));
+    const current = visibleLinks.find((link) => link.classList.contains("is-lens-current"));
+    if (!current) return;
+    const center = current.offsetTop + current.offsetHeight / 2;
+    const currentHeight = current.querySelector(".sidebar-lens-label").offsetHeight;
+    visibleLinks.forEach((link) => {
+      if (link === current) return;
+      const labelHeight = link.querySelector(".sidebar-lens-label").offsetHeight;
+      const distance = link.offsetTop + link.offsetHeight / 2 - center;
+      // Wrapped titles need extra space between the current and neighbouring names.
+      const offset =
+        Math.sign(distance) *
+        Math.max(0, (currentHeight + labelHeight) / 2 + 8 - Math.abs(distance));
+      link.style.setProperty("--lens-label-offset", `${offset}px`);
+    });
+  }
+  document.fonts?.ready.then(positionLensLabels);
+
   const roadmapLink = links.find((l) => l.dataset.section === "roadmap");
   let cachedSidebarW = sidebar ? sidebar.offsetWidth : 0;
   window.addEventListener("resize", () => {
     cachedSidebarW = sidebar ? sidebar.offsetWidth : 0;
+    positionLensLabels();
   });
 
   // ── Lens hover ──
   if (sidebar)
     sidebar.addEventListener("mouseleave", () => {
+      if (sidebarHasKeyboardFocus()) return;
       links.forEach((l) => {
         l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
       });
       if (roadmapLink) {
         const dot = roadmapLink.querySelector(".lens-roadmap-dot");
         if (dot)
-          dot.classList.remove(
-            "lens-dot-beginner",
-            "lens-dot-intermediate",
-            "lens-dot-advanced",
-          );
+          dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
       }
     });
   links.forEach((link, i) => {
@@ -77,15 +136,12 @@
       link.classList.add("is-lens-current");
       if (i > 0) links[i - 1].classList.add("is-lens-prev");
       if (i < links.length - 1) links[i + 1].classList.add("is-lens-next");
+      positionLensLabels();
 
       if (roadmapLink) {
         const dot = roadmapLink.querySelector(".lens-roadmap-dot");
         if (dot) {
-          dot.classList.remove(
-            "lens-dot-beginner",
-            "lens-dot-intermediate",
-            "lens-dot-advanced",
-          );
+          dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
           const level = getSectionLevel(link.dataset.section);
           if (level) dot.classList.add("lens-dot-" + level);
         }
@@ -95,21 +151,20 @@
   // ── Keyboard lens (focusin mirrors mouseenter, focusout mirrors mouseleave) ──
   links.forEach((link, i) => {
     link.addEventListener("focusin", () => {
+      sidebar?.classList.add("is-nav-open");
+      sidebar?.classList.toggle("is-keyboard-nav", keyboardNavigation);
       links.forEach((l) => {
         l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
       });
       link.classList.add("is-lens-current");
       if (i > 0) links[i - 1].classList.add("is-lens-prev");
       if (i < links.length - 1) links[i + 1].classList.add("is-lens-next");
+      positionLensLabels();
 
       if (roadmapLink) {
         const dot = roadmapLink.querySelector(".lens-roadmap-dot");
         if (dot) {
-          dot.classList.remove(
-            "lens-dot-beginner",
-            "lens-dot-intermediate",
-            "lens-dot-advanced",
-          );
+          dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
           const level = getSectionLevel(link.dataset.section);
           if (level) dot.classList.add("lens-dot-" + level);
         }
@@ -120,39 +175,38 @@
     sidebar.addEventListener("focusout", () => {
       requestAnimationFrame(() => {
         if (sidebar.contains(document.activeElement)) return;
+        sidebar.classList.remove("is-nav-open", "is-keyboard-nav");
         links.forEach((l) => {
           l.classList.remove("is-lens-current", "is-lens-prev", "is-lens-next");
         });
         if (roadmapLink) {
           const dot = roadmapLink.querySelector(".lens-roadmap-dot");
           if (dot)
-            dot.classList.remove(
-              "lens-dot-beginner",
-              "lens-dot-intermediate",
-              "lens-dot-advanced",
-            );
+            dot.classList.remove("lens-dot-beginner", "lens-dot-intermediate", "lens-dot-advanced");
         }
       });
     });
 
   // ── Sidebar reveal ──
   let _rafId = 0;
-  document.addEventListener("mousemove", (e) => {
+  document.addEventListener(
+    "mousemove",
+    (e) => {
       cancelAnimationFrame(_rafId);
       _rafId = requestAnimationFrame(() => {
         const sidebarLeft = Math.max(0, window.innerWidth / 2 - 530);
         const sidebarRight = sidebarLeft + cachedSidebarW + 16;
         const nearEdge = e.clientX >= sidebarLeft && e.clientX <= sidebarRight;
-        if (!sidebar) return;
+        if (!sidebar || sidebarHasKeyboardFocus()) return;
         if (nearEdge && sidebar.classList.contains("is-nav-open")) return;
         if (!nearEdge && !sidebar.classList.contains("is-nav-open")) return;
         sidebar.classList.toggle("is-nav-open", nearEdge);
       });
     },
-    { passive: true },
+    { passive: true }
   );
   document.addEventListener("mouseleave", () => {
-    sidebar?.classList.remove("is-nav-open");
+    if (!sidebarHasKeyboardFocus()) sidebar?.classList.remove("is-nav-open");
   });
 
   const mobileNavBtn = document.createElement("button");
@@ -199,7 +253,7 @@
     mobileNavBtn.setAttribute("aria-expanded", String(isOpen));
     mobileNavBtn.setAttribute(
       "aria-label",
-      isOpen ? "Close chapter navigation" : "Open chapter navigation",
+      isOpen ? "Close chapter navigation" : "Open chapter navigation"
     );
     if (isOpen) {
       mobileNavLastFocused = document.activeElement;
@@ -222,15 +276,12 @@
       return;
     }
     if (e.key !== "Tab") return;
-    const focusable = [mobileNavBtn].concat(
-      Array.from(mobileNavPanel.querySelectorAll("a")),
-    );
+    const focusable = [mobileNavBtn].concat(Array.from(mobileNavPanel.querySelectorAll("a")));
     if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     const active = document.activeElement;
-    const isInsidePanel =
-      active === mobileNavBtn || mobileNavPanel.contains(active);
+    const isInsidePanel = active === mobileNavBtn || mobileNavPanel.contains(active);
     if (!isInsidePanel) {
       e.preventDefault();
       first.focus();
@@ -265,7 +316,7 @@
         });
       });
     },
-    { rootMargin: "-10% 0px -80% 0px" },
+    { rootMargin: "-10% 0px -80% 0px" }
   );
 
   sections.forEach((s) => {
@@ -282,7 +333,7 @@
           heartObserver.disconnect();
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.4 }
     );
     heartObserver.observe(heartEl);
   }
@@ -317,12 +368,10 @@
         }
       });
     },
-    { passive: true },
+    { passive: true }
   );
   if (topBtn)
-    topBtn.addEventListener("click", () =>
-      window.scrollTo({ top: 0, behavior: "smooth" }),
-    );
+    topBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
   const themeBtn = document.getElementById("themeToggle");
   const saved = localStorage.getItem("theme");
@@ -333,13 +382,13 @@
   if (themeBtn)
     themeBtn.setAttribute(
       "aria-pressed",
-      document.documentElement.dataset.theme !== "light" ? "true" : "false",
+      document.documentElement.dataset.theme !== "light" ? "true" : "false"
     );
   const floatingThemeBtn = document.getElementById("floatingThemeToggle");
   if (floatingThemeBtn)
     floatingThemeBtn.setAttribute(
       "aria-pressed",
-      document.documentElement.dataset.theme !== "light" ? "true" : "false",
+      document.documentElement.dataset.theme !== "light" ? "true" : "false"
     );
 
   if (themeBtn)
@@ -348,10 +397,7 @@
       document.documentElement.dataset.theme = isLight ? "" : "light";
       themeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
       if (floatingThemeBtn)
-        floatingThemeBtn.setAttribute(
-          "aria-pressed",
-          isLight ? "true" : "false",
-        );
+        floatingThemeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
       localStorage.setItem("theme", isLight ? "" : "light");
     });
 
@@ -371,7 +417,7 @@
       scenario.classList.toggle("collapsed");
       title.setAttribute(
         "aria-expanded",
-        !scenario.classList.contains("collapsed") ? "true" : "false",
+        !scenario.classList.contains("collapsed") ? "true" : "false"
       );
     });
     title.addEventListener("keydown", (e) => {
@@ -380,37 +426,6 @@
         title.click();
       }
     });
-  });
-
-  // Collapse/Expand all toggle per section
-  document.querySelectorAll(".section-header").forEach((header) => {
-    const btn = document.createElement("button");
-    btn.className = "section-toggle";
-    btn.textContent = "collapse all";
-    btn.addEventListener("click", () => {
-      const section = header.closest(".section");
-      const scenarios = section.querySelectorAll(".scenario");
-      const allCollapsed = [...scenarios].every((s) =>
-        s.classList.contains("collapsed"),
-      );
-      scenarios.forEach((s) => {
-        if (allCollapsed) {
-          s.classList.remove("collapsed");
-          s.querySelector(".scenario-title")?.setAttribute(
-            "aria-expanded",
-            "true",
-          );
-        } else {
-          s.classList.add("collapsed");
-          s.querySelector(".scenario-title")?.setAttribute(
-            "aria-expanded",
-            "false",
-          );
-        }
-      });
-      btn.textContent = allCollapsed ? "collapse all" : "expand all";
-    });
-    header.appendChild(btn);
   });
 
   // Copy buttons on code blocks
@@ -474,10 +489,10 @@
   let lastFocusedElement = null;
   const overlayIds = Array.from(
     new Set(
-      Array.from(
-        document.querySelectorAll("[data-overlay-show],[data-overlay-hide]"),
-      ).flatMap((el) => [el.dataset.overlayShow, el.dataset.overlayHide]),
-    ),
+      Array.from(document.querySelectorAll("[data-overlay-show],[data-overlay-hide]")).flatMap(
+        (el) => [el.dataset.overlayShow, el.dataset.overlayHide]
+      )
+    )
   ).filter(Boolean);
 
   function getActiveOverlayElement() {
@@ -490,10 +505,37 @@
 
   function getOverlayFocusableElements(overlay) {
     return Array.from(
-      overlay.querySelectorAll(
-        'button, [href], input, [tabindex]:not([tabindex="-1"])',
-      ),
-    ).filter((el) => !el.hasAttribute("disabled"));
+      overlay.querySelectorAll("button, [href], input, select, textarea, [tabindex]")
+    ).filter(
+      (el) =>
+        el.tabIndex >= 0 &&
+        !el.matches(":disabled") &&
+        !el.closest("[hidden], [inert], .collapsed .scenario-body") &&
+        getComputedStyle(el).visibility !== "hidden" &&
+        el.getClientRects().length > 0
+    );
+  }
+
+  const modalBackground = new Map();
+  function syncModalBackground() {
+    for (const [el, wasInert] of modalBackground) el.inert = wasInert;
+    modalBackground.clear();
+    const active = getActiveOverlayElement();
+    for (const status of document.querySelectorAll(".py-runtime-status, .py-execution-status")) {
+      (active || document.body).appendChild(status);
+      status.inert = false;
+    }
+    if (!active) return;
+    let child = active;
+    while (child.parentElement) {
+      for (const sibling of child.parentElement.children) {
+        if (sibling === child) continue;
+        modalBackground.set(sibling, sibling.inert);
+        sibling.inert = true;
+      }
+      child = child.parentElement;
+      if (child === document.body) break;
+    }
   }
 
   document.addEventListener("keydown", function (e) {
@@ -502,7 +544,11 @@
     if (!activeOverlay) return;
     if (e.key === "Tab") {
       const focusable = getOverlayFocusableElements(activeOverlay);
-      if (!focusable.length) return;
+      if (!focusable.length) {
+        e.preventDefault();
+        activeOverlay.focus();
+        return;
+      }
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       const isInsideOverlay = activeOverlay.contains(document.activeElement);
@@ -520,7 +566,7 @@
     if (e.key !== "Escape") return;
     e.preventDefault();
     const hideBtn = activeOverlay.querySelector(
-      `[data-overlay-hide="${activeOverlay.id}"]:not([data-overlay-show])`,
+      `[data-overlay-hide="${activeOverlay.id}"]:not([data-overlay-show])`
     );
     if (hideBtn) hideBtn.click();
   });
@@ -532,7 +578,7 @@
     const toShow = btn.dataset.overlayShow;
 
     if (toShow && !toHide) {
-      lastFocusedElement = document.activeElement;
+      lastFocusedElement = btn;
     }
 
     if (toShow) {
@@ -546,8 +592,6 @@
           document.body.style.width = "100%";
         }
         el.style.display = "flex";
-        const focusable = getOverlayFocusableElements(el)[0];
-        if (focusable) focusable.focus();
       }
     }
 
@@ -565,6 +609,11 @@
       }
     }
 
+    syncModalBackground();
+    if (toShow) {
+      const el = document.getElementById(toShow);
+      if (el) (getOverlayFocusableElements(el)[0] || el).focus();
+    }
     if (toHide && !toShow && lastFocusedElement) {
       lastFocusedElement.focus();
       lastFocusedElement = null;
@@ -578,34 +627,57 @@ const DEBUG = location.hostname === "localhost";
 (function () {
   "use strict";
 
-  // Guard: SharedArrayBuffer requires cross-origin isolation (COOP + COEP headers).
-  // On first page load the Service Worker hasn"t activated yet, so those headers
-  // are absent. Bail out here — the SW registration below will reload the page
-  // once the SW is active and headers are in effect.
+  const PROTOCOL_VERSION = 2;
+  const STARTUP_TIMEOUT_MS = 30_000;
+  const CANCEL_TIMEOUT_MS = 1500;
+  const runtimeStatus = document.createElement("div");
+  runtimeStatus.className = "py-runtime-status";
+  runtimeStatus.hidden = true;
+  const runtimeMessage = document.createElement("span");
+  runtimeMessage.setAttribute("role", "status");
+  runtimeMessage.setAttribute("aria-live", "polite");
+  const retryButton = document.createElement("button");
+  retryButton.type = "button";
+  retryButton.textContent = "Retry Python";
+  retryButton.hidden = true;
+  runtimeStatus.append(runtimeMessage, retryButton);
+  document.body.appendChild(runtimeStatus);
+
+  function showRuntimeStatus(message, retry = false) {
+    const activeDialog = Array.from(document.querySelectorAll('[role="dialog"]')).find(
+      (el) => getComputedStyle(el).display !== "none"
+    );
+    (activeDialog || document.body).appendChild(runtimeStatus);
+    runtimeStatus.inert = false;
+    runtimeStatus.hidden = !message;
+    runtimeMessage.textContent = message;
+    retryButton.hidden = !retry;
+  }
+
   if (!window.crossOriginIsolated) {
-    if (DEBUG)
-      console.info(
-        "[runner] Not cross-origin isolated yet — skipping init. SW will reload the page.",
-      );
+    showRuntimeStatus(
+      "Python needs a secure, cross-origin isolated page. Reload to try again; you can still read and copy the examples.",
+      true
+    );
+    retryButton.textContent = "Reload page";
+    retryButton.addEventListener("click", () => location.reload());
     return;
   }
 
-  // SharedArrayBuffer setup
-  const stdinSAB = new SharedArrayBuffer(8);
-  const dataSAB = new SharedArrayBuffer(65536);
-  const stdinView = new Int32Array(stdinSAB);
+  let stdinView = null;
+  let dataView = null;
+  let interruptView = null;
+  let cancelView = null;
 
-  // Worker init
   let _worker = null;
+  let _runtimeState = "idle";
+  let _startupTimer = null;
+  let _cancelTimer = null;
   let _running = false;
   let _runId = 0;
   let _currentPre = null;
   let _currentBtn = null;
   let _inputPanel = null; // active input DOM element
-  let _resolveReady = null;
-  const readyPromise = new Promise((resolve) => {
-    _resolveReady = resolve;
-  });
 
   function setRunButtonsEnabled(enabled) {
     document.querySelectorAll(".run-btn").forEach((btn) => {
@@ -615,66 +687,179 @@ const DEBUG = location.hostname === "localhost";
 
   function getWorker() {
     if (_worker) return _worker;
-    _worker = new Worker("./pyodide-worker.js");
-    _worker.addEventListener("message", handleWorkerMessage);
-    _worker.addEventListener("error", (e) => {
-      toastHide();
-      if (_currentBtn) {
-        _currentBtn.textContent = "▶ run";
-        _currentBtn.classList.remove("loading");
-      }
-      if (_currentPre)
-        showOutput(_currentPre, "err", "Worker error: " + e.message);
-      _running = false;
-      removeInputPanel();
-    });
-    _worker.postMessage({ type: "init", stdinSAB, dataSAB });
+    _runtimeState = "loading";
+    setRunButtonsEnabled(false);
+    showRuntimeStatus("Loading Python…");
+    try {
+      // Each generation owns its buffers: late writes cannot affect a replacement worker.
+      stdinView = new Int32Array(new SharedArrayBuffer(8));
+      dataView = new Uint8Array(new SharedArrayBuffer(65536));
+      interruptView = new Uint8Array(new SharedArrayBuffer(1));
+      cancelView = new Int32Array(new SharedArrayBuffer(4));
+      const worker = new Worker("./pyodide-worker.js?v=17");
+      _worker = worker;
+      worker.addEventListener("message", (event) => {
+        if (_worker === worker) handleWorkerMessage(event);
+      });
+      worker.addEventListener("error", (event) => {
+        if (_worker === worker) failWorker("Python stopped unexpectedly. " + event.message);
+      });
+      worker.addEventListener("messageerror", () => {
+        if (_worker === worker) failWorker("Python could not read a response. Please retry.");
+      });
+      _startupTimer = setTimeout(() => {
+        if (_worker === worker && _runtimeState === "loading") {
+          failWorker("Python took too long to load. Check your connection and retry.");
+        }
+      }, STARTUP_TIMEOUT_MS);
+      worker.postMessage({
+        type: "init",
+        protocolVersion: PROTOCOL_VERSION,
+        stdinSAB: stdinView.buffer,
+        dataSAB: dataView.buffer,
+        interruptSAB: interruptView.buffer,
+        cancelSAB: cancelView.buffer,
+      });
+    } catch (err) {
+      failWorker("Python could not start. " + err.message);
+    }
     return _worker;
   }
 
-  // Accumulated output buffer (for interleaved stdout/input)
+  function failWorker(message) {
+    clearTimeout(_startupTimer);
+    clearTimeout(_cancelTimer);
+    const worker = _worker;
+    _worker = null;
+    worker?.terminate();
+    _runtimeState = "failed";
+    if (_running) {
+      _stdoutParts.push({ kind: "stderr", text: message.slice(0, 4000) + "\n" });
+      finishRun([]);
+    }
+    setRunButtonsEnabled(false);
+    showRuntimeStatus(message, true);
+  }
+
+  retryButton.addEventListener("click", () => getWorker());
+
+  const OUTPUT_LIMIT = 100_000;
+  const PART_LIMIT = 1000;
   let _stdoutParts = [];
+  let outputLength = 0;
+  let outputTruncated = false;
+  let outputFrame = null;
+  const renderedParts = new WeakMap();
+  const executionStatus = document.createElement("div");
+  executionStatus.className = "sr-only py-execution-status";
+  executionStatus.setAttribute("role", "status");
+  executionStatus.setAttribute("aria-live", "polite");
+  document.body.appendChild(executionStatus);
+  const resetButton = document.createElement("button");
+  resetButton.id = "floatingPythonReset";
+  resetButton.className = "floating-python-reset";
+  resetButton.type = "button";
+  resetButton.title = "Reset Python — stops code and clears temporary files";
+  resetButton.setAttribute("aria-label", "Reset Python");
+  resetButton.setAttribute("aria-describedby", "python-reset-help");
+  const resetIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  resetIcon.setAttribute("viewBox", "0 0 24 24");
+  resetIcon.setAttribute("fill", "none");
+  resetIcon.setAttribute("stroke", "currentColor");
+  resetIcon.setAttribute("stroke-width", "1.5");
+  resetIcon.setAttribute("aria-hidden", "true");
+  resetIcon.innerHTML =
+    '<title>Reset Python</title><path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 0 1 15.36-6.36L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.36 6.36L3 16M8 16H3v5" />';
+  resetButton.appendChild(resetIcon);
+  const resetHelp = document.createElement("span");
+  resetHelp.id = "python-reset-help";
+  resetHelp.className = "sr-only";
+  resetHelp.textContent = "Stops running code and clears temporary files.";
+  document.body.append(resetButton, resetHelp);
+  function updateResetVisibility() {
+    const visible = window.scrollY > 500;
+    resetButton.classList.toggle("visible", visible);
+    resetButton.tabIndex = visible ? 0 : -1;
+  }
+  window.addEventListener("scroll", updateResetVisibility, { passive: true });
+  updateResetVisibility();
+
+  resetButton.addEventListener("click", () => {
+    resetButton.disabled = true;
+    failWorker("Python was reset; temporary files were cleared.");
+    document.querySelectorAll(".py-form").forEach((form) => form.remove());
+    getWorker();
+    executionStatus.textContent = "Resetting Python. Temporary files were cleared.";
+  });
+
+  function addOutput(kind, value) {
+    const text = String(value || "");
+    if (!text || outputTruncated) return;
+    const remaining = _stdoutParts.length < PART_LIMIT ? OUTPUT_LIMIT - outputLength : 0;
+    if (remaining > 0) {
+      const kept = text.slice(0, remaining);
+      _stdoutParts.push({ kind, text: kept });
+      outputLength += kept.length;
+    }
+    if (text.length > remaining) markOutputTruncated();
+    updateLiveOutput();
+  }
+  function markOutputTruncated() {
+    if (outputTruncated) return;
+    outputTruncated = true;
+    _stdoutParts.push({
+      kind: "notice",
+      text: "\nOutput truncated. Reduce printed output or stop the code.\n",
+    });
+    executionStatus.textContent = "Output truncated. Code can still be stopped.";
+    updateLiveOutput();
+  }
 
   // Worker message handler
   const MSG = {
-    ready: () => {
-      toastHide();
-      setRunButtonsEnabled(true);
-      if (_resolveReady) {
-        _resolveReady();
-        _resolveReady = null;
+    ready: (data) => {
+      if (data.protocolVersion !== PROTOCOL_VERSION) {
+        failWorker("Python files are from different releases. Reload the page and retry.");
+        return;
       }
+      clearTimeout(_startupTimer);
+      _runtimeState = "ready";
+      toastHide();
+      showRuntimeStatus("");
+      setRunButtonsEnabled(true);
+      resetButton.disabled = false;
     },
+    init_error: (data) => failWorker(data.message),
     stdout: ({ text }) => {
-      _stdoutParts.push({ kind: "stdout", text: String(text || "") });
-      updateLiveOutput();
+      addOutput("stdout", text);
     },
     stderr: ({ text }) => {
-      _stdoutParts.push({ kind: "stderr", text: String(text || "") });
-      updateLiveOutput();
+      addOutput("stderr", text);
     },
+    output_truncated: () => markOutputTruncated(),
     need_input: () => showInputPrompt(),
     toast: ({ message }) => toastShow(message),
-    done: ({ images }) => finishRun(images || []),
+    done: ({ images, plotsTruncated, errorMessage }) => {
+      if (errorMessage)
+        _stdoutParts.push({ kind: "stderr", text: String(errorMessage).slice(0, 4000) });
+      finishRun(images || [], plotsTruncated);
+    },
     error: (data) => {
-      toastHide();
-      removeInputPanel();
-      if (_currentBtn) {
-        _currentBtn.textContent = "▶ run";
-        _currentBtn.classList.remove("loading");
-      }
-      if (_currentPre) showOutput(_currentPre, "err", data.message);
-      _running = false;
-      _currentPre = null;
-      _currentBtn = null;
+      _stdoutParts.push({ kind: "stderr", text: String(data.message).slice(0, 4000) + "\n" });
+      finishRun([]);
     },
   };
 
   function handleWorkerMessage({ data }) {
-    if (data.type !== "ready") {
-      if (data.runId !== undefined && data.runId !== _runId) return;
+    if (!data || typeof data !== "object") return;
+    if (_runtimeState === "loading" && data.type === "error") {
+      failWorker(data.message || "Python could not start.");
+      return;
     }
-    if (!MSG[data.type]) {
+    if (data.type !== "ready" && data.type !== "init_error") {
+      if (!_running || data.runId !== _runId) return;
+    }
+    if (!Object.hasOwn(MSG, data.type)) {
       console.warn("Unknown worker message:", data.type);
       return;
     }
@@ -691,8 +876,8 @@ const DEBUG = location.hostname === "localhost";
     _currentPre.parentElement?.classList.add("py-open");
     _livePanel = document.createElement("div");
     _livePanel.className = "py-output";
-    _livePanel.setAttribute("role", "status");
-    _livePanel.setAttribute("aria-live", "polite");
+    _livePanel.setAttribute("role", "region");
+    _livePanel.setAttribute("aria-label", "Python output");
 
     const bar = document.createElement("div");
     bar.className = "py-output-bar";
@@ -723,19 +908,17 @@ const DEBUG = location.hostname === "localhost";
 
     _livePanel.append(bar, body);
     const panel = _livePanel;
-    panel
-      .querySelector(".py-output-close")
-      .addEventListener("click", () => {
-        panel.remove();
-        if (_livePanel === panel) _livePanel = null;
-        if (_currentPre) _currentPre.parentElement?.classList.remove("py-open");
-      });
+    panel.querySelector(".py-output-close").addEventListener("click", () => {
+      panel.remove();
+      if (_livePanel === panel) _livePanel = null;
+      if (_currentPre) _currentPre.parentElement?.classList.remove("py-open");
+    });
     _currentPre.parentElement?.insertAdjacentElement("afterend", _livePanel);
   }
 
   function renderOutputParts(body, parts) {
-    body.textContent = "";
-    parts.forEach((part) => {
+    const start = renderedParts.get(body) || 0;
+    parts.slice(start).forEach((part) => {
       if (part.kind === "stderr") {
         const span = document.createElement("span");
         span.className = "py-err-inline";
@@ -745,10 +928,15 @@ const DEBUG = location.hostname === "localhost";
       }
       body.appendChild(document.createTextNode(part.text));
     });
+    renderedParts.set(body, parts.length);
   }
 
   function appendOutputImages(body, images) {
-    images.forEach((b64) => {
+    let bytes = 0;
+    images.slice(0, 5).forEach((b64) => {
+      if (typeof b64 !== "string" || b64.length > 2_000_000 || bytes + b64.length > 8_000_000)
+        return;
+      bytes += b64.length;
       const img = document.createElement("img");
       img.src = `data:image/png;base64,${b64}`;
       img.alt = "matplotlib plot";
@@ -756,17 +944,23 @@ const DEBUG = location.hostname === "localhost";
     });
   }
 
-  function updateLiveOutput() {
+  function flushLiveOutput() {
+    if (outputFrame !== null) cancelAnimationFrame(outputFrame);
+    outputFrame = null;
     ensureLivePanel();
-    if (!_livePanel) return;
-    const body = _livePanel.querySelector("#_live_body");
+    const body = _livePanel?.querySelector("#_live_body");
     if (body) renderOutputParts(body, _stdoutParts);
+  }
+
+  function updateLiveOutput() {
+    if (outputFrame === null) outputFrame = requestAnimationFrame(flushLiveOutput);
   }
 
   // Input prompt (injected below live output during need_input)
   function showInputPrompt() {
     if (!_currentPre) return;
-    ensureLivePanel();
+    flushLiveOutput();
+    executionStatus.textContent = "Python is waiting for input.";
     removeInputPanel();
 
     const container = document.createElement("div");
@@ -783,30 +977,38 @@ const DEBUG = location.hostname === "localhost";
     field.placeholder = "type your answer and press Enter…";
     field.setAttribute("aria-label", "Python input()");
     field.autocomplete = "off";
+    field.addEventListener("input", () => field.setCustomValidity(""));
 
     body.appendChild(field);
     container.appendChild(body);
     field.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") submitInput(field.value);
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitInput(field.value);
+      }
     });
-    (_livePanel || _currentPre.parentElement).insertAdjacentElement(
-      "afterend",
-      container,
-    );
+    (_livePanel || _currentPre.parentElement).insertAdjacentElement("afterend", container);
     _inputPanel = container;
-    field.focus();
+    if (!field.closest("[inert]")) field.focus();
   }
 
   function submitInput(value) {
-    removeInputPanel();
+    if (!_running || Atomics.load(cancelView, 0) || Atomics.load(stdinView, 0) !== 1) return;
     const bytes = new TextEncoder().encode(value + "\n");
-    const view = new Uint8Array(dataSAB);
-    view.set(bytes.slice(0, Math.min(bytes.length, 65535)));
-    Atomics.store(stdinView, 1, Math.min(bytes.length, 65535));
+    if (bytes.length > dataView.length) {
+      const field = _inputPanel?.querySelector("input");
+      field?.setCustomValidity("Please enter a shorter answer (at most 65,535 UTF-8 bytes).");
+      field?.reportValidity();
+      return;
+    }
+    removeInputPanel();
+    dataView.set(bytes);
+    Atomics.store(stdinView, 1, bytes.length);
     Atomics.store(stdinView, 0, 2);
     Atomics.notify(stdinView, 0, 1);
-    _stdoutParts.push({ kind: "stdout", text: value + "\n" });
-    updateLiveOutput();
+    addOutput("stdout", value + "\n");
+    _currentBtn?.focus();
+    executionStatus.textContent = "Python is running.";
   }
 
   function removeInputPanel() {
@@ -815,14 +1017,39 @@ const DEBUG = location.hostname === "localhost";
   }
 
   function interruptRun() {
-    if (_worker) _worker.postMessage({ type: "interrupt" });
+    if (!_worker || !_running || Atomics.load(cancelView, 0)) return;
+    const worker = _worker;
+    const runId = _runId;
+    Atomics.store(cancelView, 0, 1);
+    Atomics.store(interruptView, 0, 2);
+    Atomics.notify(stdinView, 0);
+    removeInputPanel();
+    if (_currentBtn) _currentBtn.textContent = "Stopping…";
+    _cancelTimer = setTimeout(() => {
+      if (_worker !== worker || !_running || _runId !== runId) return;
+      failWorker(
+        "Execution stopped. Python was reset because the code did not respond; temporary files were cleared."
+      );
+      getWorker();
+    }, CANCEL_TIMEOUT_MS);
   }
 
   // Finish run
-  function finishRun(images) {
+  function finishRun(images, plotsTruncated = false) {
+    const inputHadFocus = _inputPanel?.contains(document.activeElement);
+    if (plotsTruncated)
+      _stdoutParts.push({
+        kind: "notice",
+        text: "\nPlots truncated. Showing at most 5 plots within the image size limit.\n",
+      });
+    if (outputFrame !== null) cancelAnimationFrame(outputFrame);
+    outputFrame = null;
+    clearTimeout(_cancelTimer);
     toastHide();
     removeInputPanel();
     _running = false;
+    if (cancelView) Atomics.store(cancelView, 0, 0);
+    if (interruptView) Atomics.store(interruptView, 0, 0);
 
     const hasErr = _stdoutParts.some((part) => part.kind === "stderr");
     const hasTextOutput = _stdoutParts.some((part) => part.text.trim());
@@ -844,9 +1071,7 @@ const DEBUG = location.hostname === "localhost";
         }
         const dot = _livePanel.querySelector(".py-dot");
         if (dot && hasErr) dot.classList.add("err");
-        const label = _livePanel.querySelector(
-          ".py-output-label span:last-child",
-        );
+        const label = _livePanel.querySelector(".py-output-label span:last-child");
         if (label && hasErr) label.textContent = "error";
       } else {
         const outputFragment = document.createDocumentFragment();
@@ -865,10 +1090,16 @@ const DEBUG = location.hostname === "localhost";
 
     if (_currentBtn) {
       _currentBtn.textContent = "▶ run";
+      _currentBtn.setAttribute("aria-label", "Run Python code");
       _currentBtn.classList.remove("loading");
       _currentBtn.classList.add("active");
     }
 
+    executionStatus.textContent = hasErr
+      ? "Python finished with an error. Check the output."
+      : "Python finished. Output is available below the example.";
+    if (inputHadFocus) _currentBtn?.focus();
+    _stdoutParts = [];
     _livePanel = null;
     _currentPre = null;
     _currentBtn = null;
@@ -906,81 +1137,15 @@ const DEBUG = location.hostname === "localhost";
     return code
       .split("\n")
       .map((line) => {
-        if (/^[\u2500-\u257f\u2014\u2013\u2010─-]{2}/.test(line.trim()))
-          return "# " + line;
+        if (/^[\u2500-\u257f\u2014\u2013\u2010─-]{2}/.test(line.trim())) return "# " + line;
         return line;
       })
       .join("\n");
   }
 
-  function addContext(code) {
-    const has = (name) =>
-      new RegExp(`\\b${name}\\b`).test(code) &&
-      !new RegExp(`\\b${name}\\s*=`).test(code);
-
-    const defs = [];
-
-    if (has("lst")) defs.push("lst = [1, 2, 3]");
-    if (has("list_a")) defs.push("list_a = [1, 2, 3]");
-    if (has("list_b")) defs.push("list_b = [7, 8, 9]");
-    if (has("record")) defs.push("record = ['Alice', 'Maastricht', 62]");
-    if (has("eeg") && !/\bimport\b/.test(code))
-      defs.push("eeg = [[0.5*i*0.1 for i in range(10)] for _ in range(8)]");
-
-    const needsSine =
-      has("channel_a") ||
-      has("channel_b") ||
-      (has("channel_1") && !/channel_1\s*=/.test(code)) ||
-      (has("channel_2") && !/channel_2\s*=/.test(code));
-    if (needsSine) defs.push("import math as _m");
-    if (has("channel_a"))
-      defs.push("channel_a = [_m.sin(i*0.12)*2+i*0.005 for i in range(50)]");
-    if (has("channel_b"))
-      defs.push("channel_b = [_m.cos(i*0.12)*1.6-i*0.003 for i in range(50)]");
-    if (has("channel_1") && !/channel_1\s*=/.test(code))
-      defs.push("channel_1 = [_m.sin(i*0.09)*2 for i in range(50)]");
-    if (has("channel_2") && !/channel_2\s*=/.test(code))
-      defs.push("channel_2 = [_m.cos(i*0.09)*1.5 for i in range(50)]");
-    if (has("samples") && !/samples\s*=/.test(code))
-      defs.push("samples = list(range(50))");
-    if (has("numbers") && !/numbers\s*=/.test(code))
-      defs.push("numbers = [4.0, 7.5, 2.1, 9.3, 1.2, 5.6, 8.8, 3.3, 6.7, 0.9]");
-
-    const needsPd = /\bpd\./.test(code) && !/import\s+pandas/.test(code);
-    const needsDf = has("df");
-    const needsS = has("s") && /pd\.Series/.test(code);
-    if (needsPd || needsDf || needsS) {
-      if (!/import\s+pandas/.test(code)) defs.push("import pandas as pd");
-      if (needsDf)
-        defs.push(
-          "df = pd.DataFrame({'name':['Alice','Bob','Carol','Dave'],'age':[21,25,19,22],'grade':[8.5,7.0,9.2,6.1]})",
-        );
-    }
-
-    if (/pearsonr/.test(code) && !has("channel_a") && !/eeg\[/.test(code)) {
-      defs.push("import math as _m");
-      defs.push("channel_a = [_m.sin(i*0.15) for i in range(30)]");
-      defs.push("channel_b = [_m.cos(i*0.15)+0.1 for i in range(30)]");
-    }
-
-    code = code.replace(/\[([0-9\-., ]+),\s*\.\.\.\s*\]/g, (_, vals) => {
-      const arr = vals
-        .split(",")
-        .map((v) => parseFloat(v.trim()))
-        .filter((v) => !isNaN(v));
-      while (arr.length < 30)
-        arr.push(...arr.slice(0, Math.min(arr.length, 30 - arr.length)));
-      return "[" + arr.slice(0, 30).join(", ") + "]";
-    });
-
-    return defs.length ? defs.join("\n") + "\n" + code : code;
-  }
-
   // ── Code type detection ──────────────────────────────────────────
   function detectType(raw) {
-    const lines = raw
-      .split("\n")
-      .filter((l) => l.trim() && !l.trim().startsWith("#"));
+    const lines = raw.split("\n").filter((l) => l.trim() && !l.trim().startsWith("#"));
     if (!lines.length) return "empty";
     const first = lines[0].trim();
     if (/^python[\s3]|^pip[\s3]/.test(first)) return "shell";
@@ -998,11 +1163,7 @@ const DEBUG = location.hostname === "localhost";
   function clearBelow(pre) {
     const wrapper = pre.parentElement;
     let next = wrapper.nextElementSibling;
-    while (
-      next &&
-      (next.classList.contains("py-output") ||
-        next.classList.contains("py-form"))
-    ) {
+    while (next && (next.classList.contains("py-output") || next.classList.contains("py-form"))) {
       const toRemove = next;
       next = next.nextElementSibling;
       toRemove.remove();
@@ -1015,20 +1176,13 @@ const DEBUG = location.hostname === "localhost";
     pre.parentElement?.classList.add("py-open");
 
     const dotCls =
-      kind === "err"
-        ? "err"
-        : kind === "info"
-          ? "info"
-          : kind === "warn"
-            ? "warn"
-            : "";
-    const label =
-      kind === "err" ? "error" : kind === "info" ? "info" : "output";
+      kind === "err" ? "err" : kind === "info" ? "info" : kind === "warn" ? "warn" : "";
+    const label = kind === "err" ? "error" : kind === "info" ? "info" : "output";
 
     const panel = document.createElement("div");
     panel.className = "py-output";
-    panel.setAttribute("role", "status");
-    panel.setAttribute("aria-live", "polite");
+    panel.setAttribute("role", "region");
+    panel.setAttribute("aria-label", "Python output");
 
     const bar = document.createElement("div");
     bar.className = "py-output-bar";
@@ -1054,7 +1208,8 @@ const DEBUG = location.hostname === "localhost";
     bar.append(labelWrap, closeBtn);
 
     const body = document.createElement("div");
-    body.className = `py-output-body ${kind === "err" ? "err" : kind === "info" ? "info" : ""}`.trim();
+    body.className =
+      `py-output-body ${kind === "err" ? "err" : kind === "info" ? "info" : ""}`.trim();
     if (content instanceof Node) {
       body.appendChild(content);
     } else {
@@ -1135,40 +1290,41 @@ const DEBUG = location.hostname === "localhost";
   }
 
   // ── Core execution ───────────────────────────────────────────────
-  async function execCode(pre, btn, code) {
+  async function execCode(pre, btn, code, args = []) {
     if (_running) return;
+    if (_runtimeState !== "ready") {
+      getWorker();
+      return;
+    }
     _running = true;
     _currentPre = pre;
     _currentBtn = btn;
     _stdoutParts = [];
+    outputLength = 0;
+    outputTruncated = false;
+    (pre.closest('[role="dialog"]') || document.body).appendChild(executionStatus);
+    executionStatus.inert = false;
+    executionStatus.textContent = "Python is running.";
     _livePanel = null;
     _runId += 1;
     const thisRunId = _runId;
+    ensureLivePanel();
 
-    btn.textContent = "…";
+    btn.textContent = "■ stop";
+    btn.setAttribute("aria-label", "Stop Python code");
     btn.classList.add("loading");
     btn.classList.remove("active");
 
     code = preprocessCode(code);
-    code = addContext(code);
-
-    const worker = getWorker();
-    const _loadTimeout = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Pyodide load timed out — please refresh the page")),
-        30_000,
-      ),
-    );
-    await Promise.race([readyPromise, _loadTimeout]).catch((err) => {
-      if (_currentPre) showOutput(_currentPre, "err", err.message);
-      if (_currentBtn) {
-        _currentBtn.textContent = "▶ run";
-        _currentBtn.classList.remove("loading");
-      }
-      _running = false;
-      throw err;
-    });
-    worker.postMessage({ type: "run", code, runId: thisRunId });
+    Atomics.store(cancelView, 0, 0);
+    Atomics.store(interruptView, 0, 0);
+    Atomics.store(stdinView, 0, 0);
+    const scriptName = pre.querySelector("code")?.dataset.scriptName || "snippet.py";
+    try {
+      _worker.postMessage({ type: "run", code, args: [scriptName, ...args], runId: thisRunId });
+    } catch (err) {
+      failWorker("Python could not receive the code. " + err.message);
+    }
   }
 
   // ── Per-type handlers ────────────────────────────────────────────
@@ -1176,7 +1332,7 @@ const DEBUG = location.hostname === "localhost";
     showOutput(
       pre,
       "info",
-      "This is a terminal command — run it in your command line, not the Python interpreter.",
+      "This is a terminal command — run it in your command line, not the Python interpreter."
     );
   }
 
@@ -1185,7 +1341,7 @@ const DEBUG = location.hostname === "localhost";
       pre,
       "info",
       "Turtle graphics require a local Python window.\n" +
-        "This snippet shows the correct loop-based drawing logic — run it in your Python environment!",
+        "This snippet shows the correct loop-based drawing logic — run it in your Python environment!"
     );
   }
 
@@ -1216,25 +1372,16 @@ const DEBUG = location.hostname === "localhost";
       placeholder: hints[i] || "enter value…",
     }));
 
-    showForm(
-      pre,
-      "sys.argv — provide command-line arguments",
-      fields,
-      (form) => {
-        let patched = code.replace(/^\s*import\s+sys\s*\n?/gm, "");
-        indices.forEach((i) => {
-          const v = form.querySelector(`[name="a${i}"]`)?.value ?? "";
-          patched = patched.replace(
-            new RegExp(`sys\\.argv\\[${i}\\]`, "g"),
-            JSON.stringify(v),
-          );
-        });
-        form.remove();
-        execCode(pre, btn, patched).catch((err) => {
-          console.error("execCode failed:", err);
-        });
-      },
-    );
+    showForm(pre, "sys.argv — provide command-line arguments", fields, (form) => {
+      const args = Array(Math.max(...indices)).fill("");
+      indices.forEach((i) => {
+        args[i - 1] = form.querySelector(`[name="a${i}"]`)?.value ?? "";
+      });
+      form.remove();
+      execCode(pre, btn, code, args).catch((err) => {
+        console.error("execCode failed:", err);
+      });
+    });
   }
 
   // ── Main click dispatcher ────────────────────────────────────────
@@ -1243,6 +1390,7 @@ const DEBUG = location.hostname === "localhost";
       interruptRun();
       return;
     }
+    if (_running) return;
     // Toggle: click again to close output
     if (pre.parentElement.nextElementSibling?.classList.contains("py-output")) {
       clearBelow(pre);
@@ -1255,6 +1403,15 @@ const DEBUG = location.hostname === "localhost";
     }
 
     const raw = getCode(pre);
+    const example = pre.querySelector("code");
+    if (example?.dataset.runMode === "local") {
+      showOutput(
+        pre,
+        "info",
+        example.dataset.runReason || "Run this example in a local Python environment."
+      );
+      return;
+    }
     const type = detectType(raw);
 
     if (type === "empty") return;
@@ -1266,7 +1423,7 @@ const DEBUG = location.hostname === "localhost";
       handleTurtle(pre);
       return;
     }
-    if (type === "argv") {
+    if (type === "argv" && example?.dataset.argvMode !== "empty") {
       handleArgv(pre, btn, raw);
       return;
     }
@@ -1281,6 +1438,7 @@ const DEBUG = location.hostname === "localhost";
     if (pre.parentElement.closest("pre")) return;
     if (!pre.querySelector("code.language-python")) return;
     const btn = document.createElement("button");
+    btn.type = "button";
     btn.className = "run-btn";
     btn.textContent = "▶ run";
     btn.disabled = true;
@@ -1302,15 +1460,31 @@ const DEBUG = location.hostname === "localhost";
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("./sw.js")
+      .register("/sw.js", { updateViaCache: "none" })
       .then((reg) => {
+        const showUpdate = () => {
+          if (!reg.waiting || !navigator.serviceWorker.controller) return;
+          if (document.querySelector(".site-update-status")) return;
+          const notice = document.createElement("aside");
+          notice.className = "site-update-status";
+          notice.setAttribute("role", "status");
+          notice.textContent =
+            "A site update is ready. Finish your work, then close all tabs for this site and reopen it.";
+          document.body.appendChild(notice);
+        };
+        const watchInstalling = () => {
+          reg.installing?.addEventListener("statechange", showUpdate);
+        };
+        showUpdate();
+        watchInstalling();
+        reg.addEventListener("updatefound", watchInstalling);
         // If not yet cross-origin isolated, wait for SW to activate then reload once
         if (!window.crossOriginIsolated) {
           if (sessionStorage.getItem("__coi_reloaded")) {
             // Already tried once — SW headers may not be supported in this environment
             if (DEBUG)
               console.warn(
-                "[runner] crossOriginIsolated unavailable after reload; SharedArrayBuffer may not work.",
+                "[runner] crossOriginIsolated unavailable after reload; SharedArrayBuffer may not work."
               );
             return;
           }

@@ -396,7 +396,7 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
 .advanced-title {
   position: relative;
   font-family: "Fira Code", monospace;
-  font-size: 1.60rem;
+  font-size: 1.6rem;
   /* 2x of 0.75rem */
   font-weight: 1000;
   letter-spacing: 0.25em;
@@ -407,7 +407,7 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
 }
 
 .advanced-title::before {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -435,7 +435,7 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
 }
 
 .ready-more h2::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -6px;
   left: 50%;
@@ -456,7 +456,6 @@ html[data-theme="light"] .toc .theme-btn .icon-moon {
   opacity: 0.75;
 }
 /* Optional Material End */
-
 
 pre {
   background: var(--code-bg);
@@ -541,73 +540,78 @@ pre {
   margin: 10px 0;
 }
 
-  #secret-btn {
-    display: inline-block;
-    width: 86px;
-    height: 86px;
-    border-radius: 50%;
-    background: var(--surface);
-    cursor: pointer;
-    border: 1px solid var(--surface);
-  }
+#secret-btn {
+  display: inline-block;
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+  border: 1px solid var(--surface);
+}
 
-  #challenges-btn {
-    border-left: 50px solid transparent;
-    border-right: 50px solid transparent;
-    border-bottom: 86px solid var(--surface);
-    cursor: pointer;
-    display: inline-block;
-    width: 0;
-    height: 0;
-  }
+#challenges-btn {
+  padding: 0;
+  border-top: 0;
+  background: transparent;
+  appearance: none;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom: 86px solid var(--surface);
+  cursor: pointer;
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
 
+/* CREATIVE */
+/* Overlay — darkens everything on hover */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 110;
+}
 
+body:has(#secret-btn:hover)::after,
+body:has(#challenges-btn:hover)::after {
+  opacity: 1;
+}
 
-  /* CREATIVE */
-    /* Overlay — darkens everything on hover */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      z-index: 110;
-    }
+#secret-btn,
+#challenges-btn {
+  position: relative;
+  z-index: 120;
+  transition:
+    transform 0.6s ease,
+    box-shadow 1s ease,
+    border-color 1s ease;
+  will-change: transform;
+}
 
-    body:has(#secret-btn:hover)::after,
-    body:has(#challenges-btn:hover)::after {
-      opacity: 1;
-    }
+/* Circle hover */
+#secret-btn:hover {
+  transform: scale(1.6);
+  box-shadow:
+    0 0 12px 3px rgba(255, 255, 255, 0.35),
+    0 0 32px 8px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.5);
+}
 
-    #secret-btn,
-    #challenges-btn {
-      position: relative;
-      z-index: 120;
-      transition: transform 0.6s ease, box-shadow 1s ease, border-color 1s ease;
-      will-change: transform;
-    }
-
-    /* Circle hover */
-    #secret-btn:hover {
-      transform: scale(1.6);
-      box-shadow:
-        0 0 12px 3px rgba(255, 255, 255, 0.35),
-        0 0 32px 8px rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    /* Triangle hover — scale only, glow via filter */
-    #challenges-btn:hover {
-      transform: scale(1.6);
-      filter:
-        drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.2));
-    }
-        body:has(#secret-btn:hover) #challenges-btn,
-        body:has(#challenges-btn:hover) #secret-btn {
-          z-index: 40;
-        }
+/* Triangle hover — scale only, glow via filter */
+#challenges-btn:hover {
+  transform: scale(1.6);
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5))
+    drop-shadow(0 0 16px rgba(255, 255, 255, 0.2));
+}
+body:has(#secret-btn:hover) #challenges-btn,
+body:has(#challenges-btn:hover) #secret-btn {
+  z-index: 40;
+}
 
 table {
   width: 100%;
@@ -723,7 +727,6 @@ a:active {
   border: 0;
 }
 
-
 .inline-code {
   font-family: "Fira Code", monospace;
   background: var(--code-bg);
@@ -764,13 +767,15 @@ td code {
   border: 1px solid var(--border);
   border-left: none;
   border-radius: 0 10px 10px 0;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease-out;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease-out;
   opacity: 0;
   pointer-events: none;
 }
 
-
-.sidebar-nav.is-nav-open {
+.sidebar-nav.is-nav-open,
+.sidebar-nav.is-keyboard-nav {
   transform: translateX(0) translateY(-50%);
   opacity: 1;
   pointer-events: auto;
@@ -809,18 +814,27 @@ td code {
   position: absolute;
   right: 100%;
   margin-right: 8px;
-  top: 50%;
+  top: calc(50% + var(--lens-label-offset, 0px));
   transform: translateY(-50%) translateX(4px);
-  white-space: nowrap;
+  white-space: normal;
+  width: max-content;
+  max-width: min(520px, var(--lens-label-width, calc(100vw - 80px)));
+  overflow-wrap: anywhere;
+  line-height: 1.2;
   text-align: right;
   pointer-events: none;
   opacity: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  transition: opacity 100ms ease-out, transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  transition:
+    opacity 100ms ease-out,
+    transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-@media (min-width: 1200px) {
-
+@media (min-width: 769px) {
   .is-lens-current .sidebar-lens-label {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
@@ -842,6 +856,15 @@ td code {
   }
 }
 
+/* Side selection depends on the gutter and stays consistent across topic names. */
+.sidebar-nav.lens-labels-right .sidebar-lens-label {
+  left: 100%;
+  right: auto;
+  margin-left: 14px;
+  margin-right: 0;
+  text-align: left;
+}
+
 /* ── Roadmap Dot ── */
 .lens-roadmap-dot {
   display: block;
@@ -852,9 +875,15 @@ td code {
   transition: background 150ms ease;
   pointer-events: none;
 }
-.lens-dot-beginner   { background: var(--green); }
-.lens-dot-intermediate { background: var(--orange); }
-.lens-dot-advanced   { background: var(--accent2); }
+.lens-dot-beginner {
+  background: var(--green);
+}
+.lens-dot-intermediate {
+  background: var(--orange);
+}
+.lens-dot-advanced {
+  background: var(--accent2);
+}
 
 .back-to-top {
   position: fixed;
@@ -892,7 +921,8 @@ td code {
 }
 
 /* ── Floating theme toggle (desktop only) ── */
-.floating-theme-toggle {
+.floating-theme-toggle,
+.floating-python-reset {
   position: fixed;
   bottom: 80px;
   right: max(8px, calc(50% - 550px));
@@ -917,12 +947,14 @@ td code {
   z-index: 100;
 }
 
-.floating-theme-toggle.visible {
+.floating-theme-toggle.visible,
+.floating-python-reset.visible {
   opacity: 1;
   pointer-events: auto;
 }
 
-.floating-theme-toggle:hover {
+.floating-theme-toggle:hover,
+.floating-python-reset:hover {
   background: var(--surface);
   color: var(--text);
 }
@@ -951,6 +983,33 @@ html[data-theme="light"] .floating-theme-toggle .icon-moon {
   }
 }
 
+/* Reset shares the floating controls' size, colours and spacing. */
+.floating-python-reset {
+  display: flex;
+  bottom: 128px;
+  visibility: hidden;
+}
+.floating-python-reset.visible {
+  visibility: visible;
+}
+.floating-python-reset svg {
+  width: 20px;
+  height: 20px;
+}
+.floating-python-reset:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.floating-python-reset.visible:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+@media (max-width: 768px) {
+  .floating-python-reset {
+    bottom: 80px;
+  }
+}
+
 /* ── Collapsible scenario cards ── */
 .scenario-title::after {
   content: "▾";
@@ -967,28 +1026,6 @@ html[data-theme="light"] .floating-theme-toggle .icon-moon {
 
 .scenario.collapsed .scenario-body {
   display: none;
-}
-
-.section-toggle {
-  font-size: 0.7rem;
-  color: var(--muted);
-  cursor: pointer;
-  margin-left: auto;
-  padding: 3px 10px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  background: transparent;
-  transition:
-    color 0.15s,
-    border-color 0.15s;
-  flex-shrink: 0;
-  font-family: inherit;
-  align-self: center;
-}
-
-.section-toggle:hover {
-  color: var(--text);
-  border-color: var(--muted);
 }
 
 /* ── Code copy button ── */
@@ -1027,8 +1064,6 @@ pre {
   color: var(--green);
   opacity: 1;
 }
-
-
 
 /* Run button */
 .run-btn {
@@ -1078,7 +1113,7 @@ pre {
 }
 
 /* ── pre state when output panel is open below ── */
-.code-wrapper.py-open>pre {
+.code-wrapper.py-open > pre {
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
   margin-bottom: 0 !important;
@@ -1394,7 +1429,7 @@ pre {
   margin: 10px 0;
 }
 
-.code-wrapper>pre {
+.code-wrapper > pre {
   margin: 0;
 }
 
@@ -1405,7 +1440,7 @@ pre {
   margin: 12px 0;
 }
 
-.table-scroll-wrapper>table {
+.table-scroll-wrapper > table {
   margin: 0;
   min-width: 400px;
 }
@@ -1492,12 +1527,12 @@ td .inline-code {
 
 @media (max-width: 768px) {
   .two-col {
-      grid-template-columns: 1fr;
-    }
+    grid-template-columns: 1fr;
+  }
 
   .sidebar-nav {
-      display: none;
-    }
+    display: none;
+  }
 
   .mobile-nav-btn {
     display: flex;
@@ -1516,7 +1551,9 @@ td .inline-code {
     font-size: 1.1rem;
     cursor: pointer;
     opacity: 0.75;
-    transition: opacity 0.15s, background 0.15s;
+    transition:
+      opacity 0.15s,
+      background 0.15s;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
@@ -1546,7 +1583,7 @@ td .inline-code {
     scrollbar-width: none;
   }
 
-.mobile-nav-panel::-webkit-scrollbar {
+  .mobile-nav-panel::-webkit-scrollbar {
     display: none;
   }
 
@@ -1565,7 +1602,9 @@ td .inline-code {
     font-family: "Fira Code", monospace;
     text-decoration: none;
     white-space: nowrap;
-    transition: background 0.15s, color 0.15s;
+    transition:
+      background 0.15s,
+      color 0.15s;
   }
 
   .mobile-nav-panel a:hover {
@@ -1579,31 +1618,31 @@ td .inline-code {
   }
 
   #secret-btn {
-  width: 54px;
-  height: 54px;
+    width: 54px;
+    height: 54px;
   }
 
   #challenges-btn {
-  border-left: 31.178px solid transparent;
-  border-right: 31.178px solid transparent;
-  border-bottom: 54px solid var(--surface);
+    border-left: 31.178px solid transparent;
+    border-right: 31.178px solid transparent;
+    border-bottom: 54px solid var(--surface);
   }
 
-.section-break-line .break-svg-desktop {
-  display: none;
-}
+  .section-break-line .break-svg-desktop {
+    display: none;
+  }
 
-.section-break-line .break-svg-mobile {
-  display: block;
-}
+  .section-break-line .break-svg-mobile {
+    display: block;
+  }
 
-.section-break-title {
-  font-size: 1.4rem;
-}
+  .section-break-title {
+    font-size: 1.4rem;
+  }
 
-.section-break-subtitle {
-  font-size: 1rem;
-}
+  .section-break-subtitle {
+    font-size: 1rem;
+  }
 }
 
 /* Print styles  */
@@ -1618,13 +1657,13 @@ td .inline-code {
   .sidebar-nav,
   .back-to-top,
   .floating-theme-toggle,
+  .floating-python-reset,
   .theme-btn,
   .copy-btn,
   .run-btn,
   .py-output,
   .py-form,
   #py-toast,
-  .section-toggle,
   .toc {
     display: none !important;
   }
@@ -1719,9 +1758,9 @@ td .inline-code {
   text-align: center;
 }
 
-
 /* ── List containment ── */
-ul, ol {
+ul,
+ol {
   padding-left: 1.5em;
   margin-left: 0;
   box-sizing: border-box;
@@ -1758,7 +1797,9 @@ ul, ol {
   cursor: pointer;
   line-height: 0;
   border-radius: 6px;
-  transition: color 0.18s ease, transform 0.18s ease;
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 .overlay-close-btn:hover {
   color: var(--text);
@@ -1766,7 +1807,7 @@ ul, ol {
 }
 .overlay-close-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(91,141,238,0.35);
+  box-shadow: 0 0 0 2px rgba(91, 141, 238, 0.35);
 }
 
 /* Back button — bare ← SVG arrow, no box */
@@ -1779,7 +1820,9 @@ ul, ol {
   cursor: pointer;
   line-height: 0;
   border-radius: 6px;
-  transition: color 0.18s ease, transform 0.18s ease;
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
 }
 .overlay-back-btn:hover {
   color: var(--accent);
@@ -1787,7 +1830,7 @@ ul, ol {
 }
 .overlay-back-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(91,141,238,0.35);
+  box-shadow: 0 0 0 2px rgba(91, 141, 238, 0.35);
 }
 
 /* Nav cards — answers-landing navigation */
@@ -1809,13 +1852,17 @@ ul, ol {
   gap: 14px;
   text-align: left;
   font-family: inherit;
-  transition: border-color 0.18s, background 0.18s, transform 0.14s, box-shadow 0.18s;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    transform 0.14s,
+    box-shadow 0.18s;
 }
 .overlay-nav-card:hover {
   border-color: var(--accent);
   background: var(--surface2);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
 }
 .overlay-nav-card.nav-right {
   flex-direction: row-reverse;
@@ -1851,26 +1898,66 @@ pre[class*="language-"] > code {
 }
 
 /* Dark theme (default) */
-.token.keyword              { color: #c792ea; font-weight: 600; }
-.token.builtin              { color: #ffcb6b; }
-.token.function             { color: #82aaff; }
-.token.class-name           { color: #82aaff; }
-.token.string               { color: #c3e88d; }
-.token.number               { color: #f78c6c; }
-.token.comment              { color: #546e7a; font-style: italic; }
-.token.operator             { color: #89ddff; }
-.token.punctuation          { color: var(--text); }
+.token.keyword {
+  color: #c792ea;
+  font-weight: 600;
+}
+.token.builtin {
+  color: #ffcb6b;
+}
+.token.function {
+  color: #82aaff;
+}
+.token.class-name {
+  color: #82aaff;
+}
+.token.string {
+  color: #c3e88d;
+}
+.token.number {
+  color: #f78c6c;
+}
+.token.comment {
+  color: #546e7a;
+  font-style: italic;
+}
+.token.operator {
+  color: #89ddff;
+}
+.token.punctuation {
+  color: var(--text);
+}
 
 /* Light theme overrides */
-[data-theme="light"] .token.keyword    { color: #7c3aed; font-weight: 600; }
-[data-theme="light"] .token.builtin    { color: #a16207; }
-[data-theme="light"] .token.function   { color: #2563eb; }
-[data-theme="light"] .token.class-name { color: #2563eb; }
-[data-theme="light"] .token.string     { color: #16713a; }
-[data-theme="light"] .token.number     { color: #c2410c; }
-[data-theme="light"] .token.comment    { color: #9a9080; font-style: italic; }
-[data-theme="light"] .token.operator   { color: #0e7490; }
-[data-theme="light"] .token.punctuation { color: var(--text); }
+[data-theme="light"] .token.keyword {
+  color: #7c3aed;
+  font-weight: 600;
+}
+[data-theme="light"] .token.builtin {
+  color: #a16207;
+}
+[data-theme="light"] .token.function {
+  color: #2563eb;
+}
+[data-theme="light"] .token.class-name {
+  color: #2563eb;
+}
+[data-theme="light"] .token.string {
+  color: #16713a;
+}
+[data-theme="light"] .token.number {
+  color: #c2410c;
+}
+[data-theme="light"] .token.comment {
+  color: #9a9080;
+  font-style: italic;
+}
+[data-theme="light"] .token.operator {
+  color: #0e7490;
+}
+[data-theme="light"] .token.punctuation {
+  color: var(--text);
+}
 
 /* ── Print Overlays ── */
 @media print {
@@ -1891,5 +1978,72 @@ pre[class*="language-"] > code {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Python runtime loading and recovery */
+.py-runtime-status {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 4px 20px #0004;
+}
+.py-runtime-status[hidden] {
+  display: none;
+}
+.py-runtime-status button {
+  margin-left: 12px;
+  padding: 6px 10px;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Waiting updates never reload a lesson or interrupt Python input. */
+.site-update-status {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 12px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  z-index: 1000;
+}
+@media print {
+  .site-update-status {
+    display: none;
+  }
+}
+
+#secret-btn:focus-visible,
+#challenges-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 6px;
+}
+
+@media (max-width: 640px) {
+  .overlay-nav-cards {
+    flex-direction: column;
+  }
+  .overlay-nav-card {
+    min-width: 0;
+    width: 100%;
   }
 }

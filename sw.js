@@ -1,40 +1,40 @@
-// Service Worker for Python Guide — SICT Year 2
-// Strategy: network-first for documents, stale-while-revalidate for static assets.
-// Version: bump CACHE_NAME to force cache refresh after updates.
-
-const CACHE_NAME = "python-guide-v14";
-const ASSETS_TO_CACHE = [
-  "/index.html",
-  "/style.css",
-  "/runner.js",
-  "/manifest.json",
-  "/pyodide-worker.js",
-  "/favicon.png?v=5",
-];
-const CDN_BYPASS_HOSTS = [
-  "cdn.jsdelivr.net",
-  "fonts.googleapis.com",
-  "fonts.gstatic.com",
-];
+// The release builder replaces this local-preview configuration with hashed URLs
+// and integrity checks for every required asset.
+const RELEASE = {
+  id: "v17",
+  assets: [
+    { url: "/index.html" },
+    { url: "/style.css?v=17" },
+    { url: "/runner.js?v=17" },
+    { url: "/pyodide-worker.js?v=17" },
+    { url: "/manifest.json" },
+    { url: "/favicon.png?v=5" },
+    { url: "/icon-192.png" },
+    { url: "/icon-512.png" },
+    { url: "/assets/og-image.png" },
+  ],
+};
+const CACHE_PREFIX = "python-guide-";
+const CACHE_NAME = CACHE_PREFIX + RELEASE.id;
+const assetURLs = new Set(RELEASE.assets.map((asset) => new URL(asset.url, self.location).href));
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      const results = await Promise.allSettled(
-        ASSETS_TO_CACHE.map((url) => cache.add(url)),
+      // addAll commits atomically. Missing, stale or corrupt required assets
+      // reject installation, leaving the currently active release usable.
+      await cache.addAll(
+        RELEASE.assets.map(
+          (asset) =>
+            new Request(new URL(asset.url, self.location), {
+              cache: "reload",
+              integrity: asset.integrity || "",
+            })
+        )
       );
-      results.forEach((result, index) => {
-        if (result.status === "rejected") {
-          console.warn(
-            "[sw] Failed to precache:",
-            ASSETS_TO_CACHE[index],
-            result.reason,
-          );
-        }
-      });
-      await self.skipWaiting();
-    })(),
+      // No skipWaiting: existing tabs retain their page, worker and files.
+    })()
   );
 });
 
@@ -43,19 +43,17 @@ self.addEventListener("activate", (event) => {
     (async () => {
       const keys = await caches.keys();
       await Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)),
+        keys
+          .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
       );
-      await self.clients.claim();
-    })(),
+      // No clients.claim(): never take over a document from another release.
+    })()
   );
 });
 
-// Add COOP/COEP headers required for SharedArrayBuffer (Web Worker + Atomics)
 function addIsolationHeaders(response) {
-  if (!response || response.type !== "basic") {
-    return response;
-  }
-
+  if (!response || response.type !== "basic") return response;
   const headers = new Headers(response.headers);
   headers.set("Cross-Origin-Embedder-Policy", "require-corp");
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
@@ -67,89 +65,41 @@ function addIsolationHeaders(response) {
 }
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
-    return;
-  }
-
   const url = new URL(event.request.url);
-  const isSameOrigin = url.origin === self.location.origin;
-
-  // Always bypass cache for CDN requests (no CORP headers on CDN — fetch directly via CORS mode)
-  if (
-    CDN_BYPASS_HOSTS.some(
-      (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
-    )
-  ) {
-    return;
-  }
-
-  if (!isSameOrigin) {
-    return;
-  }
-
-  // Network-first for HTML — always serve fresh page
-  if (event.request.destination === "document") {
-    event.respondWith(
-      (async () => {
-        try {
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("timeout")), 3000),
-          );
-          const networkResponse = await Promise.race([
-            fetch(event.request),
-            timeoutPromise,
-          ]);
-          if (networkResponse.ok && networkResponse.type === "basic") {
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put(event.request, networkResponse.clone());
-          }
-          return addIsolationHeaders(networkResponse);
-        } catch {
-          const cached = await caches.match(event.request);
-          if (cached) {
-            return addIsolationHeaders(cached);
-          }
-          return new Response("Offline — please reconnect and reload.", {
-            status: 503,
-            headers: { "Content-Type": "text/html; charset=utf-8" },
-          });
-        }
-      })(),
-    );
-    return;
-  }
-
+  if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
+  const appNavigation =
+    event.request.mode === "navigate" && (url.pathname === "/" || url.pathname === "/index.html");
+  if (!appNavigation && !assetURLs.has(url.href)) return;
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(event.request);
-
-      if (cached) {
-        // SWR can briefly mix old/new assets (for example old CSS with new JS); next navigation converges to fresh cache.
-        event.waitUntil(
-          (async () => {
-            try {
-              const networkResponse = await fetch(event.request);
-              if (networkResponse.ok && networkResponse.type === "basic") {
-                await cache.put(event.request, networkResponse.clone());
-              }
-            } catch {}
-          })(),
-        );
-        return addIsolationHeaders(cached);
-      }
-
+      const cached = await cache.match(appNavigation ? "/index.html" : event.request);
+      if (cached) return addIsolationHeaders(cached);
+      const asset = RELEASE.assets.find((entry) =>
+        appNavigation
+          ? entry.url === "/index.html"
+          : new URL(entry.url, self.location).href === url.href
+      );
       try {
-        const networkResponse = await fetch(event.request);
-        if (networkResponse.ok && networkResponse.type === "basic") {
-          await cache.put(event.request, networkResponse.clone());
-        }
-        return addIsolationHeaders(networkResponse);
-      } catch {
-        return new Response("Resource unavailable offline", {
-          status: 503,
+        // Integrity permits recovery after eviction without mixing releases.
+        const request = new Request(new URL(asset.url, self.location), {
+          cache: "reload",
+          integrity: asset.integrity || "",
         });
+        const response = await fetch(request);
+        if (!response.ok) throw new Error("Required asset unavailable");
+        await cache.put(request, response.clone());
+        return addIsolationHeaders(response);
+      } catch {
+        // Keep the failure visible if this release is unavailable online too.
       }
-    })(),
+      return new Response(
+        "Site files are unavailable. Reconnect, close all site tabs and reopen.",
+        {
+          status: 503,
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        }
+      );
+    })()
   );
 });

@@ -29,7 +29,7 @@
     </div>
   </noscript>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python for Psychology Students — Interactive Tutorial (2026 Guide)</title>
+  <title>Python Guide for Psychology Students – 2026</title>
   <meta name="description" content="Need Python for your psychology degree? Interactive tutorial with real research examples — EEG data, reaction times, and more. 29 lessons, no setup required." />
   <meta property="og:title" content="Python for Psychology Students — Interactive Tutorial (2026 Guide)" />
   <meta property="og:description" content="Need Python for your psychology degree? Interactive tutorial with real research examples — EEG data, reaction times, and more. 29 lessons, no setup required." />
@@ -57,9 +57,9 @@
   <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"
     integrity="sha384-Hcsv6LxK5rH9vVB+a/+cLJZR3kIIM2Y851r6waxy+9JInvSROiD1bTMk748pYdat" crossorigin="anonymous"
     defer></script>
-  <link rel="preload" href="style.css" as="style" />
-  <link rel="preload" href="runner.js" as="script" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="preload" href="style.css?v=17" as="style" />
+  <link rel="preload" href="runner.js?v=17" as="script" />
+  <link rel="stylesheet" href="style.css?v=17" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -139,7 +139,7 @@
 
 <body>
   <main class="container">
-    <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Python for Psychology Students — Interactive Tutorial (2026 Guide)</h1>
+    <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">Python Guide for Psychology Students – 2026</h1>
     <div class="toc">
       <div class="toc-header">
         <h2>Contents</h2>
@@ -202,20 +202,12 @@
               );
               font-size: 1.2rem;
             "></div>
-        <h2>Learning Roadmap</h2>
       </div>
       <div class="scenario">
         <div class="scenario-title" aria-expanded="true" role="button" tabindex="0">
           <span class="badge badge-blue">Overview</span>
         </div>
         <div class="scenario-body">
-          <p>
-            This guide takes you from your very first line of Python to working
-            with data science libraries. It is organised in 29 sections across
-            three tiers: <strong>Beginner</strong> (Sections 01–13),
-            <strong>Intermediate</strong> (Sections 14–21), and
-            <strong>Advanced</strong> (Sections 22–29).
-          </p>
           <div style="overflow-x: auto">
             <table id="roadmap-table">
               <tr>
@@ -227,8 +219,8 @@
               <tr class="zone-divider zone-beginner">
                 <td colspan="4">
                   <span class="zone-icon">●</span>
-                  <span class="zone-label">Beginner</span>
-                  <span class="zone-desc">Core Python fundamentals — no prior experience needed</span>
+                  <span class="zone-label">Start</span>
+                  <span class="zone-desc">Python fundamentals</span>
                 </td>
               </tr>
               <tr class="roadmap-row-blue">
@@ -319,12 +311,6 @@
               </tr>
             </table>
           </div>
-          <div class="tip" style="margin-top: 1rem">
-            💡 <strong>How to use this guide:</strong> follow sections in
-            order for a structured path, or jump to any section using the
-            sidebar. Every code block is <em>runnable in the browser</em> —
-            click the ▶ Run button to execute Python.
-          </div>
         </div>
       </div>
     </div>
@@ -352,7 +338,7 @@
             The terminal (also called the <em>command line</em>) is a text window on your computer where you type and execute commands directly. On Windows it is called <em>PowerShell</em>; on Mac and Linux it is <em>Terminal</em>. You will use it throughout this course to run Python scripts.
           </div>
           <p>A function is a named action you trigger by writing its name followed by parentheses — <span class="inline-code">print(...)</span> tells Python to display something.</p>
-          <pre><code class="language-python"># helloworld.py
+          <pre><code class="language-python" data-example-id="ex-000"># helloworld.py
 print("Participant P01 responded in 423 ms")</code></pre>
           <pre><code class="language-bash"># Run it in the terminal:
 python helloworld.py</code></pre>
@@ -370,7 +356,7 @@ python helloworld.py</code></pre>
           output format
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">print("Hello")                 # Hello  (adds newline at end by default)
+          <pre><code class="language-python" data-example-id="ex-001">print("Hello")                 # Hello  (adds newline at end by default)
 print("Hello", end=" ")         # Hello  (stays on same line)
 print("A", "B", "C")           # A B C  (space-separated by default)
 print("A", "B", sep="-")       # A-B
@@ -382,7 +368,7 @@ print()                        # prints a blank line</code></pre>
           <span class="badge badge-orange">Comments</span> Code Python ignores
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># This is a comment — Python ignores it
+          <pre><code class="language-python" data-example-id="ex-002"># This is a comment — Python ignores it
 print("Hello")  # can also go after code on the same line</code></pre>
         </div>
       </div>
@@ -400,7 +386,7 @@ print("Hello")  # can also go after code on the same line</code></pre>
           <span class="badge badge-blue">The four core types</span>
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">age      = 21         # int   — whole numbers only
+          <pre><code class="language-python" data-example-id="ex-003">age      = 21         # int   — whole numbers only
 weight   = 68.5      # float — numbers with decimals
 name     = "Alice"   # str   — text, always in quotes
 is_valid = True      # bool  — only True or False (capital first letter!)
@@ -438,7 +424,7 @@ print(type(weight))  # &lt;class 'float'&gt;</code></pre>
             <strong>text (a string)</strong> — even if the user typed a number.
             You must convert it before doing any maths.
           </p>
-          <pre><code class="language-python">s = "42"
+          <pre><code class="language-python" data-example-id="ex-004">s = "42"
 
 int(s)      # "42"  → 42      string to whole number
 float(s)    # "42"  → 42.0    string to decimal
@@ -459,7 +445,7 @@ bool(0)     # 0     → False   (0 and "" are False; everything else is True)</c
           mix variables into text
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">name = "Alice"
+          <pre><code class="language-python" data-example-id="ex-005">name = "Alice"
 bmi  = 21.604
 
 # Old way — must convert numbers manually
@@ -491,7 +477,7 @@ print(f"BMI: {bmi:.2f}")    # BMI: 21.60</code></pre>
             for the user to type and press Enter, and always returns a
             <strong>string</strong>.
           </p>
-          <pre><code class="language-python">name = input("What is your name? ")
+          <pre><code class="language-python" data-example-id="ex-006">name = input("What is your name? ")
 print(f"Hello, {name}!")
 
 # Must convert if you need a number
@@ -511,7 +497,7 @@ print(f"In 10 years you will be {age + 10}")</code></pre>
             before the program even starts. Those extra words are called
             <strong>arguments</strong>.
           </p>
-          <pre><code class="language-python"># In your terminal:
+          <pre><code class="language-python" data-example-id="ex-007" data-run-mode="shell" data-run-reason="Run this command in your terminal."># In your terminal:
 python greet.py Alice
 #              ↑
 #              This is an argument — extra input you pass to the program</code></pre>
@@ -530,7 +516,7 @@ python greet.py Alice
             You'll learn modules in depth in the Imports &amp; Packages section — for now, just know that
             <code class="inline-code">import X</code> gives you access to <code class="inline-code">X</code>'s tools.
           </div>
-          <pre><code class="language-python"># Terminal:  python greet.py Alice
+          <pre><code class="language-python" data-example-id="ex-008"># Terminal:  python greet.py Alice
 #
 # Python stores your arguments here automatically:
 # sys.argv = [ "greet.py",  "Alice"  ]
@@ -551,7 +537,7 @@ print("Hello", sys.argv[1])  # Hello Alice</code></pre>
           <p>
             You can pass as many arguments as you need, separated by spaces:
           </p>
-          <pre><code class="language-python"># Terminal:  python greet.py Alice Bob Carol
+          <pre><code class="language-python" data-example-id="ex-009"># Terminal:  python greet.py Alice Bob Carol
 #
 # sys.argv = [ "greet.py",  "Alice",   "Bob",    "Carol"  ]
 #               index 0     index 1   index 2    index 3
@@ -564,7 +550,7 @@ print(f"Hi {sys.argv[1]}, {sys.argv[2]}, and {sys.argv[3]}")
             <strong>string</strong> — even if you type a number. If you need to do
             math with it, convert it first:
           </div>
-          <pre><code class="language-python"># Terminal:  python double.py 7
+          <pre><code class="language-python" data-example-id="ex-010"># Terminal:  python double.py 7
 
 import sys
 number = int(sys.argv[1])   # convert string "7" → integer 7
@@ -609,7 +595,7 @@ print(number * 2)              # 14</code></pre>
             If your script expects <span class="inline-code">sys.argv[1]</span> but you run it
             without typing any arguments, Python crashes with:
           </p>
-          <pre><code class="language-python"># Terminal:  python greet.py   ← oops, forgot Alice!
+          <pre><code class="language-python" data-example-id="ex-011" data-expected-error="IndexError" data-argv-mode="empty"># Terminal:  python greet.py   ← oops, forgot Alice!
 
 import sys
 print("Hello", sys.argv[1])
@@ -640,7 +626,7 @@ print("Hello", sys.argv[1])
           <span class="badge badge-blue">Arithmetic</span> Math operations
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">a, b = 10, 3
+          <pre><code class="language-python" data-example-id="ex-012">a, b = 10, 3
 a + b     # 13     addition
 a - b     # 7      subtraction
 a * b     # 30     multiplication
@@ -667,7 +653,9 @@ abs(-5)   # 5      absolute value — removes the minus sign</code></pre>
           <div class="two-col">
             <div>
               <p><strong>Comparison operators</strong></p>
-              <pre><code class="language-python">x == y   # equal to
+              <pre><code class="language-python" data-example-id="ex-013">x, y = 10, 3
+
+x == y   # equal to
 x != y   # not equal to
 x &gt;  y   # greater than
 x &lt;  y   # less than
@@ -676,7 +664,9 @@ x &lt;= y   # less or equal</code></pre>
             </div>
             <div>
               <p><strong>Logical operators</strong></p>
-              <pre><code class="language-python">A and B  # True only if BOTH are True
+              <pre><code class="language-python" data-example-id="ex-014">A, B = True, False
+
+A and B  # True only if BOTH are True
 A or  B  # True if AT LEAST one is True
 not A    # Flips: True→False, False→True</code></pre>
               <table>
@@ -721,7 +711,7 @@ not A    # Flips: True→False, False→True</code></pre>
           <p>
             <strong>Leap year — combining all three (Exercise 8):</strong>
           </p>
-          <pre><code class="language-python"># Divisible by 400  OR  (divisible by 4  AND  NOT by 100)
+          <pre><code class="language-python" data-example-id="ex-015"># Divisible by 400  OR  (divisible by 4  AND  NOT by 100)
 year = 2024
 is_leap = (year % 400 == 0) or (year % 4 == 0 and year % 100 != 0)
 print(is_leap)  # True — no if needed; the expression itself is True/False</code></pre>
@@ -764,7 +754,7 @@ for example, <code class="inline-code">x += 3</code> is shorthand for <code clas
             </tr>
             <tr>
               <td><code class="inline-code">x /= 2</code></td>
-              <td><code class="inline-code">x = x / 3</code></td>
+              <td><code class="inline-code">x = x / 2</code></td>
               <td><code class="inline-code">x /= 2</code></td>
               <td><code class="inline-code">5.0</code></td>
             </tr>
@@ -782,12 +772,12 @@ for example, <code class="inline-code">x += 3</code> is shorthand for <code clas
             </tr>
             <tr>
               <td><code class="inline-code">x **= 2</code></td>
-              <td><code class="inline-code">x = x ** 3</code></td>
+              <td><code class="inline-code">x = x ** 2</code></td>
               <td><code class="inline-code">x **= 2</code></td>
               <td><code class="inline-code">100</code></td>
             </tr>
           </table>
-          <pre><code class="language-python"># Accumulate a running total — test scores from three participants
+          <pre><code class="language-python" data-example-id="ex-016"># Accumulate a running total — test scores from three participants
 total = 0
 score_p1 = 85
 score_p2 = 92
@@ -829,7 +819,7 @@ print(x)</code></pre>
             <strong>Slicing</strong> means taking a range of characters.
             Positions start at <code class="inline-code">0</code> (not 1) — so the first character is at index 0.
           </p>
-          <pre><code class="language-python">s = "Programming"
+          <pre><code class="language-python" data-example-id="ex-017">s = "Programming"
 #    P  r  o  g  r  a  m  m  i  n  g
 #    0  1  2  3  4  5  6  7  8  9 10   positive index
 #  -11-10 -9 -8 -7 -6 -5 -4 -3 -2 -1   negative index
@@ -853,7 +843,7 @@ len(s)      # 11 — number of characters</code></pre>
             writing a dot after the value, then the method name with parentheses.
             For example, <code class="inline-code">s.upper()</code> asks the string <code class="inline-code">s</code> to give you its uppercase version.
           </p>
-          <pre><code class="language-python">s = "Programming"
+          <pre><code class="language-python" data-example-id="ex-018">s = "Programming"
 s.upper()             # "PROGRAMMING"
 s.lower()             # "programming"
 s.replace('m', 'M')   # "PrograMMing"
@@ -875,7 +865,7 @@ s.isdigit()           # False — True only if every character is 0–9
           slicing, lower(), and comparison (Exercise 42)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">text = "  PyThon  "
+          <pre><code class="language-python" data-example-id="ex-019">text = "  PyThon  "
 clean = text.strip().lower()
 print(clean)             # "python"
 print(clean.upper())    # "PYTHON"
@@ -899,7 +889,7 @@ print(word == word[::-1])   # True — same forwards and backwards</code></pre>
             <code class="inline-code">join()</code> stitches a sequence of strings
             back into a single string.
           </p>
-          <pre><code class="language-python"># split() with no arguments splits by any whitespace
+          <pre><code class="language-python" data-example-id="ex-020"># split() with no arguments splits by any whitespace
 text = "Python  is   fun"
 words = text.split()
 print(words)  # ['Python', 'is', 'fun']  ← a list; covered in Section 14
@@ -948,13 +938,13 @@ print(path)  # "home/user/docs"</code></pre>
             <span class="inline-code">if</span> only runs when the condition
             is True.
           </p>
-          <pre><code class="language-python">number = int(input("Enter a number: "))
+          <pre><code class="language-python" data-example-id="ex-021">number = int(input("Enter a number: "))
 
 if number &gt; 0:
     print("Positive")   # ← 4 spaces: only runs when number > 0
 print("Done")           # ← no indent: always runs</code></pre>
           <p>You can combine conditions with <span class="inline-code">and</span> / <span class="inline-code">or</span> to test multiple things at once:</p>
-          <pre><code class="language-python">rt_ms = 312
+          <pre><code class="language-python" data-example-id="ex-022">rt_ms = 312
 condition = "congruent"
 
 # and: both must be True
@@ -972,7 +962,7 @@ if condition == "congruent" or condition == "neutral":
           exactly two branches
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">number = 7
+          <pre><code class="language-python" data-example-id="ex-023">number = 7
 if number &gt; 0:
     print("Positive")
 else:
@@ -994,7 +984,7 @@ else:
             Only the <em>first matching branch</em> runs. Once one condition
             is met, the rest are skipped entirely.
           </p>
-          <pre><code class="language-python">number = -3
+          <pre><code class="language-python" data-example-id="ex-024">number = -3
 if number &gt; 0:
     print("Positive")
 elif number &lt; 0:
@@ -1019,7 +1009,7 @@ else:
           branch — participant eligibility check
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># Participant eligibility: all four conditions must pass
+          <pre><code class="language-python" data-example-id="ex-025"># Participant eligibility: all four conditions must pass
 has_consent      = True
 in_age_range     = True
 passed_screening = False
@@ -1042,13 +1032,23 @@ else:
             <span class="inline-code">elif</span> chains are usually cleaner
             alternatives.
           </div>
-          <pre><code class="language-python"># Before — deeply nested (hard to follow)
+          <pre><code class="language-python" data-example-id="ex-026">has_consent = True
+in_age_range = True
+passed_screening = True
+group_has_space = False
+
+# Before — deeply nested (hard to follow)
 if has_consent:
     if in_age_range:
         if passed_screening:
             if group_has_space:
                 print("Eligible")</code></pre>
-          <pre><code class="language-python"># After — flat early-exit guards (easier to read)
+          <pre><code class="language-python" data-example-id="ex-027">has_consent = True
+in_age_range = True
+passed_screening = True
+group_has_space = False
+
+# After — flat early-exit guards (easier to read)
 if not has_consent:
     print("No consent — cannot include.")
 elif not in_age_range:
@@ -1084,7 +1084,7 @@ else:
         <div class="scenario-body">
           <p><code class="inline-code">range()</code> is a built-in function that generates a sequence of numbers.
           It is the standard way to repeat code a fixed number of times:</p>
-          <pre><code class="language-python"># range(n) → 0, 1, 2 … n-1
+          <pre><code class="language-python" data-example-id="ex-028"># range(n) → 0, 1, 2 … n-1
 for i in range(5):
     print(i)         # 0 1 2 3 4
 
@@ -1105,7 +1105,7 @@ for i in range(10, 0, -1):
         <div class="scenario-body">
           <p>You can loop directly over a <strong>list</strong> (an ordered collection of items — covered
           fully in Section 14) or over a <strong>string</strong> (a sequence of characters — see Section 05). Python visits each item one by one:</p>
-          <pre><code class="language-python"># Over a list
+          <pre><code class="language-python" data-example-id="ex-029"># Over a list
 participants = ["P01", "P02", "P03"]  # list of three participant IDs
 for participant in participants:
     print(participant)          # P01  P02  P03
@@ -1130,7 +1130,7 @@ for i in range(len(participants)):
             Start a variable at 0, then add each new value each iteration —
             by the end of the loop, it holds the running total.
           </p>
-          <pre><code class="language-python"># Running total of session scores  (Exercise 24)
+          <pre><code class="language-python" data-example-id="ex-030"># Running total of session scores  (Exercise 24)
 total = 0
 for s in range(1, 6):       # sessions 1 to 5
     total += s * 10          # session s scored s×10 points
@@ -1150,7 +1150,7 @@ for i in range(1, 5):
         </div>
         <div class="scenario-body">
           <p>Use a <strong>counter</strong> variable — start at 0, then add 1 each time the target is found:</p>
-          <pre><code class="language-python">responses = "yynyynyyn"  # y = yes, n = no  (Exercise 43)
+          <pre><code class="language-python" data-example-id="ex-031">responses = "yynyynyyn"  # y = yes, n = no  (Exercise 43)
 count = 0
 for ch in responses:
     if ch == "y":
@@ -1180,7 +1180,7 @@ print(f"Yes responses: {count}")   # 5</code></pre>
           <div class="note">
             ⚠️ <strong>Heads up — it requires Python on your computer :</strong> Turtle graphics opens a separate window and requires a Python installed on your computer in (e.g. PyCharm, VS Code, etc.). It won't run here.
           </div>
-          <pre><code class="language-python">import turtle
+          <pre><code class="language-python" data-example-id="ex-032" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 
 bob = turtle.Turtle()   # create turtle object
 
@@ -1196,7 +1196,7 @@ bob.right(90)           # turn 90° clockwise</code></pre>
           repeating the same commands (Exercise 28)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">import turtle
+          <pre><code class="language-python" data-example-id="ex-033" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 bob = turtle.Turtle()
 
 # Square: 4 sides, 90° turn each (Exercise 28c)
@@ -1238,7 +1238,7 @@ for _ in range(360):
             You can change the color of the turtle's pen, the background, and
             fill shapes with color.
           </p>
-          <pre><code class="language-python">import turtle
+          <pre><code class="language-python" data-example-id="ex-034" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 
 screen = turtle.Screen()
 screen.bgcolor("black")     # Set background color
@@ -1266,7 +1266,7 @@ t.end_fill()                # Actually fills the shape drawn since begin_fill()<
             You can control the pen's thickness, speed, and move it without
             drawing.
           </p>
-          <pre><code class="language-python">import turtle
+          <pre><code class="language-python" data-example-id="ex-035" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 t = turtle.Turtle()
 
 t.pensize(3)        # Make the line thicker
@@ -1308,7 +1308,7 @@ t.write("Hello Turtle!", font=("Arial", 14, "normal"))</code></pre>
         <div class="scenario-body">
           <p>A <strong>while loop</strong> keeps running as long as its <strong>condition</strong> (a True/False expression — see Section 06) is <code class="inline-code">True</code>.
           Once the condition becomes <code class="inline-code">False</code>, the loop stops automatically:</p>
-          <pre><code class="language-python">count = 0
+          <pre><code class="language-python" data-example-id="ex-036">count = 0
 while count &lt; 5:
     print(count)
     count += 1   # must eventually make the condition False</code></pre>
@@ -1326,7 +1326,7 @@ while count &lt; 5:
         <div class="scenario-body">
           <p>A <strong>sentinel value</strong> is a special input that signals "stop" — not real data,
           just a stopping signal agreed on in advance. When the user types it, the loop ends:</p>
-          <pre><code class="language-python">user_input = ""
+          <pre><code class="language-python" data-example-id="ex-037">user_input = ""
 while user_input != "done":
     user_input = input("Enter a score (or 'done' to stop): ")
 print("Goodbye!")</code></pre>
@@ -1345,7 +1345,7 @@ print("Goodbye!")</code></pre>
             <span class="inline-code">while True:</span> creates a loop that never stops on its own —
             it runs forever until a <span class="inline-code">break</span> statement explicitly exits it.
           </p>
-          <pre><code class="language-python"># break — stop collecting when the researcher is done
+          <pre><code class="language-python" data-example-id="ex-038"># break — stop collecting when the researcher is done
 while True:
     pid = input("Enter participant ID (or 'quit' to stop): ")
     if pid == "quit":
@@ -1410,7 +1410,7 @@ for score in scores:
             adds to it on every iteration. This is the building-block of computing totals,
             counts, and running sums.
           </p>
-          <pre><code class="language-python"># Summing reaction times from a psychology experiment
+          <pre><code class="language-python" data-example-id="ex-039"># Summing reaction times from a psychology experiment
 reaction_times = [312, 278, 345, 290, 301]  # milliseconds
 
 total = 0                    # 1. start the accumulator at zero
@@ -1446,7 +1446,7 @@ print("Mean RT :", total / len(reaction_times))  # 305.2</code></pre>
             Think of a clock: for every 1 hour (outer loop), the minute hand
             completes a full 60-minute cycle (inner loop).
           </p>
-          <pre><code class="language-python"># Print number grid (Exercise 25)
+          <pre><code class="language-python" data-example-id="ex-040"># Print number grid (Exercise 25)
 for i in range(2, 5):        # outer: i = 2, 3, 4
     for j in range(1, 5):    # inner: j = 1,2,3,4 (4 iterations per outer step)
         print(i + j, end=" ")
@@ -1465,7 +1465,7 @@ for i in range(2, 5):        # outer: i = 2, 3, 4
         <div class="scenario-body">
           <p>The outer loop steps through each experimental condition; the inner loop processes each
           trial within that condition. After each condition's trials, we compute the mean score:</p>
-          <pre><code class="language-python"># Mean score per condition across 4 trials  (Exercise 56–57)
+          <pre><code class="language-python" data-example-id="ex-041"># Mean score per condition across 4 trials  (Exercise 56–57)
 for cond in range(1, 4):         # 3 conditions
     total = 0
     for trial in range(1, 5):       # 4 trials each
@@ -1485,7 +1485,7 @@ for cond in range(1, 4):         # 3 conditions
             the inner loop controls what is printed in each row. Here is a
             condition × trial schedule:
           </p>
-          <pre><code class="language-python"># Condition × trial schedule  (Exercises 31–33)
+          <pre><code class="language-python" data-example-id="ex-042"># Condition × trial schedule  (Exercises 31–33)
 n_cond   = 3    # rows (conditions)
 n_trials = 4    # columns (trials)
 
@@ -1510,7 +1510,7 @@ for cond in range(1, n_cond + 1):
             the <strong>innermost</strong> loop it is currently inside. It
             does not stop the outer loop.
           </p>
-          <pre><code class="language-python">for i in range(3):
+          <pre><code class="language-python" data-example-id="ex-043">for i in range(3):
     for j in range(3):
         if i == 1 and j == 1:
             print("Breaking inner loop!")
@@ -1548,7 +1548,7 @@ for cond in range(1, 4):        # 3 conditions
             iteration. It is handy for ignoring invalid or unwanted data without
             stopping the entire loop.
           </p>
-          <pre><code class="language-python"># Skip missing reaction times (coded as -1)
+          <pre><code class="language-python" data-example-id="ex-044"># Skip missing reaction times (coded as -1)
 rt_values = [412, -1, 378, -1, 445, 390]
 
 for rt in rt_values:
@@ -1600,7 +1600,7 @@ for rt in rt_values:
           <div class="scenario-body">
             <p>An exception is Python's way of saying "something went wrong." When Python raises an exception, normal
               execution stops. Without <code class="inline-code">try/except</code>, the program crashes:</p>
-            <pre><code class="language-python">number = int(input("Enter a number: "))
+            <pre><code class="language-python" data-example-id="ex-045">number = int(input("Enter a number: "))
 # If the user types "hello", Python raises:
 # ValueError: invalid literal for int() with base 10: 'hello'</code></pre>
           </div>
@@ -1614,7 +1614,7 @@ for rt in rt_values:
           <div class="scenario-body">
             <p>Wrap risky code in a <code class="inline-code">try</code> block. If it fails, the <code
                 class="inline-code">except</code> block runs instead of crashing:</p>
-            <pre><code class="language-python">try:
+            <pre><code class="language-python" data-example-id="ex-046">try:
     number = int(input("Enter a number: "))
     print(f"You entered: {number}")
 except ValueError:
@@ -1634,7 +1634,7 @@ except ValueError:
           </div>
           <div class="scenario-body">
             <p>Another common exception: accessing a position that doesn't exist in a string.</p>
-            <pre><code class="language-python">word = "study"   # characters at indices 0, 1, 2, 3, 4
+            <pre><code class="language-python" data-example-id="ex-047">word = "study"   # characters at indices 0, 1, 2, 3, 4
 try:
     print(word[10])    # index 10 doesn't exist — valid indices are 0 to 4
 except IndexError:
@@ -1650,7 +1650,7 @@ except IndexError:
           <div class="scenario-body">
             <p>Combine <code class="inline-code">while True</code> with <code class="inline-code">try/except</code> to
               keep prompting until the user enters something valid:</p>
-            <pre><code class="language-python">while True:
+            <pre><code class="language-python" data-example-id="ex-048">while True:
     try:
         age = int(input("Enter your age: "))
         break          # valid number — exit the loop
@@ -1716,24 +1716,24 @@ except IndexError:
             <strong>Cause:</strong> You used a variable before assigning it,
             or misspelled a variable name.
           </p>
-          <pre><code class="language-python"># ❌ Causes NameError
-    # print(total)  # total was never assigned
+          <pre><code class="language-python" data-example-id="ex-049"># ❌ Causes NameError
+# print(total)  # total was never assigned
 
-    # ❌ Typo: 'massege' instead of 'message'
-    message = "Hello"
-    # print(massege)  # NameError
+# ❌ Typo: 'massege' instead of 'message'
+message = "Hello"
+# print(massege)  # NameError
 
-    # ✅ Fix: define before using
-    total = 0
-    print("total:", total)
+# ✅ Fix: define before using
+total = 0
+print("total:", total)
 
-    # ✅ Fix: correct spelling
-    print("message:", message)
+# ✅ Fix: correct spelling
+print("message:", message)
 
-    # Python is case-sensitive!
-    Name = "Alice"
-    # print(name)  # NameError: 'name' is not 'Name'
-    print(Name)</code></pre>
+# Python is case-sensitive!
+Name = "Alice"
+# print(name)  # NameError: 'name' is not 'Name'
+print(Name)</code></pre>
           <div class="tip">
             💡 <strong>Tip:</strong> Python is case-sensitive.
             <code class="inline-code">Name</code>,
@@ -1756,30 +1756,30 @@ except IndexError:
             calling a non-callable.
           </p>
           <p class="note"><strong>Note:</strong> <em>Callable</em> means something you can call like a function using <code class="inline-code">()</code>. Calling a non-callable means trying to use <code class="inline-code">()</code> on something that isn't a function — e.g., a plain variable or number.</p>
-          <pre><code class="language-python"># ❌ String + number causes TypeError
-    age = 22
-    # print("Age: " + age)  # TypeError!
+          <pre><code class="language-python" data-example-id="ex-050"># ❌ String + number causes TypeError
+age = 22
+# print("Age: " + age)  # TypeError!
 
-    # ✅ Fix: use str() or f-string
-    print("Age (str):", str(age))
-    print(f"Age (fstr): {age}")
+# ✅ Fix: use str() or f-string
+print("Age (str):", str(age))
+print(f"Age (fstr): {age}")
 
-    # ❌ Calling a non-callable (variable, not function)
-    x = 5
-    # x()  # TypeError: 'int' object is not callable
+# ❌ Calling a non-callable (variable, not function)
+x = 5
+# x()  # TypeError: 'int' object is not callable
 
-    # ❌ Passing the wrong type as an argument
-    score = 85
-    # result = score + " points"  # TypeError: can only concatenate str (not "int") to str
+# ❌ Passing the wrong type as an argument
+score = 85
+# result = score + " points"  # TypeError: can only concatenate str (not "int") to str
 
-    # ✅ Fix: use str() to convert first
-    result = str(score) + " points"
-    print(result)  # 85 points
+# ✅ Fix: use str() to convert first
+result = str(score) + " points"
+print(result)  # 85 points
 
-    # Diagnose: always check the type first
-    value = "42"  # string, not int!
-    print(type(value))  # &lt;class 'str'&gt;
-    print(type(value) == int)  # False
+# Diagnose: always check the type first
+value = "42"  # string, not int!
+print(type(value))  # &lt;class 'str'&gt;
+print(type(value) == int)  # False
 </code></pre>
         </div>
       </div>
@@ -1795,26 +1795,26 @@ except IndexError:
             sense for the operation — e.g., converting a non-numeric string to
             int.
           </p>
-          <pre><code class="language-python"># ❌ int("hello") raises ValueError
-    try:
-        n = int("hello")
-    except ValueError as e:
-        print(f"ValueError caught: {e}")
+          <pre><code class="language-python" data-example-id="ex-051"># ❌ int("hello") raises ValueError
+try:
+    n = int("hello")
+except ValueError as e:
+    print(f"ValueError caught: {e}")
 
-    # ❌ int("3.14") also ValueError — use float() first
-    try:
-        n = int("3.14")
-    except ValueError as e:
-        print(f"ValueError: {e}")
-        n = int(float("3.14"))  # convert via float
-        print(f"Fixed: {n}")  # 3
+# ❌ int("3.14") also ValueError — use float() first
+try:
+    n = int("3.14")
+except ValueError as e:
+    print(f"ValueError: {e}")
+    n = int(float("3.14"))  # convert via float
+    print(f"Fixed: {n}")  # 3
 
-    # ✅ Validate before converting: check isdigit()
-    raw = "42"
-    if raw.lstrip("-").isdigit():
-        print(f"Valid int: {int(raw)}")
-    else:
-        print("Not a valid integer")</code></pre>
+# ✅ Validate before converting: check isdigit()
+raw = "42"
+if raw.lstrip("-").isdigit():
+    print(f"Valid int: {int(raw)}")
+else:
+    print("Not a valid integer")</code></pre>
         <p class="note"><strong>Note:</strong> The <code class="inline-code">as e</code> part captures the error message as a variable named <code class="inline-code">e</code>, which you can then print or inspect to see what went wrong.</p>
         </div>
       </div>
@@ -1829,23 +1829,23 @@ except IndexError:
             in a string. Indices start at <code class="inline-code">0</code>; the last
             valid index is <code class="inline-code">len(text) - 1</code>.
           </p>
-          <pre><code class="language-python">word = "psych"   # valid indices: 0 1 2 3 4
+          <pre><code class="language-python" data-example-id="ex-052">word = "psych"   # valid indices: 0 1 2 3 4
 
-    # ❌ This crashes — index 10 doesn't exist
-    # print(word[10])  # IndexError: string index out of range
+# ❌ This crashes — index 10 doesn't exist
+# print(word[10])  # IndexError: string index out of range
 
-    # ✅ Guard with a bounds check
-    i = 10
-    if i &lt; len(word):
-        print(word[i])
-    else:
-        print(f"Index {i} is out of range (string has {len(word)} characters)")
+# ✅ Guard with a bounds check
+i = 10
+if i &lt; len(word):
+    print(word[i])
+else:
+    print(f"Index {i} is out of range (string has {len(word)} characters)")
 
-    # ✅ Or catch it
-    try:
-        print(word[10])
-    except IndexError:
-        print("Index out of range!")</code></pre>
+# ✅ Or catch it
+try:
+    print(word[10])
+except IndexError:
+    print("Index out of range!")</code></pre>
         </div>
       </div>
 
@@ -1880,22 +1880,22 @@ except IndexError:
             You can guard against both with a simple length check +
             <code class="inline-code">try/except</code>:
           </p>
-          <pre><code class="language-python">import sys
+          <pre><code class="language-python" data-example-id="ex-053">import sys
 
-    # Step 1 — did the user actually pass an argument?
-    if len(sys.argv) &lt; 2:
-        print("Usage: python script.py &lt;number&gt;")
-        sys.exit(1)  # stop the program immediately
+# Step 1 — did the user actually pass an argument?
+if len(sys.argv) &lt; 2:
+    print("Usage: python script.py &lt;number&gt;")
+    sys.exit(1)  # stop the program immediately
 
-    # Step 2 — is it actually a number?
-    try:
-        value = int(sys.argv[1])
-    except ValueError:
-        print(f"Expected a number, got: {sys.argv[1]}")
-        sys.exit(1)
+# Step 2 — is it actually a number?
+try:
+    value = int(sys.argv[1])
+except ValueError:
+    print(f"Expected a number, got: {sys.argv[1]}")
+    sys.exit(1)
 
-    # All good — use the value
-    print(f"Double: {value * 2}")</code></pre>
+# All good — use the value
+print(f"Double: {value * 2}")</code></pre>
           <div class="note">
             💡 <code class="inline-code">sys.exit()</code> stops the program immediately.
             It is a function from the <code class="inline-code">sys</code> module — the
@@ -1915,24 +1915,24 @@ except IndexError:
             <strong>Cause:</strong> You tried to divide a number by zero. This
             is mathematically undefined, so Python raises an error immediately.
           </p>
-          <pre><code class="language-python"># ❌ Triggers ZeroDivisionError
-    # result = 10 / 0
+          <pre><code class="language-python" data-example-id="ex-054"># ❌ Triggers ZeroDivisionError
+# result = 10 / 0
 
-    # ✅ Fix 1: guard before dividing
-    participants = 0
-    total_score = 450
+# ✅ Fix 1: guard before dividing
+participants = 0
+total_score = 450
 
-    if participants != 0:
-        average = total_score / participants
-        print(f"Average score: {average}")
-    else:
-        print("No participants yet — cannot compute average.")
+if participants != 0:
+    average = total_score / participants
+    print(f"Average score: {average}")
+else:
+    print("No participants yet — cannot compute average.")
 
-    # ✅ Fix 2: catch the exception
-    try:
-        average = total_score / participants
-    except ZeroDivisionError:
-        print("Cannot divide by zero!")</code></pre>
+# ✅ Fix 2: catch the exception
+try:
+    average = total_score / participants
+except ZeroDivisionError:
+    print("Cannot divide by zero!")</code></pre>
         </div>
       </div>
 
@@ -1971,21 +1971,21 @@ except IndexError:
               <td>Mixing tabs and spaces in the same file</td>
             </tr>
           </table>
-          <pre><code class="language-python"># ❌ unexpected indent: this line has extra spaces before it
-    score = 72
-    #     print(score)  # IndentationError: unexpected indent
+          <pre><code class="language-python" data-example-id="ex-055"># ❌ unexpected indent: this line has extra spaces before it
+score = 72
+#     print(score)  # IndentationError: unexpected indent
 
-    # ✅ Correct: code at the same level as what came before
-    score = 72
-    print(score)
+# ✅ Correct: code at the same level as what came before
+score = 72
+print(score)
 
-    # ❌ expected an indented block: the if body is empty without pass
-    # if score &gt; 50:
-    # print("pass")  # IndentationError: expected an indented block
+# ❌ expected an indented block: the if body is empty without pass
+# if score &gt; 50:
+# print("pass")  # IndentationError: expected an indented block
 
-    # ✅ Correct: indent the body one level
-    if score &gt; 50:
-        print("Pass")</code></pre>
+# ✅ Correct: indent the body one level
+if score &gt; 50:
+    print("Pass")</code></pre>
           <div class="warn">
             ⚠️ Always use <strong>4 spaces</strong> per indent level, never
             mix tabs and spaces. Most editors can be configured to convert tabs to spaces automatically.
@@ -2007,7 +2007,7 @@ except IndexError:
             <code class="inline-code">==</code> (equality check).
             The opposite is <code class="inline-code">is not</code>.
           </p>
-          <pre><code class="language-python"># A participant who hasn't responded yet
+          <pre><code class="language-python" data-example-id="ex-056"># A participant who hasn't responded yet
 response = None
 
 if response is None:
@@ -2035,26 +2035,26 @@ else:
             variable is <code class="inline-code">None</code> or the wrong
             type, or a method is misspelled.
           </p>
-          <pre><code class="language-python"># ❌ Calling a string method on an integer
-    score = 85
-    # score.upper()  # AttributeError: 'int' object has no attribute 'upper'
+          <pre><code class="language-python" data-example-id="ex-057"># ❌ Calling a string method on an integer
+score = 85
+# score.upper()  # AttributeError: 'int' object has no attribute 'upper'
 
-    # ✅ Diagnose: check the type first
-    print(type(score))  # &lt;class 'int'&gt;
+# ✅ Diagnose: check the type first
+print(type(score))  # &lt;class 'int'&gt;
 
-    # ❌ Variable holds None — calling a method on None fails
-    result = None
-    # result.upper()  # AttributeError: 'NoneType' object has no attribute 'upper'
+# ❌ Variable holds None — calling a method on None fails
+result = None
+# result.upper()  # AttributeError: 'NoneType' object has no attribute 'upper'
 
-    # ✅ Guard: check for None before using
-    if result is not None:
-        print(result.upper())
-    else:
-        print("result is None — nothing to process")
+# ✅ Guard: check for None before using
+if result is not None:
+    print(result.upper())
+else:
+    print("result is None — nothing to process")
 
-    # ✅ Use dir() to see what methods a value actually has
-    text = "hello"
-    print(dir(text))
+# ✅ Use dir() to see what methods a value actually has
+text = "hello"
+print(dir(text))
 </code></pre>
         </div>
       </div>
@@ -2197,18 +2197,18 @@ else:
             happening inside your code at each step. Always include a label so
             you know which print fired.
           </p>
-          <pre><code class="language-python"># Debugging: why does this give the wrong total?
-    total = 0
-    n = 5    # we want to sum 1 + 2 + 3 + 4 + 5
+          <pre><code class="language-python" data-example-id="ex-058"># Debugging: why does this give the wrong total?
+total = 0
+n = 5    # we want to sum 1 + 2 + 3 + 4 + 5
 
-    for i in range(n):
-        print(f"[DEBUG] i={i}, total so far={total}")
-        total += i    # &lt;-- bug: should be i+1 (range gives 0..4, not 1..5)
+for i in range(n):
+    print(f"[DEBUG] i={i}, total so far={total}")
+    total += i    # &lt;-- bug: should be i+1 (range gives 0..4, not 1..5)
 
-    print(f"Total: {total}")   # prints 10, but expected 15
+print(f"Total: {total}")   # prints 10, but expected 15
 
-    # Debug output shows i stops at 4, never reaches 5
-    # Fix: total += i + 1</code></pre>
+# Debug output shows i stops at 4, never reaches 5
+# Fix: total += i + 1</code></pre>
           <div class="tip">
             💡 Remove or comment out debug prints before submitting. Use a
             <code class="inline-code">DEBUG = True</code> flag to control
@@ -2227,15 +2227,13 @@ else:
               When your code crashes, Python prints a <em>Traceback</em> — an error report showing exactly what went wrong and
               where. While it can look daunting, you only need to read three things, starting from the bottom:
             </p>
-            <pre><code class="language-python">
-              score_text = "not-a-number"
-              score = int(score_text)
+            <pre><code class="language-python" data-example-id="ex-059" data-expected-error="ValueError">score_text = "not-a-number"
+score = int(score_text)
 
-              # Traceback (most recent call last):
-              # File "study.py", line 2, in &lt;module&gt;
-              # core = int(score_text)
-              # ValueError: invalid literal for int() with base 10: 'not-a-number'
-                  </code></pre>
+# Traceback (most recent call last):
+# File "study.py", line 2, in &lt;module&gt;
+# core = int(score_text)
+# ValueError: invalid literal for int() with base 10: 'not-a-number'</code></pre>
             <ol>
               <li>
                 <strong>Bottom line</strong> — what went wrong.
@@ -2276,12 +2274,10 @@ else:
             each time whether it still causes the crash. When the error disappears — your last reduction points in the direction of
             the real cause.
           </p>
-           <pre><code class="language-python">
-          score_text = "x"    # even after reducing it to one character — it's still crashes
-          print(f"Input: '{score_text}'")
-          print(f"Type: {type(score_text)}")
-          score = int(score_text)    # ValueError on 'x'
-              </code></pre>
+           <pre><code class="language-python" data-example-id="ex-060" data-expected-error="ValueError">score_text = "x"    # even after reducing it to one character — it's still crashes
+print(f"Input: '{score_text}'")
+print(f"Type: {type(score_text)}")
+score = int(score_text)    # ValueError on 'x'</code></pre>
           <ol>
             <li>
               <strong>Shrink the input</strong> — cutting the original
@@ -2387,7 +2383,7 @@ else:
           (Exercise 31)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">scores = [72, 85, 91]
+          <pre><code class="language-python" data-example-id="ex-061">scores = [72, 85, 91]
 
 scores[0]             # 72 — first item
 scores[1]             # 85 — second item
@@ -2405,7 +2401,7 @@ for i in range(len(scores) - 1, -1, -1):
           insert, replace
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">scores = [72, 85, 91]  # participant quiz scores
+          <pre><code class="language-python" data-example-id="ex-062">scores = [72, 85, 91]  # participant quiz scores
 
 scores.append(88)      # [72, 85, 91, 88]     — adds to end (Exercise 36)
 scores.insert(0, 60)   # [60, 72, 85, 91, 88] — insert at index (Exercise 37)
@@ -2427,7 +2423,7 @@ for i in range(len(group_a)):
           <p>
             A <strong>2D list</strong> is a list where each element is itself a list — like a table with rows and columns. You access elements with two indices: the first selects the inner list (row), the second selects the item within it (column).
           </p>
-          <pre><code class="language-python"># Single record: [name, address, house_number]
+          <pre><code class="language-python" data-example-id="ex-063"># Single record: [name, address, house_number]
 record = ["Alice", "Maastricht", 62]
 print(record[0])    # "Alice"
 
@@ -2451,7 +2447,7 @@ for channel in eeg:
             Slicing allows you to extract a portion of a list. The syntax is
             <code class="inline-code">list[start:stop:step]</code>.
           </p>
-          <pre><code class="language-python">rt_ms = [320, 415, 290, 480, 350]  # reaction times (ms) for 5 trials
+          <pre><code class="language-python" data-example-id="ex-064">rt_ms = [320, 415, 290, 480, 350]  # reaction times (ms) for 5 trials
 
 # Basic slicing
 print(rt_ms[1:4])   # [415, 290, 480] (index 1 to 3)
@@ -2484,7 +2480,7 @@ print(rt_ms)        # [320, 400, 300, 480, 350]</code></pre>
             <code class="inline-code">sort()</code> or create a new sorted
             list using <code class="inline-code">sorted()</code>.
           </p>
-          <pre><code class="language-python">nums = [4, 1, 7, 3]
+          <pre><code class="language-python" data-example-id="ex-065">nums = [4, 1, 7, 3]
 nums.sort()           # In-place sort: nums is now [1, 3, 4, 7]
 nums.sort(reverse=True) # [7, 4, 3, 1]
 
@@ -2518,10 +2514,10 @@ students.sort(key=lambda x: x[1])  # Sort by the second item (grade)</code></pre
           <p>
             Use <code class="inline-code">del</code> to remove an element by its index — like erasing one entry from a spreadsheet row:
           </p>
-          <pre><code class="language-python">scores = [72, 85, 91, 88]
+          <pre><code class="language-python" data-example-id="ex-066">scores = [72, 85, 91, 88]
 del scores[2]   # removes 91 (index 2) → [72, 85, 88]
 print(scores)</code></pre>
-          <pre><code class="language-python">conditions = ["control", "treatment_a", "treatment_b", "treatment_c", "treatment_d"]
+          <pre><code class="language-python" data-example-id="ex-067">conditions = ["control", "treatment_a", "treatment_b", "treatment_c", "treatment_d"]
 
 conditions.remove("treatment_b")  # Removes first occurrence. Raises ValueError if missing.
 item = conditions.pop()    # Removes and returns the last item ("treatment_d")
@@ -2566,7 +2562,7 @@ scores.clear()            # Empties the list completely: []</code></pre>
             <code class="inline-code">enumerate()</code> is the Pythonic way
             to do it.
           </p>
-          <pre><code class="language-python">conditions = ["control", "low_stress", "high_stress"]
+          <pre><code class="language-python" data-example-id="ex-068">conditions = ["control", "low_stress", "high_stress"]
 
 # The Pythonic way
 for i, cond in enumerate(conditions):
@@ -2596,7 +2592,7 @@ positions = [i for i, val in enumerate(rt_raw) if val == 320]</code></pre>
             Python provides built-in operators and functions to quickly check
             contents or calculate statistics on lists.
           </p>
-          <pre><code class="language-python">conditions = ["control", "treatment_a", "treatment_b"]
+          <pre><code class="language-python" data-example-id="ex-069">conditions = ["control", "treatment_a", "treatment_b"]
 
 # Membership testing
 if "control" in conditions:
@@ -2634,7 +2630,7 @@ print(all(bools))   # False (not all are True)</code></pre>
             still shared. A <em>deep copy</em> duplicates everything — including nested lists — so
             nothing is shared between the original and the copy.
           </p>
-          <pre><code class="language-python"># Basic unpacking — assign each element to a separate variable
+          <pre><code class="language-python" data-example-id="ex-070"># Basic unpacking — assign each element to a separate variable
 low, mid, high = [72, 85, 91]  # participant scores
 
 # Star unpacking — first gets index 0, rest gets everything else
@@ -2749,7 +2745,7 @@ deep = copy.deepcopy(groups)</code></pre>
             that should not change (coordinates, RGB colours, database rows)
             or to return multiple values from a function.
           </p>
-          <pre><code class="language-python"># Creating tuples
+          <pre><code class="language-python" data-example-id="ex-071"># Creating tuples
 point     = (3, 7)             # parentheses optional
 rgb       = (255, 128, 0)       # orange colour
 single    = (42,)              # single-element MUST have trailing comma
@@ -2798,7 +2794,7 @@ for name, score in students:
             guaranteed order. It's fast at membership testing and ideal for
             deduplication.
           </p>
-          <pre><code class="language-python"># Creating sets
+          <pre><code class="language-python" data-example-id="ex-072"># Creating sets
 responses = {"agree", "neutral", "disagree"}   # survey response types
 empty_set = set()  # NOT {} — that creates an empty dict!
 from_list = set([1, 2, 2, 3, 3, 3])  # {1, 2, 3} — auto-deduplicates
@@ -2826,7 +2822,7 @@ print("Unique:", unique)</code></pre>
           Intersection, Difference
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">A = {1, 2, 3, 4, 5}
+          <pre><code class="language-python" data-example-id="ex-073">A = {1, 2, 3, 4, 5}
 B = {3, 4, 5, 6, 7}
 
 # Union: A OR B
@@ -2870,7 +2866,7 @@ print("Combined:",  class_a | class_b)</code></pre>
             (e.g., <code class="inline-code">frozenset({"control", "treatment_a"})</code>) could serve as
             a key to store results per condition combination.
           </p>
-          <pre><code class="language-python"># frozenset: immutable, hashable — can be a dict key
+          <pre><code class="language-python" data-example-id="ex-074"># frozenset: immutable, hashable — can be a dict key
 perms_admin  = frozenset({"read", "write", "delete"})
 perms_viewer = frozenset({"read"})
 
@@ -2983,7 +2979,7 @@ print(perms_admin &amp; perms_viewer)           # frozenset({'read'})</code></pr
           <span class="badge badge-green">Syntax</span> Creating Dictionaries
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># Literal syntax: {key: value, ...}
+          <pre><code class="language-python" data-example-id="ex-075"># Literal syntax: {key: value, ...}
 student = {
     "name": "Alice",
     "age": 22,
@@ -3014,7 +3010,7 @@ print(likert[3])  # Neutral</code></pre>
           &amp; Delete
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">student = {"name": "Alice", "age": 22, "grade": "A"}
+          <pre><code class="language-python" data-example-id="ex-076">student = {"name": "Alice", "age": 22, "grade": "A"}
 
 # READ — access by key (KeyError if missing!)
 print(student["name"])          # Alice
@@ -3053,7 +3049,7 @@ print(missing)  # not found</code></pre>
           items() &amp; update()
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">participant = {"id": "P03", "age": 30, "condition": "experimental"}
+          <pre><code class="language-python" data-example-id="ex-077">participant = {"id": "P03", "age": 30, "condition": "experimental"}
 
 # .keys() — all keys as a view
 print(list(participant.keys()))    # ['id', 'age', 'condition']
@@ -3089,7 +3085,7 @@ print(backup)   # still has data</code></pre>
           Dictionaries
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">scores = {"Math": 87, "Science": 93, "English": 79}
+          <pre><code class="language-python" data-example-id="ex-078">scores = {"Math": 87, "Science": 93, "English": 79}
 
 # Loop over keys (default)
 for subject in scores:
@@ -3128,7 +3124,7 @@ print(f"Average score: {average:.1f}")
             A common psychology use-case: store each participant’s data as a nested dictionary,
             where the outer key is a participant ID and the inner dictionary holds their attributes.
           </p>
-          <pre><code class="language-python"># Participant database: outer key = ID, value = dict of attributes
+          <pre><code class="language-python" data-example-id="ex-079"># Participant database: outer key = ID, value = dict of attributes
 participants = {
     "P01": {"age": 21, "condition": "A"},
     "P02": {"age": 24, "condition": "B"},
@@ -3156,7 +3152,7 @@ for pid, data in participants.items():
             Dictionaries can contain other dictionaries as values. This is how
             you can store a dictionary inside another dictionary as a value.
           </p>
-          <pre><code class="language-python"># A nested dictionary — each participant's data is itself a dictionary
+          <pre><code class="language-python" data-example-id="ex-080"># A nested dictionary — each participant's data is itself a dictionary
 students = {
     "alice": {"age": 22, "grade": "A", "scores": [90, 85, 92]},
     "bob":   {"age": 21, "grade": "B", "scores": [75, 80, 78]},
@@ -3292,7 +3288,7 @@ print(students["alice"])</code></pre>
             evaluates to one of two values depending on a condition — all in a single line.
             Syntax: <code class="inline-code">value_if_true if condition else value_if_false</code>.
           </p>
-          <pre><code class="language-python"># Label a reaction time as "fast" or "slow" in one line
+          <pre><code class="language-python" data-example-id="ex-081"># Label a reaction time as "fast" or "slow" in one line
 rt_ms = 285
 result = "fast" if rt_ms &lt; 300 else "slow"
 print(result)  # "fast"
@@ -3315,7 +3311,7 @@ print(result)  # "fast"
             <code class="inline-code">[expression for item in sequence]</code><br />With filter:
             <code class="inline-code">[expression for item in sequence if condition]</code>
           </p>
-          <pre><code class="language-python"># Step-by-step progression: loop → comprehension
+          <pre><code class="language-python" data-example-id="ex-082"># Step-by-step progression: loop → comprehension
 
 # Traditional loop
 squares_loop = []
@@ -3362,7 +3358,7 @@ print(labels)  # ['Pass', 'Fail', 'Pass', 'Pass', 'Pass']</code></pre>
             Syntax:
             <code class="inline-code">{key_expr: value_expr for item in sequence if condition}</code>
           </p>
-          <pre><code class="language-python"># Square mapping
+          <pre><code class="language-python" data-example-id="ex-083"># Square mapping
 squares = {x: x**2 for x in range(1, 6)}
 print(squares)   # {1:1, 2:4, 3:9, 4:16, 5:25}
 
@@ -3400,7 +3396,7 @@ print(clean)  # {'name': 'alice', 'city': 'amsterdam'}</code></pre>
             <code class="inline-code">{}</code> and automatically
             deduplicating results.
           </p>
-          <pre><code class="language-python"># All unique first letters from a word list
+          <pre><code class="language-python" data-example-id="ex-084"># All unique first letters from a word list
 conditions = ["control", "control", "experimental", "experimental", "control"]
 unique_conditions = {c for c in conditions}
 print(unique_conditions)  # {'control', 'experimental'}
@@ -3481,7 +3477,7 @@ print(valid_scores)  # {3, 5, 7} — duplicates and negatives removed</code></pr
             <strong>Argument:</strong> the real value you pass in when calling
             the function (e.g. <code class="inline-code">"Alice"</code>).
           </p>
-          <pre><code class="language-python">def greet(name):             # name = parameter
+          <pre><code class="language-python" data-example-id="ex-085">def greet(name):             # name = parameter
     print(f"Hello, {name}!")
 
 greet("P01")               # "P01" = argument
@@ -3494,7 +3490,7 @@ greet("P02")</code></pre>
           and give back a result
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># BMI calculator (Exercise 54)
+          <pre><code class="language-python" data-example-id="ex-086"># BMI calculator (Exercise 54)
 def calculate_bmi(mass, length):
     bmi = mass / (length ** 2)
     return bmi             # sends value back to whoever called it
@@ -3509,7 +3505,7 @@ print(f"BMI = {result:.2f}")   # BMI = 21.60</code></pre>
           arguments with fallback values (Exercise 56)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">def describe_score(score, label="participant"):
+          <pre><code class="language-python" data-example-id="ex-087">def describe_score(score, label="participant"):
     print(f"{label} scored {score}")
 
 describe_score(85)                      # participant scored 85 — uses default
@@ -3529,7 +3525,7 @@ describe_score(90, label="P07")       # P07 scored 90 — override by keyword na
             This avoids repeating the same logic and makes your code easier to
             fix — change it in one place and every call benefits.
           </p>
-          <pre><code class="language-python">def validate_positive(value):
+          <pre><code class="language-python" data-example-id="ex-088">def validate_positive(value):
     """Returns the number if it is positive, otherwise returns None."""
     if value &lt; 0:
         print("Error: cannot be negative")
@@ -3550,7 +3546,7 @@ print(speed1, speed2, distance)</code></pre>
           Keyword argument selects mode
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># Keyword argument selects the calculation mode
+          <pre><code class="language-python" data-example-id="ex-089"># Keyword argument selects the calculation mode
 def chase_time(speed1, speed2, distance, mode="towards"):
     if mode == "towards":
         time = distance / (speed1 + speed2)
@@ -3579,7 +3575,7 @@ chase_time(60, 80, 100, mode="pursue")   # pursue — override mode</code></pre>
             modify a global from inside a function (use sparingly — prefer
             return values instead).
           </p>
-          <pre><code class="language-python"># Local scope: x inside the function
+          <pre><code class="language-python" data-example-id="ex-090"># Local scope: x inside the function
 def double(n):
     result = n * 2  # 'result' is local to double()
     return result
@@ -3621,7 +3617,7 @@ print(counter)  # 2 (same result, no global)</code></pre>
             with commas. Under the hood, Python packs them into a
             <strong>tuple</strong>, which you can unpack on assignment.
           </p>
-          <pre><code class="language-python"># Return multiple values
+          <pre><code class="language-python" data-example-id="ex-091"># Return multiple values
 def min_max(numbers):
     return min(numbers), max(numbers)  # returns a tuple
 
@@ -3681,7 +3677,7 @@ for key, val in stats.items():
             <code class="inline-code">filter()</code> when the function is too
             simple to name separately.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-092">
 # Convert strings to integers
 raw = ["450", "380", "510"]
 rts = list(map(int, raw))
@@ -3715,7 +3711,7 @@ scaled_comp = [x / 100 for x in scores]
             keeps only the items in a sequence for which the function returns
             <code class="inline-code">True</code>.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-093">
 rts = [450, 1200, 380, 950, 2100]
 
 # Keep only fast response times
@@ -3749,7 +3745,7 @@ valid_comp = [x for x in rts if x &lt; 1000]
             function pairs up items from two or more sequences, position by
             position. It stops at the end of the shortest sequence.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-094">
 participants = ["P01", "P02", "P03"]
 scores = [85, 92, 78]
 
@@ -3781,7 +3777,7 @@ print(list(zip(["P01", "P02", "P03"], [450, 380])))  # [('P01', 450), ('P02', 38
             You can combine these functions to create powerful data processing
             pipelines.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-095">
 participants = [
     {"id": "P01", "score": 85},
     {"id": "P02", "score": 42},
@@ -3885,7 +3881,7 @@ print(results)  # [(1, 'P01'), (2, 'P03')]
           Creating Instances
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># Define a class
+          <pre><code class="language-python" data-example-id="ex-096"># Define a class
 class Participant:
     """Represents a research participant."""
 
@@ -3936,7 +3932,7 @@ print(f"{p01.pid}'s average: {p01.average():.1f}")</code></pre>
             <code class="inline-code">self.</code>) are unique per object.
             <strong>Class attributes</strong> are shared across all instances.
           </p>
-          <pre><code class="language-python">class Student:
+          <pre><code class="language-python" data-example-id="ex-097">class Student:
     school = "SICT"          # class attribute — shared by ALL students
     student_count = 0       # tracks how many students created
 
@@ -4079,17 +4075,17 @@ print(s02.school)             # SICT (same value)</code></pre>
           <div class="note">
             ⚠️ Python uses indentation (spaces/tabs) to define code blocks. Mixing spaces and tabs, or inconsistent indentation, will cause an <code class="inline-code">IndentationError</code>.
           </div>
-          <pre><code class="language-python">raw = "0"   # try changing this to "hello" or ""
+          <pre><code class="language-python" data-example-id="ex-098">raw = "0"   # try changing this to "hello" or ""
 
-    try:
-        number = int(raw)
-        result = 100 / number
-    except ValueError:
-        print("That’s not a number. Please enter a digit.")
-    except ZeroDivisionError:
-        print("Cannot divide by zero — try a number other than 0.")
+try:
+    number = int(raw)
+    result = 100 / number
+except ValueError:
+    print("That’s not a number. Please enter a digit.")
+except ZeroDivisionError:
+    print("Cannot divide by zero — try a number other than 0.")
 
-    print("Program continues.")</code></pre>
+print("Program continues.")</code></pre>
           <div class="note">
             ⚠️ Avoid a bare <code class="inline-code">except:</code> clause without a type.
             It silently catches <em>every</em> possible error, including bugs you
@@ -4144,7 +4140,7 @@ print(s02.school)             # SICT (same value)</code></pre>
           <div class="note">
             📂 This example uses <code class="inline-code">with open()</code> to read a file — that syntax is covered fully in <strong>Section 22 (File I/O)</strong>. For now, just know it safely opens a file and closes it automatically when done.
           </div>
-          <pre><code class="language-python">filename = "rt_data.txt"
+          <pre><code class="language-python" data-example-id="ex-099">filename = "rt_data.txt"
 
 try:
     with open(filename, "r") as f:
@@ -4176,13 +4172,13 @@ print(f"Content preview: '{content[:30]}...'")</code></pre>
             capture that object in a variable. You can then print the message or
             log it for debugging.
           </p>
-          <pre><code class="language-python">raw = "hello"
+          <pre><code class="language-python" data-example-id="ex-100">raw = "hello"
 
-    try:
-        score = int(raw)
-    except ValueError as e:
-        print("Error type:", type(e).__name__)   # ValueError
-        print("Message:", str(e))               # invalid literal for int()...</code></pre>
+try:
+    score = int(raw)
+except ValueError as e:
+    print("Error type:", type(e).__name__)   # ValueError
+    print("Message:", str(e))               # invalid literal for int()...</code></pre>
           <p>
             <code class="inline-code">type(e).__name__</code> gives you the exception
             class name as a string.
@@ -4202,7 +4198,7 @@ print(f"Content preview: '{content[:30]}...'")</code></pre>
             <code class="inline-code">raise</code> keyword. This is useful when
             you detect bad input that Python wouldn’t catch automatically.
           </p>
-          <pre><code class="language-python">def validate_rt(rt_ms):
+          <pre><code class="language-python" data-example-id="ex-101">def validate_rt(rt_ms):
     if rt_ms &lt; 0:
         raise ValueError("Reaction time cannot be negative")
     print(f"Recorded reaction time: {rt_ms} ms")
@@ -4216,11 +4212,11 @@ except ValueError as e:
             <code class="inline-code">except</code> block re-raises the same exception
             — useful when you want to log the error but still let it propagate:
           </p>
-          <pre><code class="language-python">try:
-        score = int("bad")
-    except ValueError:
-        print("Logging error and re-raising...")
-        raise   # sends the exception up the call stack</code></pre>
+          <pre><code class="language-python" data-example-id="ex-102" data-expected-error="ValueError">try:
+    score = int("bad")
+except ValueError:
+    print("Logging error and re-raising...")
+    raise   # sends the exception up the call stack</code></pre>
         </div>
       </div>
 
@@ -4308,7 +4304,7 @@ except ValueError as e:
             crashes halfway through. Always use this pattern instead of calling
             <code class="inline-code">f.close()</code> manually.
           </p>
-          <pre><code class="language-python">rt_values = []
+          <pre><code class="language-python" data-example-id="ex-103">rt_values = []
 
 with open("rt_data.txt", "r") as f:
     for line in f:
@@ -4331,14 +4327,16 @@ print(rt_values)</code></pre>
           file (Exercises 47–48)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">rt_values = [412.0, 378.5, 445.2, 390.1]
+          <pre><code class="language-python" data-example-id="ex-104">rt_values = [412.0, 378.5, 445.2, 390.1]
 average = sum(rt_values) / len(rt_values)
 
-with open("rt_data.txt", "w") as f:
+with open("rt_average.txt", "w") as f:
     f.write(f"Average: {average}\n")
 </code></pre>
           <p class="note">⚠️ The example below is a <strong>separate</strong> code snippet — if run after the one above, it would overwrite the file.</p>
-          <pre><code class="language-python"># Write each RT on its own line with a blank line between (Exercise 48)
+          <pre><code class="language-python" data-example-id="ex-105">rt_values = [412.0, 378.5, 445.2, 390.1]
+
+# Write each RT on its own line with a blank line between (Exercise 48)
 with open("rt_data.txt", "w") as f:
     for rt in rt_values:
         f.write(str(rt) + "\n\n")   # \n\n = blank line between values</code></pre>
@@ -4371,7 +4369,7 @@ with open("rt_data.txt", "w") as f:
           FileNotFoundError &amp; Robust File Access
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># Always handle FileNotFoundError when opening files
+          <pre><code class="language-python" data-example-id="ex-106"># Always handle FileNotFoundError when opening files
 def read_file_safe(filepath):
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -4395,7 +4393,7 @@ if content is not None:
           Writing &amp; Reading Lines Efficiently
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python"># writelines() — write a list of strings at once (no auto-newline!)
+          <pre><code class="language-python" data-example-id="ex-107"># writelines() — write a list of strings at once (no auto-newline!)
 lines = ["P01,control,412\n", "P02,experimental,378\n", "P03,control,445\n"]
 with open("participants.txt", "w") as f:
     f.writelines(lines)  # faster than looping write()
@@ -4480,7 +4478,7 @@ print(f"Total lines: {line_count}")</code></pre>
           (Exercise 50)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">import csv
+          <pre><code class="language-python" data-example-id="ex-108">import csv
 
 with open("participants.csv", "r") as f:
     reader = csv.reader(f)
@@ -4500,7 +4498,7 @@ with open("eeg_data.txt", "r") as f:
           name from the header row (Exercise 51)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">import csv
+          <pre><code class="language-python" data-example-id="ex-109">import csv
 
 participant_ids, conditions, rt_values = [], [], []
 
@@ -4512,7 +4510,11 @@ with open("participants.csv", "r") as f:
         rt_values.append(float(row["rt_ms"]))</code></pre>
         <p class="note">⚠️ If you get a <code class="inline-code">KeyError: 'rt_ms'</code> when reading a CSV exported from Excel, the header may contain invisible BOM characters or extra spaces. Use <code class="inline-code">row.get('rt_ms')</code> instead of <code class="inline-code">row['rt_ms']</code>, or open the file with <code class="inline-code">encoding='utf-8-sig'</code> to strip the BOM automatically.</p>
           <p>Real data often has missing or placeholder values. Always guard before converting:</p>
-          <pre><code class="language-python">with open("participants.csv", "r") as f:
+          <pre><code class="language-python" data-example-id="ex-110">import csv
+
+rt_values = []
+
+with open("participants.csv", "r") as f:
     reader = csv.DictReader(f)
     for row in reader:
         # Skip rows where rt_ms is empty or the placeholder 'NA'
@@ -4532,7 +4534,7 @@ with open("participants.csv", "r") as f:
             <code class="inline-code">newline=""</code> to prevent extra blank
             lines on Windows.
           </p>
-          <pre><code class="language-python">import csv
+          <pre><code class="language-python" data-example-id="ex-111">import csv
 
 data = [
     ["participant_id", "condition", "rt_ms"],
@@ -4564,7 +4566,7 @@ with open("participants.csv", "a", newline="") as f:
             <code class="inline-code">fieldnames</code> (column headers)
             first.
           </p>
-          <pre><code class="language-python">import csv
+          <pre><code class="language-python" data-example-id="ex-112">import csv
 
 experiment_results = [
     {"participant_id": "P01", "condition": "control", "rt_ms": 412},
@@ -4591,7 +4593,7 @@ with open("participants.csv", "w", newline="") as f:
             <code class="inline-code">csv</code> module handles this
             automatically, but you can control the behavior.
           </p>
-          <pre><code class="language-python">import csv
+          <pre><code class="language-python" data-example-id="ex-113">import csv
 
 # Data with commas inside the values
 data = [["P01", "I felt calm, relaxed, and focused"]]
@@ -4720,7 +4722,7 @@ with open("participants.csv", "w", newline="", encoding="utf-8") as f:
             <code class="inline-code">json.loads()</code> converts JSON string
             → Python. (The "s" = string.)
           </p>
-          <pre><code class="language-python">import json
+          <pre><code class="language-python" data-example-id="ex-114">import json
 
 # Python dict → JSON string
 participant = {"id": "P01", "condition": "control", "rt_ms": 412, "valid": True, "notes": None}
@@ -4753,7 +4755,7 @@ print(parsed["notes"])     # None (Python None, not JSON null)</code></pre>
             <code class="inline-code">json.load()</code> reads file → Python.
             (No "s" = file.)
           </p>
-          <pre><code class="language-python">import json
+          <pre><code class="language-python" data-example-id="ex-115">import json
 
 # Experiment settings to save
 config = {
@@ -4795,7 +4797,7 @@ print("Updated config saved.")</code></pre>
             Always handle the two most common JSON file errors: the file not
             existing, and the file containing invalid JSON.
           </p>
-          <pre><code class="language-python">import json
+          <pre><code class="language-python" data-example-id="ex-116">import json
 
 def load_config(filepath):
     try:
@@ -4826,7 +4828,7 @@ except json.JSONDecodeError as e:
           Data &amp; Lists
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">import json
+          <pre><code class="language-python" data-example-id="ex-117">import json
 # Simulate a participant dataset
 dataset = {
     "participants": [
@@ -4903,7 +4905,7 @@ for p in db["participants"]:
         </div>
         <div class="scenario-body">
           <p>Regex uses special characters to define patterns.</p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-118">
 # Character classes
 # \d : Any digit (0-9)
 # \w : Any word character (a-z, A-Z, 0-9, _)
@@ -4951,7 +4953,7 @@ for p in db["participants"]:
             In Python, you use the built-in
             <code class="inline-code">re</code> module.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-119">
 import re
 
 # Search for a participant ID pattern (P followed by 2 digits)
@@ -4985,7 +4987,7 @@ print(all_ids)  # ['P01', 'P02', 'P03']
             The <code class="inline-code">re</code> module provides several
             functions depending on what you want to do.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-120">
 import re
 log = "Trial 1: P01 responded in 412 ms. Trial 2: P02 responded in 378 ms."
 
@@ -5033,7 +5035,7 @@ print(id_pattern.findall(log))   # ['P01', 'P02']
             <strong>capturing groups</strong>, allowing you to extract
             specific parts of a match.
           </p>
-          <pre><code class="language-python">
+          <pre><code class="language-python" data-example-id="ex-121">
 import re
 
 # Extracting parts of a date
@@ -5136,7 +5138,7 @@ print(bool(re.match(email_pattern, "invalid-email")))     # False
             <code class="inline-code">matplotlib</code> and
             <code class="inline-code">scipy</code> are third-party packages.
           </p>
-          <pre><code class="language-python">import sys                     # built-in: sys.argv, sys.exit() etc.
+          <pre><code class="language-python" data-example-id="ex-122" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import sys                     # built-in: sys.argv, sys.exit() etc.
 import math                    # built-in: sqrt, pi, log etc.
 import turtle                  # drawing
 import csv                     # built-in: CSV file reading
@@ -5153,7 +5155,7 @@ pearsonr(a, b)    # no "scipy.stats." prefix needed</code></pre>
           pi, rounding (Exercises 11, 15)
         </div>
         <div class="scenario-body">
-          <pre><code class="language-python">import math
+          <pre><code class="language-python" data-example-id="ex-123">import math
 
 math.sqrt(16)     # 4.0   — square root (cleaner than 16 ** 0.5)
 math.pi           # 3.14159… — the constant π
@@ -5178,7 +5180,7 @@ math.log(100, 10) # 2.0   — log base 10 (relevant for Fechner's Law)</code></p
             The <code class="inline-code">random</code> module provides
             functions for generating random numbers and making random choices.
           </p>
-          <pre><code class="language-python">import random
+          <pre><code class="language-python" data-example-id="ex-124">import random
 
 # Random integers (inclusive on both ends)
 # e.g. randomly assign a participant to a condition
@@ -5213,7 +5215,7 @@ print(random.randint(1, 100))  # Will always print 82 with seed 42</code></pre>
             The <code class="inline-code">datetime</code> module helps you
             work with dates, times, and time intervals.
           </p>
-          <pre><code class="language-python">import datetime
+          <pre><code class="language-python" data-example-id="ex-125">import datetime
 
 # Current date and time
 now = datetime.datetime.now()
@@ -5333,7 +5335,7 @@ deactivate</code></pre>
             time data
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import matplotlib.pyplot as plt
+            <pre><code class="language-python" data-example-id="ex-126">import matplotlib.pyplot as plt
 
 trial          = [1, 2, 3, 4, 5]          # x-axis: trial number
 rt_ms          = [412, 378, 445, 390, 421]  # y-axis: reaction time in milliseconds
@@ -5364,7 +5366,7 @@ plt.show()</code></pre>
               Measures how strongly two channels move together. Creative EEG:
               high correlation between frontal channels of both hemispheres.
             </p>
-            <pre><code class="language-python">from scipy.stats import pearsonr
+            <pre><code class="language-python" data-example-id="ex-127">from scipy.stats import pearsonr
 
 # Simulated EEG channel data (microvolts)
 channel_a = [0.12, -0.34, 0.56, 0.78, -0.23, 0.45, 0.67, -0.11]
@@ -5451,7 +5453,7 @@ print(f"P-value:     p = {p:.3f}")</code></pre>
             hist, boxplot
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import matplotlib.pyplot as plt
+            <pre><code class="language-python" data-example-id="ex-128">import matplotlib.pyplot as plt
 
 # Bar chart — compare mean RT across conditions
 conditions = ["control", "experimental"]
@@ -5503,7 +5505,7 @@ plt.show()
               creates a figure with multiple axes. Each axis is an independent
               chart.
             </p>
-            <pre><code class="language-python">import matplotlib.pyplot as plt
+            <pre><code class="language-python" data-example-id="ex-129">import matplotlib.pyplot as plt
 import random
 
 ctrl_rt = [random.gauss(412, 40) for _ in range(100)]
@@ -5574,7 +5576,7 @@ plt.show()</code></pre>
                 <td>PNG, PDF, SVG supported</td>
               </tr>
             </table>
-            <pre><code class="language-python">import matplotlib.pyplot as plt
+            <pre><code class="language-python" data-example-id="ex-130">import matplotlib.pyplot as plt
 
 trials = list(range(1, 11))   # 10 trials
 mean_rt = [430, 421, 415, 409, 400, 395, 390, 388, 382, 378]
@@ -5692,7 +5694,9 @@ import pandas as pd</code></pre>
               <strong>DataFrame</strong> is a table with rows and named
               columns — think of it as a Python version of an Excel sheet.
             </p>
-            <pre><code class="language-python"># Series — one column
+            <pre><code class="language-python" data-example-id="ex-131">import pandas as pd
+
+# Series — one column
 s = pd.Series([10, 20, 30], index=['a', 'b', 'c'])
 s['b']       # 20 — access by label
 s.iloc[1]    # 20 — access by position
@@ -5742,7 +5746,7 @@ df.to_excel('participants_clean.xlsx', index=False)</code></pre>
             to do with any new dataset
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-132">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -5768,7 +5772,7 @@ df.value_counts('condition')  # frequency of each unique value</code></pre>
             — the three ways
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-133">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -5806,7 +5810,7 @@ df.iloc[-1]                # last row</code></pre>
             — selecting rows that meet a condition
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-134">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -5846,7 +5850,7 @@ df[df['participant_id'].str.contains('0')]</code></pre>
             detecting, removing, filling
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-135">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03', 'P04'],
     'condition':      ['control', 'experimental', None, 'control'],
@@ -5882,7 +5886,7 @@ df.ffill()                         # forward fill (copy previous value)</code></
             and deleting
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-136">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -5891,7 +5895,8 @@ df = pd.DataFrame({
 
 # Add new columns
 df['valid'] = df['rt_ms'] &lt; 500
-df['rt_z'] = df['rt_ms'] / df['rt_ms'].std()
+# Standardise: subtract the mean, then divide by the sample standard deviation
+df['rt_z'] = (df['rt_ms'] - df['rt_ms'].mean()) / df['rt_ms'].std()
 print(df)
 
 # Rename columns (returns new DataFrame — original unchanged)
@@ -5917,7 +5922,7 @@ print(df.dtypes)</code></pre>
             <span class="badge badge-blue">Sorting</span>
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-137">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -5943,7 +5948,7 @@ df.reset_index(drop=True, inplace=True)       # reset to 0,1,2,… after filteri
               function to each group, and combines results. Think of it as a
               pivot table.
             </p>
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-138">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -5975,7 +5980,7 @@ df.groupby(['condition', 'participant_id'])['rt_ms'].mean()
               element, row, or column. Define a plain function and pass it
               to <span class="inline-code">apply()</span> — easier to read and test.
             </p>
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-139">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -6006,7 +6011,9 @@ df['summary'] = df.apply(
             Combining DataFrames
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">df1 = pd.DataFrame({'participant_id':['P01','P02','P03'], 'condition':['control','experimental','control']})
+            <pre><code class="language-python" data-example-id="ex-140">import pandas as pd
+
+df1 = pd.DataFrame({'participant_id':['P01','P02','P03'], 'condition':['control','experimental','control']})
 df2 = pd.DataFrame({'participant_id':['P01','P02','P03'], 'rt_ms':[412,378,445]})
 
 # merge — combine two DataFrames on a shared column
@@ -6026,7 +6033,7 @@ pd.concat([df1, df2], axis=1)              # join side by side (axis=1)</code></
             accessor — apply string methods to a whole column
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-141">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -6049,7 +6056,7 @@ df['participant_id'].str[0]                # first character of each string</cod
             methods
           </div>
           <div class="scenario-body">
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-142">import pandas as pd
 df = pd.DataFrame({
     'participant_id': ['P01', 'P02', 'P03'],
     'condition':      ['control', 'experimental', 'control'],
@@ -6082,7 +6089,7 @@ df.corr(numeric_only=True)  # full correlation matrix of all numeric columns</co
               matplotlib separately (though you still need
               <span class="inline-code">plt.show()</span>).
             </p>
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-143">import pandas as pd
 import matplotlib.pyplot as plt
 
 df = pd.DataFrame({
@@ -6182,7 +6189,7 @@ plt.show()</code></pre>
               similar to pivot tables in Excel.
             </p>
             <p>NumPy is a numerical computing library that pandas uses internally — you'll rarely call it directly, but <code class="inline-code">import numpy as np</code> is the conventional alias.</p>
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-144">import pandas as pd
 import numpy as np
 
 data = {
@@ -6229,7 +6236,7 @@ print(flat.columns.tolist())</code></pre>
               <code class="inline-code">melt()</code> converts wide → long —
               required by many statistical and plotting functions.
             </p>
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-145">import pandas as pd
 
 # Wide format: one column per condition
 wide = pd.DataFrame({
@@ -6268,7 +6275,7 @@ print(long.groupby("condition")["rt_ms"].mean())</code></pre>
               to a regular column, which is needed for further operations,
               plotting, or merging.
             </p>
-            <pre><code class="language-python">import pandas as pd
+            <pre><code class="language-python" data-example-id="ex-146">import pandas as pd
 
 data = {
     "participant_id": ["P01","P02","P01","P02","P03","P03"],
@@ -6419,7 +6426,7 @@ print(top)</code></pre>
               (3) local/project files. Never use
               <code class="inline-code">from module import *</code> — it makes it impossible to know where names come from.
             </p>
-            <pre><code class="language-python"># ✅
+            <pre><code class="language-python" data-example-id="ex-147"># ✅
 import os
 import sys
 
@@ -6441,7 +6448,7 @@ from pandas import *</code></pre>
               <li>2 blank lines before and after top-level functions and classes</li>
               <li>1 blank line between methods inside a class</li>
             </ul>
-            <pre><code class="language-python">EXPERIMENT_NAME = "Stroop Task"   # module-level constant
+            <pre><code class="language-python" data-example-id="ex-148">EXPERIMENT_NAME = "Stroop Task"   # module-level constant
 
 
 def load_participants(filepath):
@@ -6507,7 +6514,7 @@ def compute_mean_rt(rt_values):
           </div>
           <div class="scenario-body">
             <p><strong>Before:</strong></p>
-            <pre><code class="language-python">import random,math
+            <pre><code class="language-python" data-example-id="ex-149">import random,math
 RT=[]
 def calcMean(l):
   s=0
@@ -6518,7 +6525,7 @@ for i in range(5):
   RT.append(random.randint(350,500))
 print(calcMean(RT))</code></pre>
             <p><strong>After (PEP 8):</strong></p>
-            <pre><code class="language-python">import math
+            <pre><code class="language-python" data-example-id="ex-150">import math
 import random
 
 MAX_TRIALS = 5
@@ -6539,7 +6546,7 @@ print(calculate_mean(rt_ms))</code></pre>
       </section>
       <!-- /PEP 8 -->
 
-      <!-- Hidden answers button -->
+      <!-- Answers and challenges controls -->
       <div style="
                   text-align: center;
                   margin-top: 40px;
@@ -6549,12 +6556,12 @@ print(calculate_mean(rt_ms))</code></pre>
                   align-items: center;
                   gap: 40px;
                 ">
-        <span id="secret-btn" data-overlay-show="answers-landing"></span>
-        <span id="challenges-btn" data-overlay-show="challenges-landing"></span>
+        <button type="button" id="secret-btn" data-overlay-show="answers-landing" aria-label="Open answers" title="Open answers"></button>
+        <button type="button" id="challenges-btn" data-overlay-show="challenges-landing" aria-label="Open Python challenges" title="Open Python challenges"></button>
       </div>
 
       <!-- Challenges landing -->
-      <div id="challenges-landing" role="dialog" aria-modal="true" style="
+      <div id="challenges-landing" role="dialog" aria-label="55 Python Challenges" tabindex="-1" aria-modal="true" style="
             display: none;
             position: fixed;
             top: 0;
@@ -6611,7 +6618,7 @@ print(calculate_mean(rt_ms))</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def collatz_steps(n):
+                  <pre><code class="language-python" data-example-id="ex-151">def collatz_steps(n):
     steps = 0
     while n != 1:
         if n % 2 == 0:
@@ -6657,7 +6664,7 @@ print("Longest sequence under 1000: number", longest_n, "with", longest, "steps"
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def digital_root(n):
+                  <pre><code class="language-python" data-example-id="ex-152">def digital_root(n):
     while n >= 10:
         total = 0
         while n > 0:
@@ -6688,7 +6695,7 @@ print("Longest sequence under 1000: number", longest_n, "with", longest, "steps"
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def number_pyramid(n):
+                  <pre><code class="language-python" data-example-id="ex-153">def number_pyramid(n):
     width = 2 * n - 1
     for i in range(1, n + 1):
         row = ""
@@ -6736,7 +6743,7 @@ number_diamond(5)</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">for i in range(1, 101):
+                  <pre><code class="language-python" data-example-id="ex-154">for i in range(1, 101):
     if i % 15 == 0:
         print("FizzBuzz")
     elif i % 3 == 0:
@@ -6780,7 +6787,7 @@ fizzbuzz(20, 3, "Fizz", 5, "Buzz")</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def celsius_to_fahrenheit(c):
+                  <pre><code class="language-python" data-example-id="ex-155">def celsius_to_fahrenheit(c):
     return c * 9 / 5 + 32
 
 def celsius_to_kelvin(c):
@@ -6820,7 +6827,7 @@ while temp <= 120:
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">move_count = 0
+                  <pre><code class="language-python" data-example-id="ex-156">move_count = 0
 
 def hanoi(n, source, target, auxiliary):
     global move_count
@@ -6856,7 +6863,7 @@ print("Total moves:", move_count, "— expected:", 2**3 - 1)</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def reverse_string(s):
+                  <pre><code class="language-python" data-example-id="ex-157">def reverse_string(s):
     result = ""
     for char in s:
         result = char + result
@@ -6886,7 +6893,7 @@ print(reverse_string("Python"))  # "nohtyP"</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def count_vowels_consonants(text):
+                  <pre><code class="language-python" data-example-id="ex-158">def count_vowels_consonants(text):
     vowels = set("aeiouAEIOU")
     v_count = 0
     c_count = 0
@@ -6928,7 +6935,7 @@ print(f"Vowels: {v}, Consonants: {c}")  # Vowels: 3, Consonants: 7</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import random
+                  <pre><code class="language-python" data-example-id="ex-159">import random
 
 def guess_the_number():
     secret = random.randint(1, 100)
@@ -6968,7 +6975,7 @@ guess_the_number()</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def rle_encode(s):
+                  <pre><code class="language-python" data-example-id="ex-160">def rle_encode(s):
     if not s:
         return ""
     result = []
@@ -7018,7 +7025,7 @@ print(rle_decode("3A2B1C"))     # AAABBC</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def list_stats(nums):
+                  <pre><code class="language-python" data-example-id="ex-161">def list_stats(nums):
     n = len(nums)
     mean = sum(nums) / n
 
@@ -7059,7 +7066,7 @@ print(list_stats([1, 2, 2, 3, 4]))</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def caesar(text, shift, decrypt=False):
+                  <pre><code class="language-python" data-example-id="ex-162">def caesar(text, shift, decrypt=False):
     if decrypt:
         shift = -shift
     result = []
@@ -7095,7 +7102,7 @@ print(caesar("Khoor, Zruog!", 3, True))   # Hello, World!</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def to_roman(num):
+                  <pre><code class="language-python" data-example-id="ex-163">def to_roman(num):
     vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1]
     syms = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
     result = ""
@@ -7139,7 +7146,7 @@ print(from_roman("XIV"))  # 14</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def word_frequency(text, top_n=5):
+                  <pre><code class="language-python" data-example-id="ex-164">def word_frequency(text, top_n=5):
     words = text.lower().split()
     words = [w.strip(".,!?;:\"'") for w in words]
     freq = {}
@@ -7171,7 +7178,7 @@ print(word_frequency(text, 3))  # [('to', 3), ('be', 3), ('or', 1)]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def sieve(n):
+                  <pre><code class="language-python" data-example-id="ex-165">def sieve(n):
     is_prime = [True] * (n + 1)
     is_prime[0] = is_prime[1] = False
     for i in range(2, int(n ** 0.5) + 1):
@@ -7203,7 +7210,7 @@ print(sieve(50))  # [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]</co
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import random
+                  <pre><code class="language-python" data-example-id="ex-166">import random
 
 def rps():
     choices = ["rock", "paper", "scissors"]
@@ -7253,7 +7260,7 @@ rps()</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def two_sum(nums, target):
+                  <pre><code class="language-python" data-example-id="ex-167">def two_sum(nums, target):
     seen = {}
     for i, num in enumerate(nums):
         complement = target - num
@@ -7294,7 +7301,7 @@ print(two_sum([3, 2, 4], 6))        # [1, 2]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def step(grid):
+                  <pre><code class="language-python" data-example-id="ex-168">def step(grid):
     rows, cols = len(grid), len(grid[0])
     new_grid = [[0]*cols for _ in range(rows)]
     for r in range(rows):
@@ -7331,7 +7338,7 @@ print(two_sum([3, 2, 4], 6))        # [1, 2]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def fibonacci():
+                  <pre><code class="language-python" data-example-id="ex-169">def fibonacci():
     a, b = 0, 1
     while True:
         yield a
@@ -7369,7 +7376,7 @@ print(fib_up_to(100))  # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def mat_mul(A, B):
+                  <pre><code class="language-python" data-example-id="ex-170">def mat_mul(A, B):
     rows_A, cols_A = len(A), len(A[0])
     rows_B, cols_B = len(B), len(B[0])
     assert cols_A == rows_B, "Incompatible dimensions"
@@ -7405,7 +7412,7 @@ print(mat_mul(A, B))  # [[19,22],[43,50]]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class GradeBook:
+                  <pre><code class="language-python" data-example-id="ex-171">class GradeBook:
     def __init__(self):
         self.grades = {}
 
@@ -7456,7 +7463,7 @@ gb.report()</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def are_anagrams(s1, s2):
+                  <pre><code class="language-python" data-example-id="ex-172">def are_anagrams(s1, s2):
     def clean(s):
         return sorted(s.lower().replace(" ", ""))
     return clean(s1) == clean(s2)
@@ -7488,7 +7495,7 @@ print(are_anagrams("Astronomer", "Moon starer"))  # True</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def is_balanced(s):
+                  <pre><code class="language-python" data-example-id="ex-173">def is_balanced(s):
     stack = []
     matching = {')': '(', ']': '[', '}': '{'}
     for ch in s:
@@ -7527,7 +7534,7 @@ print(is_balanced("{[}"))      # False</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class Node:
+                  <pre><code class="language-python" data-example-id="ex-174">class Node:
     def __init__(self, val):
         self.val = val
         self.left = self.right = None
@@ -7589,7 +7596,7 @@ print(bst.search(4))     # True</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def analyse_csv(data):
+                  <pre><code class="language-python" data-example-id="ex-175">def analyse_csv(data):
     lines = data.strip().split("\n")
     headers = lines[0].split(",")
     rows = [line.split(",") for line in lines[1:]]
@@ -7629,7 +7636,7 @@ analyse_csv(csv_data)</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class PhoneBook:
+                  <pre><code class="language-python" data-example-id="ex-176">class PhoneBook:
     def __init__(self):
         self.contacts = {}
 
@@ -7681,7 +7688,7 @@ pb.list_all()</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">from collections import deque
+                  <pre><code class="language-python" data-example-id="ex-177">from collections import deque
 
 def sliding_window_max(nums, k):
     dq = deque()  # stores indices
@@ -7728,7 +7735,7 @@ print(sliding_window_max([1,3,-1,-3,5,3,6,7], 3))
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import time
+                  <pre><code class="language-python" data-example-id="ex-178">import time
 import functools
 
 def timer(func):
@@ -7769,7 +7776,7 @@ print(slow_sum(1_000_000))</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def binary_search(arr, target):
+                  <pre><code class="language-python" data-example-id="ex-179">def binary_search(arr, target):
     low, high = 0, len(arr) - 1
     while low &lt;= high:
         mid = (low + high) // 2
@@ -7819,7 +7826,7 @@ print(binary_search_recursive(arr, 7))  # 3</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">rooms = {
+                  <pre><code class="language-python" data-example-id="ex-180">rooms = {
     "hall": {"desc": "A dimly lit hall.", "exits": {"north": "library"}, "items": ["key"]},
     "library": {"desc": "Walls of dusty books.", "exits": {"south": "hall"}, "items": ["map"]},
 }
@@ -7874,7 +7881,7 @@ play()</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class Node:
+                  <pre><code class="language-python" data-example-id="ex-181">class Node:
     def __init__(self, val):
         self.val = val
         self.next = None
@@ -7944,7 +7951,7 @@ print(ll.to_list())  # [0, 1, 3]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import re
+                  <pre><code class="language-python" data-example-id="ex-182">import re
 
 def validate_email(email):
     pattern = r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$'
@@ -7975,7 +7982,7 @@ for e in emails:
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import random
+                  <pre><code class="language-python" data-example-id="ex-183">import random
 
 def hangman():
     words = ["python", "algorithm", "recursion", "decorator"]
@@ -8028,7 +8035,7 @@ hangman()</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def lcs(s1, s2):
+                  <pre><code class="language-python" data-example-id="ex-184">def lcs(s1, s2):
     m, n = len(s1), len(s2)
     dp = [[0]*(n+1) for _ in range(m+1)]
     for i in range(1, m+1):
@@ -8076,7 +8083,7 @@ print(f"LCS: {seq}, length: {length}")  # LCS: BCAB or BDAB, length: 4</code></p
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import time
+                  <pre><code class="language-python" data-example-id="ex-185">import time
 
 class Timer:
     def __enter__(self):
@@ -8115,7 +8122,7 @@ print(f"Sum: {total}")
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">MORSE = {
+                  <pre><code class="language-python" data-example-id="ex-186">MORSE = {
     'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---',
     'K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-',
     'U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..',
@@ -8154,7 +8161,7 @@ print(decode("... --- ...")) # SOS</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class TrieNode:
+                  <pre><code class="language-python" data-example-id="ex-187">class TrieNode:
     def __init__(self):
         self.children = {}
         self.is_end = False
@@ -8220,7 +8227,7 @@ print(t.search("application"))  # False</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def coin_change(coins, amount):
+                  <pre><code class="language-python" data-example-id="ex-188">def coin_change(coins, amount):
     dp = [float('inf')] * (amount + 1)
     dp[0] = 0
     for i in range(1, amount + 1):
@@ -8253,7 +8260,7 @@ print(coin_change([2], 3))              # -1</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def merge_sort(arr):
+                  <pre><code class="language-python" data-example-id="ex-189">def merge_sort(arr):
     if len(arr) &lt;= 1:
         return arr
     mid = len(arr) // 2
@@ -8299,7 +8306,7 @@ print(merge_sort([38, 27, 43, 3, 9, 82, 10]))
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class BankAccount:
+                  <pre><code class="language-python" data-example-id="ex-190">class BankAccount:
     def __init__(self, owner, balance=0):
         self.owner = owner
         self._balance = balance
@@ -8353,7 +8360,7 @@ acc2.statement()  # Bob: £500</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">from urllib.request import urlopen
+                  <pre><code class="language-python" data-example-id="ex-191" data-run-mode="local" data-run-reason="This example uses urllib networking. Copy it into a local Python environment with internet access.">from urllib.request import urlopen
 from urllib.error import URLError
 import re
 
@@ -8395,7 +8402,7 @@ for link in links[:10]:
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def calc(expr):
+                  <pre><code class="language-python" data-example-id="ex-192">def calc(expr):
     pos = 0
 
     def parse_expr():
@@ -8457,7 +8464,7 @@ print(calc("(3 + 4) * 2"))    # 14.0</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def n_queens(n):
+                  <pre><code class="language-python" data-example-id="ex-193">def n_queens(n):
     solutions = []
 
     def backtrack(row, cols, diag1, diag2, board):
@@ -8502,7 +8509,7 @@ for s in sols:
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import heapq
+                  <pre><code class="language-python" data-example-id="ex-194">import heapq
 
 def astar(grid, start, end):
     rows, cols = len(grid), len(grid[0])
@@ -8550,7 +8557,7 @@ print(path)</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import asyncio
+                  <pre><code class="language-python" data-example-id="ex-195" data-run-mode="local" data-run-reason="This example needs aiohttp and a local Python event loop. Copy it into a local Python environment.">import asyncio
 try:
     import aiohttp
     HAS_AIOHTTP = True
@@ -8601,7 +8608,7 @@ asyncio.run(download_all(urls))</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">ENGLISH_FREQ = 'etaoinshrdlcumwfgypbvkjxqz'
+                  <pre><code class="language-python" data-example-id="ex-196">ENGLISH_FREQ = 'etaoinshrdlcumwfgypbvkjxqz'
 
 def crack_caesar(ciphertext):
     text = ciphertext.lower()
@@ -8647,7 +8654,7 @@ print(crack_caesar(cipher))  # Hello, World! This is a test.</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def solve_sudoku(board):
+                  <pre><code class="language-python" data-example-id="ex-197">def solve_sudoku(board):
     empty = find_empty(board)
     if not empty:
         return True  # solved
@@ -8718,7 +8725,7 @@ for row in puzzle: print(' '.join(row))</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class Interpreter:
+                  <pre><code class="language-python" data-example-id="ex-198">class Interpreter:
     def __init__(self):
         self.vars = {}
 
@@ -8784,7 +8791,7 @@ Interpreter().run(prog)  # 15</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import numpy as np
+                  <pre><code class="language-python" data-example-id="ex-199">import numpy as np
 
 def sigmoid(x):    return 1 / (1 + np.exp(-x))
 def sigmoid_d(x):  return x * (1 - x)
@@ -8844,7 +8851,7 @@ print(np.round(net.forward(X)))  # [[0],[1],[1],[0]]</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import time
+                  <pre><code class="language-python" data-example-id="ex-200">import time
 
 class RedisStore:
     def __init__(self):
@@ -8907,7 +8914,7 @@ print(r.get("temp"))  # None (expired)</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import random
+                  <pre><code class="language-python" data-example-id="ex-201">import random
 import string
 
 TARGET = "HELLO WORLD"
@@ -8961,7 +8968,7 @@ for gen in range(10000):
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">def resolve_deps(graph):
+                  <pre><code class="language-python" data-example-id="ex-202">def resolve_deps(graph):
     """Topological sort using DFS. Returns install order."""
     visited = set()
     order = []
@@ -9013,7 +9020,7 @@ print(resolve_deps(deps))
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class TextEditor:
+                  <pre><code class="language-python" data-example-id="ex-203">class TextEditor:
     def __init__(self):
         self.content = ""
         self.undo_stack = []
@@ -9077,7 +9084,7 @@ print(ed.content)  # Hello, World</code></pre>
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">import asyncio
+                  <pre><code class="language-python" data-example-id="ex-204">import asyncio
 
 class ChatServer:
     def __init__(self):
@@ -9143,7 +9150,7 @@ class ChatServer:
                   💡 Solution
                 </div>
                 <div class="scenario-body">
-                  <pre><code class="language-python">class VM:
+                  <pre><code class="language-python" data-example-id="ex-205">class VM:
     PUSH = 'PUSH'
     POP  = 'POP'
     ADD  = 'ADD'
@@ -9207,7 +9214,7 @@ VM().run(program)  # 14</code></pre>
       </div>
       <!-- /challenges-overlay -->
       <!-- Answers landing -->
-      <div id="answers-landing" role="dialog" aria-modal="true" style="
+      <div id="answers-landing" role="dialog" aria-label="Answers" tabindex="-1" aria-modal="true" style="
             display: none;
             position: fixed;
             top: 0;
@@ -9261,7 +9268,7 @@ VM().run(program)  # 14</code></pre>
       <!-- /answers-landing -->
 
       <!-- Answers — Exercises overlay -->
-      <div id="answers-exercises-overlay" role="dialog" aria-modal="true" style="
+      <div id="answers-exercises-overlay" role="dialog" aria-label="Exercise answers" tabindex="-1" aria-modal="true" style="
             display: none;
             position: fixed;
             top: 0;
@@ -9295,7 +9302,7 @@ VM().run(program)  # 14</code></pre>
               <span class="badge badge-blue">Exercise 1</span> helloworld.py
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">print('Hello World')</code></pre>
+              <pre><code class="language-python" data-example-id="ex-206">print('Hello World')</code></pre>
               <p>
                 A simple script that prints
                 <span class="inline-code">Hello World</span> to the console.
@@ -9310,7 +9317,7 @@ VM().run(program)  # 14</code></pre>
               World 10 times
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">for i in range(10):
+              <pre><code class="language-python" data-example-id="ex-207">for i in range(10):
     print("Hello World")</code></pre>
               <p>
                 A for loop with
@@ -9328,7 +9335,7 @@ VM().run(program)  # 14</code></pre>
               <span class="badge badge-blue">Exercise 3</span> userargument.py
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-208">import sys
 print('Hi, ')
 print(sys.argv[1])
 print('How are you?')</code></pre>
@@ -9346,7 +9353,7 @@ print('How are you?')</code></pre>
               reversed names
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-209" data-script-name="usethree.py">import sys
 print(f"Hi {sys.argv[3]}, {sys.argv[2]}, and {sys.argv[1]}")
 print(f"This is {sys.argv[0]}")</code></pre>
               <p>
@@ -9363,7 +9370,7 @@ print(f"This is {sys.argv[0]}")</code></pre>
               <span class="badge badge-blue">Exercise 5</span> stringops.py
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-210">import sys
 a = str(sys.argv[1])
 b = str(sys.argv[2])
 result = a + b
@@ -9381,7 +9388,7 @@ print(result)</code></pre>
               <span class="badge badge-blue">Exercise 6</span> integerops.py
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-211">import sys
 a = int(sys.argv[1])
 b = int(sys.argv[2])
 result = a + b
@@ -9399,7 +9406,7 @@ print(result)</code></pre>
               <span class="badge badge-blue">Exercise 7</span> floatops.py
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-212">import sys
 a = float(sys.argv[1])
 b = float(sys.argv[2])
 result = a + b
@@ -9417,7 +9424,7 @@ print(result)</code></pre>
               <span class="badge badge-blue">Exercise 8</span> Leap year
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-213">import sys
 year = int(sys.argv[1])
 result = (year % 400 == 0) or (year % 4 == 0 and year % 100 != 0)
 print(result)</code></pre>
@@ -9438,7 +9445,7 @@ print(result)</code></pre>
               code
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">constant1 = 12.34
+              <pre><code class="language-python" data-example-id="ex-214">constant1 = 12.34
 constant2 = 'there are'
 
 # Something with numbers
@@ -9473,7 +9480,7 @@ print(variable4)</code></pre>
               square root
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-215">import sys
 x = float(sys.argv[1])
 print(x ** 2)    # square
 print(x ** 0.5)  # square root</code></pre>
@@ -9487,7 +9494,7 @@ print(x ** 0.5)  # square root</code></pre>
               Grams
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-216">import sys
 OZ_TO_G = 28.3495213
 value = float(sys.argv[1])
 print(f"{value} oz = {value * OZ_TO_G:.4f} g")   # Ex 12
@@ -9502,7 +9509,7 @@ print(f"{value} g  = {value / OZ_TO_G:.4f} oz")  # Ex 13</code></pre>
               Fraction
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-217">import sys
 S1 = float(sys.argv[1])
 S2 = float(sys.argv[2])
 delta = abs(S2 - S1)
@@ -9523,7 +9530,7 @@ print(f"Weber Fraction C = {C:.4f}")</code></pre>
               root with validation
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-218">import sys
 n = float(sys.argv[1])
 if n &lt; 0:
     print("Error: negative numbers not allowed")
@@ -9541,7 +9548,7 @@ else:
               year (leapyear.py)
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-219">import sys
 year = int(sys.argv[1])
 
 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
@@ -9563,7 +9570,7 @@ else:
               two strings
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-220">import sys
 a = sys.argv[1]
 b = sys.argv[2]
 if len(a) &lt;= len(b):
@@ -9580,7 +9587,7 @@ else:
               with a for loop
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">for i in range(10):
+              <pre><code class="language-python" data-example-id="ex-221">for i in range(10):
     print('Hello')</code></pre>
               <p>
                 Uses a <span class="inline-code">for</span> loop and the
@@ -9597,7 +9604,7 @@ else:
               variable
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">for i in range(10):
+              <pre><code class="language-python" data-example-id="ex-222">for i in range(10):
     print(i)</code></pre>
               <p>
                 Prints the loop variable
@@ -9613,7 +9620,7 @@ else:
               <span class="badge badge-blue">Exercise 21</span> Loop until 666
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">user_input = ""
+              <pre><code class="language-python" data-example-id="ex-223">user_input = ""
 while user_input != "666":
     user_input = input("Enter a number (666 to stop): ")
 print("Goodbye!")</code></pre>
@@ -9632,7 +9639,7 @@ print("Goodbye!")</code></pre>
               numbers / growing string
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python"># Ex 22 — print 1 to 4
+              <pre><code class="language-python" data-example-id="ex-224"># Ex 22 — print 1 to 4
 for i in range(1, 5):
     print(i)
 
@@ -9650,7 +9657,7 @@ for i in range(1, 5):
               <span class="badge badge-blue">Exercise 24</span> Factorial
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-225">import sys
 n      = int(sys.argv[1])
 result = 1
 for i in range(1, n + 1):
@@ -9671,7 +9678,7 @@ print(f"{n}! = {result}")</code></pre>
               number grid
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">for i in range(2, 5):
+              <pre><code class="language-python" data-example-id="ex-226">for i in range(2, 5):
     for j in range(1, 5):
         print(i + j, end=" ")
     print()</code></pre>
@@ -9684,7 +9691,7 @@ print(f"{n}! = {result}")</code></pre>
               <span class="badge badge-blue">Exercise 26</span> Turtle intro
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import turtle
+              <pre><code class="language-python" data-example-id="ex-227" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 turtle.forward(100)
 turtle.done()</code></pre>
               <p>
@@ -9701,7 +9708,7 @@ turtle.done()</code></pre>
               <span class="badge badge-blue">Exercise 27</span> Turtle turns
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import turtle
+              <pre><code class="language-python" data-example-id="ex-228" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 # Draw a square
 for _ in range(4):
     turtle.forward(100)
@@ -9726,7 +9733,7 @@ turtle.done()</code></pre>
               <span class="badge badge-blue">Exercise 28</span> draw_shape.py
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import turtle
+              <pre><code class="language-python" data-example-id="ex-229" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 for _ in range(8):
     turtle.forward(100)
     turtle.left(45)
@@ -9743,7 +9750,7 @@ turtle.done()</code></pre>
               approximate circle
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import turtle
+              <pre><code class="language-python" data-example-id="ex-230" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 for _ in range(36):
     turtle.forward(10)
     turtle.left(10)
@@ -9762,7 +9769,7 @@ turtle.done()</code></pre>
               <span class="badge badge-blue">Exercise 30</span> Draw a pizza
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import turtle
+              <pre><code class="language-python" data-example-id="ex-231" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 # Pizza: draw 4 slices from the centre
 for _ in range(4):
     turtle.forward(100)
@@ -9783,7 +9790,7 @@ turtle.done()</code></pre>
               <span class="badge badge-blue">Exercise 31</span> Declare list
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">my_list = [10, 20, 30]
+              <pre><code class="language-python" data-example-id="ex-232">my_list = [10, 20, 30]
 print(my_list)</code></pre>
               <p>
                 Declaring a simple list of integers and printing it to the
@@ -9798,7 +9805,7 @@ print(my_list)</code></pre>
               <span class="badge badge-blue">Exercise 32</span> Reverse a list
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">my_list = [10, 20, 30]
+              <pre><code class="language-python" data-example-id="ex-233">my_list = [10, 20, 30]
 print(my_list[::-1])
 # Or
 # my_list.reverse()
@@ -9818,7 +9825,7 @@ print(my_list[::-1])
               into list
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-234">import sys
 numbers = [int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])]
 print(numbers)</code></pre>
               <p>
@@ -9836,7 +9843,7 @@ print(numbers)</code></pre>
               elements from another list
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">list1 = [1, 2, 3]
+              <pre><code class="language-python" data-example-id="ex-235">list1 = [1, 2, 3]
 list2 = [10, 20, 30]
 
 print("Before:", list1)
@@ -9858,7 +9865,7 @@ print("After:", list1)</code></pre>
               elements using a loop
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">list1 = [1, 2, 3]
+              <pre><code class="language-python" data-example-id="ex-236">list1 = [1, 2, 3]
 list2 = [10, 20, 30]
 
 for i in range(len(list1)):
@@ -9878,7 +9885,7 @@ for i in range(len(list1)):
               elements of second list
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">list1 = [1, 2, 3]
+              <pre><code class="language-python" data-example-id="ex-237">list1 = [1, 2, 3]
 list2 = [10, 20, 30]
 
 for item in list2:
@@ -9900,7 +9907,7 @@ for item in list2:
               elements at beginning
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">list1 = [1, 2, 3]
+              <pre><code class="language-python" data-example-id="ex-238">list1 = [1, 2, 3]
 list2 = [10, 20, 30]
 
 for item in reversed(list2):
@@ -9919,7 +9926,7 @@ for item in reversed(list2):
               <span class="badge badge-blue">Exercise 38</span> List of lists
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">my_data = [
+              <pre><code class="language-python" data-example-id="ex-239">my_data = [
     ["Alice", "Main St", 10],
     ["Bob", "Broad St", 25]
 ]
@@ -9937,7 +9944,7 @@ print(my_data)</code></pre>
               characters / reverse
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-240">import sys
 word = sys.argv[1]
 
 # Ex 39 — first 3 chars below each other
@@ -9960,7 +9967,7 @@ print(word[::-1])</code></pre>
               check
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-241">import sys
 word = sys.argv[1].lower()
 if word == word[::-1]:
     print(f"'{word}' is a palindrome!")
@@ -9976,7 +9983,7 @@ else:
               character occurrences
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-242">import sys
 word = sys.argv[1]
 count = 0
 for ch in word:
@@ -9993,7 +10000,7 @@ print(f"{word} contains {count} m's")</code></pre>
               user-chosen character
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">text = "hello world"
+              <pre><code class="language-python" data-example-id="ex-243">text = "hello world"
 char_to_count = input("Enter a character to count: ")
 count = 0
 for char in text:
@@ -10014,7 +10021,7 @@ print(f"The character '{char_to_count}' appears {count} times.")</code></pre>
               file with random numbers
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import random
+              <pre><code class="language-python" data-example-id="ex-244">import random
 with open("my_text_file.txt", "w") as f:
     for _ in range(15):
         f.write(str(random.randint(1, 100)) + "\n")</code></pre>
@@ -10031,7 +10038,7 @@ with open("my_text_file.txt", "w") as f:
               compute average, write output
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python"># Read numbers from file
+              <pre><code class="language-python" data-example-id="ex-245"># Read numbers from file
 numbers = []
 with open("my_text_file.txt", "r") as f:
     for line in f:
@@ -10056,7 +10063,7 @@ with open("output.txt", "w") as f:
               using csv module
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import csv
+              <pre><code class="language-python" data-example-id="ex-246">import csv
 with open('some_data.txt', 'r') as f:
     reader = csv.reader(f)
     for row in reader:
@@ -10075,7 +10082,7 @@ with open('some_data.txt', 'r') as f:
               using csv.DictReader
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import csv
+              <pre><code class="language-python" data-example-id="ex-247">import csv
 names = []
 addresses = []
 house_numbers = []
@@ -10103,7 +10110,7 @@ print(house_numbers)</code></pre>
               from a text file
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python"># Assuming a file named 'words.txt' exists with one word per line
+              <pre><code class="language-python" data-example-id="ex-248"># Assuming a file named 'words.txt' exists with one word per line
 words = []
 with open("words.txt", "r") as f:
     for line in f:
@@ -10126,7 +10133,7 @@ print(f"Spell the following words: {words}")</code></pre>
               function
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-249">import sys
 
 def show_largest(a, b):
     if a &gt; b:
@@ -10146,7 +10153,7 @@ show_largest(x, y)</code></pre>
               <span class="badge badge-blue">Exercise 54</span> BMI calculator
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-250">import sys
 
 def calculate_bmi(mass, length):
     return mass / (length ** 2)
@@ -10165,7 +10172,7 @@ print(f"mass = {mass} kg, length = {length} m, BMI = {bmi:.2f}")</code></pre>
               string
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-251">import sys
 
 def show_partial(text, n_chars):
     print(text[:n_chars])
@@ -10183,7 +10190,7 @@ show_partial(word, n_chars)</code></pre>
               Exponentiation function + range of values
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-252">import sys
 
 def exponentiate(base=2, exponent=3):
     result = 1
@@ -10208,7 +10215,7 @@ for n in range(min_n, max_n + 1):
               fantasy program (Tutor sign-off)
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python"># This is a tutor sign-off exercise.
+              <pre><code class="language-python" data-example-id="ex-253"># This is a tutor sign-off exercise.
 # Students implement their car chase algorithm based on the NS diagram.</code></pre>
               <p>
                 Tutor sign-off required for the car chase algorithm
@@ -10224,7 +10231,7 @@ for n in range(min_n, max_n + 1):
               program (Tutor sign-off)
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python"># This is a tutor sign-off exercise.
+              <pre><code class="language-python" data-example-id="ex-254"># This is a tutor sign-off exercise.
 # Students implement their EEG creativity algorithm based on the specifications.</code></pre>
               <p>
                 Tutor sign-off required for the EEG creativity algorithm
@@ -10240,7 +10247,7 @@ for n in range(min_n, max_n + 1):
               sorting code
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">def toSmurf(aList):
+              <pre><code class="language-python" data-example-id="ex-255">def toSmurf(aList):
     exchangesNeeded = True
     amountOfPasses = len(aList) - 1 # Fix 1: subtract 1
     while amountOfPasses > 0 and exchangesNeeded: # Fix 2: use bool directly
@@ -10275,7 +10282,7 @@ print(aList) # Fix 5: Capitalization</code></pre>
               animation
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import turtle
+              <pre><code class="language-python" data-example-id="ex-256" data-run-mode="local" data-run-reason="Turtle opens a desktop graphics window. Copy this example into a local Python environment.">import turtle
 import sys
 
 slices = int(sys.argv[1])
@@ -10299,7 +10306,7 @@ turtle.done()</code></pre>
       <!-- /answers-exercises-overlay -->
 
       <!-- Answers — Assignments overlay -->
-      <div id="answers-pip-overlay" role="dialog" aria-modal="true" style="
+      <div id="answers-pip-overlay" role="dialog" aria-label="Assignment answers and explanations" tabindex="-1" aria-modal="true" style="
             display: none;
             position: fixed;
             top: 0;
@@ -10333,7 +10340,7 @@ turtle.done()</code></pre>
               <span class="badge badge-purple">PIP 1 — Weber's Fraction predictor</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-257">import sys
 
 # Part 1: Calculate Weber's Fraction from two measured stimuli
 s1 = float(sys.argv[1])
@@ -10389,7 +10396,7 @@ print("Predicted S2 =", predicted_s2)</code></pre>
               <span class="badge badge-purple">PIP 2 — Spelling practice program</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">words = ["apple", "banana", "cherry", "dog", "cat"]
+              <pre><code class="language-python" data-example-id="ex-258">words = ["apple", "banana", "cherry", "dog", "cat"]
 
 score = 0
 for word in words:
@@ -10456,7 +10463,7 @@ else:
               <span class="badge badge-purple">PIP 3 — Vehicle Chase</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">def validate(prompt):
+              <pre><code class="language-python" data-example-id="ex-259">def validate(prompt):
     while True:
         value = input(prompt)
         if not value.isdigit():
@@ -10555,7 +10562,7 @@ else:
               <span class="badge badge-purple">PIP 4 — EEG Correlation</span>
             </div>
             <div class="scenario-body">
-              <pre><code class="language-python">import sys
+              <pre><code class="language-python" data-example-id="ex-260">import sys
 import csv
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
@@ -10690,7 +10697,7 @@ print(f"r = {r:.3f}, p = {p:.3f}")</code></pre>
     <!--TEST-->
 
     <!-- Sidebar navigation -->
-    <nav class="sidebar-nav" id="sidebarNav"></nav>
+    <nav class="sidebar-nav" id="sidebarNav" aria-label="Chapter navigation"></nav>
     <button type="button" class="back-to-top" id="backToTop" title="Back to top" aria-label="Back to top">
       ↑
     </button>
@@ -10710,7 +10717,7 @@ print(f"r = {r:.3f}, p = {p:.3f}")</code></pre>
       </svg>
     </button>
 
-    <script src="runner.js" defer></script>
+    <script src="runner.js?v=17" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-core.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-python.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-bash.min.js" crossorigin="anonymous"></script>

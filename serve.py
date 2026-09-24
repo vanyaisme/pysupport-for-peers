@@ -24,5 +24,6 @@ class COIHandler(SimpleHTTPRequestHandler):
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-print(f"Serving at http://127.0.0.1:{port}  (COOP + COEP enabled)")
-HTTPServer(("127.0.0.1", port), COIHandler).serve_forever()
+server = HTTPServer(("127.0.0.1", port), COIHandler)
+print(f"Serving at http://127.0.0.1:{server.server_port}  (COOP + COEP enabled)")
+server.serve_forever()

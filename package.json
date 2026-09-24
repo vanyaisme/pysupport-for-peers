@@ -2,15 +2,28 @@
   "name": "pysupport-for-peers",
   "private": true,
   "scripts": {
-    "lint": "eslint *.js",
-    "lint:fix": "eslint --fix *.js",
+    "lint": "eslint *.js scripts/*.cjs",
+    "lint:fix": "eslint --fix *.js scripts/*.cjs",
     "format": "prettier --write \"*.{js,css,json}\"",
-    "format:check": "prettier --check \"*.{js,css,json}\""
+    "format:check": "prettier --check \"*.{js,css,json}\" \"scripts/*.cjs\" \"tests/*.cjs\"",
+    "test": "node --test --test-concurrency=1 tests/runtime.test.cjs tests/ui.test.cjs",
+    "test:examples": "node --test tests/examples.test.cjs",
+    "test:browser": "node --test --test-concurrency=1 tests/browser.test.cjs",
+    "build": "node scripts/build-release.cjs",
+    "test:release": "node --test tests/release.test.cjs",
+    "test:release:browser": "node --test tests/release-browser.test.cjs",
+    "smoke:deploy": "node scripts/smoke-deploy.cjs",
+    "check": "npm run lint && npm run format:check && npm test && npm run test:examples && npm run test:release && npm run build",
+    "preview:release": "node scripts/preview-release.cjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
-    "prettier": "^3.0.0"
+    "jsdom": "26.1.0",
+    "playwright": "1.62.1",
+    "prettier": "^3.0.0",
+    "prismjs": "1.30.0",
+    "pyodide": "0.29.3"
   }
 }
