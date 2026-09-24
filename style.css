@@ -934,7 +934,7 @@ td code {
   color: var(--muted);
   font-size: 1.1rem;
   cursor: pointer;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
@@ -977,12 +977,6 @@ html[data-theme="light"] .floating-theme-toggle .icon-moon {
   display: block;
 }
 
-@media (min-width: 769px) {
-  .floating-theme-toggle {
-    display: flex;
-  }
-}
-
 /* Reset shares the floating controls' size, colours and spacing. */
 .floating-python-reset {
   display: flex;
@@ -1004,12 +998,6 @@ html[data-theme="light"] .floating-theme-toggle .icon-moon {
   opacity: 0.4;
   cursor: wait;
 }
-@media (max-width: 768px) {
-  .floating-python-reset {
-    bottom: 80px;
-  }
-}
-
 /* ── Collapsible scenario cards ── */
 .scenario-title::after {
   content: "▾";

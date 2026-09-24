@@ -3,7 +3,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { chromium } = require("playwright");
+const playwright = require("playwright");
+const browserName = process.env.TEST_BROWSER || "chromium";
 const { buildRelease } = require("../scripts/build-release.cjs");
 const { createPreview } = require("../scripts/preview-release.cjs");
 const { smoke } = require("../scripts/smoke-deploy.cjs");
@@ -22,8 +23,9 @@ before(async () => {
     if (name === "pyodide-worker.js") return bytes + "\n// Updated release fixture\n";
     return bytes;
   });
-  browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined,
+  browser = await playwright[browserName].launch({
+    executablePath:
+      browserName === "chromium" ? process.env.CHROMIUM_EXECUTABLE_PATH || undefined : undefined,
     headless: true,
   });
 });
@@ -116,9 +118,11 @@ test("first visit prepares offline reading, icons and isolation; local release s
       await caches.open("unrelated-app");
     });
     await smoke(e.origin);
+    const onlineTitle = await e.page.title();
+    assert.ok(onlineTitle.trim(), "the online page must have a title");
     await e.context.setOffline(true);
     await e.page.goto(e.origin + "/?from=offline");
-    assert.ok((await e.page.title()).includes("Python for Psychology"));
+    assert.equal(await e.page.title(), onlineTitle);
     assert.equal(await e.page.evaluate(() => crossOriginIsolated), true);
     assert.equal(await e.page.evaluate(async () => (await fetch("/icon-192.png")).status), 200);
     assert.equal(await e.page.locator(".run-btn").count(), 261);

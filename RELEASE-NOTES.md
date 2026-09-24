@@ -75,3 +75,9 @@ The floating reset placement passed 14 UI tests, five release tests, two focused
 Label-side selection now measures the displayed topic names and available left gutter, preferring the left instead of using a fixed window-width breakpoint. Browser checks passed at 1024, 1440, 1600, 1920 and 2400px, including short names fitting left and long names requiring right at the same width. Fourteen UI tests, five release tests, lint, formatting, build and the running-preview smoke also passed.
 
 The follow-up removes topic-dependent side switching. Labels now stay left when the gutter provides at least 180px, otherwise stay right. Long names wrap within the available width; neighbouring names shift vertically to avoid overlap. Plain-text styling and animation remain. The focused Chromium check passed at five desktop widths with pointer and keyboard navigation, alongside 14 UI tests, five release tests, lint and formatting. Source HTML content was not edited.
+
+## Staging verification checkpoint — 24 September 2026
+
+The approved version was saved in Git as `dc71876` before staging checks. Real iPhone review passed input, Stop, Reset, navigation and rotation, but found the floating theme button hidden on mobile. Removed that desktop-only restriction and retained Reset/theme/Back-to-top ordering at all screen widths. The WebKit check verifies theme switching and non-overlapping controls at 320px and 640px.
+
+The browser harness now accepts `TEST_BROWSER`, preserves isolation headers in injected worker failures, and isolates runtime fault tests from service-worker caching. The separate offline/update suite compares offline content with the actual online title instead of an outdated title string. These harness changes do not alter site content. Hosted validation results are recorded separately under `../verification/`. Production has not been deployed.

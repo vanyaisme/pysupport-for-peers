@@ -1,6 +1,7 @@
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
-const { chromium } = require("playwright");
+const playwright = require("playwright");
+const browserName = process.env.TEST_BROWSER || "chromium";
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -25,16 +26,20 @@ before(async () => {
     });
     server.on("exit", () => reject(new Error(output || "Development server exited")));
   });
-  browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined,
+  browser = await playwright[browserName].launch({
+    executablePath:
+      browserName === "chromium" ? process.env.CHROMIUM_EXECUTABLE_PATH || undefined : undefined,
     headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-dev-shm-usage",
-      "--no-zygote",
-      "--use-gl=angle",
-      "--use-angle=swiftshader",
-    ],
+    args:
+      browserName === "chromium"
+        ? [
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--no-zygote",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+          ]
+        : undefined,
   });
 });
 after(async () => {
@@ -45,22 +50,39 @@ after(async () => {
 async function pageFor({ failFirst = false, corruptFirst = false, mobile = false } = {}) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 },
+    // The separate release suite covers service workers. Keep injected runtime
+    // failures out of the offline cache so Retry always receives the clean worker.
+    serviceWorkers: "block",
   });
   // Optional mirror: exact release bytes keep functional tests independent of CDN availability.
   // Without PYODIDE_CACHE_DIR, these requests use the actual pinned CDN.
-  let failed = false;
-  if (process.env.PYODIDE_CACHE_DIR || failFirst || corruptFirst) {
+  if (failFirst || corruptFirst) {
+    let injected = false;
+    // WebKit does not route worker fetches through context.route. Inject the
+    // failed response at the worker's fetch boundary so all engines exercise Retry.
+    await context.route("**/pyodide-worker.js*", (route) => {
+      if (injected) return route.continue();
+      injected = true;
+      const source = fs.readFileSync(path.join(__dirname, "..", "pyodide-worker.js"), "utf8");
+      const response = failFirst
+        ? 'Promise.reject(new TypeError("Simulated runtime download failure"))'
+        : 'Promise.resolve(new Response("// deliberately corrupted test response"))';
+      return route.fulfill({
+        contentType: "application/javascript",
+        headers: {
+          "cross-origin-opener-policy": "same-origin",
+          "cross-origin-embedder-policy": "require-corp",
+        },
+        body: `const originalFetch = self.fetch.bind(self);
+self.fetch = (url, options) => String(url).endsWith("/pyodide.mjs")
+  ? ${response} : originalFetch(url, options);
+${source}`,
+      });
+    });
+  }
+  if (process.env.PYODIDE_CACHE_DIR) {
     await context.route("https://cdn.jsdelivr.net/pyodide/v0.29.3/full/**", async (route) => {
       const name = new URL(route.request().url()).pathname.split("/").pop();
-      if (!failed && name === "pyodide.mjs" && (failFirst || corruptFirst)) {
-        failed = true;
-        if (failFirst) return route.abort("failed");
-        return route.fulfill({
-          body: "// deliberately corrupted test response",
-          contentType: "application/javascript",
-          headers: { "access-control-allow-origin": "*" },
-        });
-      }
       const root = process.env.PYODIDE_CACHE_DIR;
       if (!root) return route.continue();
       const file = path.join(root, name);
@@ -468,6 +490,20 @@ test("reset control and dialogs reflow on narrow and enlarged layouts", async ()
     for (const width of [320, 640]) {
       await e.page.setViewportSize({ width, height: 900 });
       await e.page.locator("#floatingPythonReset").waitFor({ state: "visible" });
+      const theme = e.page.locator("#floatingThemeToggle");
+      await theme.waitFor({ state: "visible" });
+      const resetBox = await e.page.locator("#floatingPythonReset").boundingBox();
+      const themeBox = await theme.boundingBox();
+      const topBox = await e.page.locator(".back-to-top").boundingBox();
+      assert.ok(resetBox.y + resetBox.height < themeBox.y);
+      assert.ok(themeBox.y + themeBox.height < topBox.y);
+      const wasLight = (await e.page.locator("html").getAttribute("data-theme")) === "light";
+      await theme.click();
+      assert.equal(
+        (await e.page.locator("html").getAttribute("data-theme")) === "light",
+        !wasLight
+      );
+      await theme.click();
       assert.equal(
         await e.page
           .locator("#floatingPythonReset")
