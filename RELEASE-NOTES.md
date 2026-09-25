@@ -56,7 +56,7 @@ Source preview assets use v17; deployed release versions are generated from cont
 
 ### Follow-up verification and preview
 
-The current local build is `2133ad5a56f5d180ed3a`, served at http://localhost:8082. Existing controlled tabs must close after the waiting update is ready to activate this release.
+The current application build is `5f59c4f7874774366c2d`. The verified staging preview is https://approved-preview.python-peer-support-ref.pages.dev. See STAGING-VALIDATION.md for checkpoints, evidence and coverage limits. Existing controlled tabs must close after the waiting update is ready to activate this release.
 
 - `npm run check` passed: lint, formatting, 27 runtime/UI tests, 265 example records, 5 release tests and the generated build.
 - All 13 execution/accessibility Chromium scenarios passed during this implementation, including output floods, cooperative/forced Stop, Reset, dialog keyboard transitions and 320px/640px reflow.
