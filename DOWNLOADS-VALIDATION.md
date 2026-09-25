@@ -27,9 +27,9 @@ Snapshots compare file size, modification time and content hashes within the ins
 - Cloudflare smoke checks passed for the homepage, all ten required assets, integrity, document/worker CSP, isolation and cache headers.
 - Snapshot: https://3d022f16.python-peer-support-ref.pages.dev
 - Staging alias: https://approved-preview.python-peer-support-ref.pages.dev
-- Real-iPhone CSV/PNG download check requested; result pending. Production remains unchanged; no Git push was performed.
+- Real-iPhone CSV and plot downloads passed: the user confirmed both work with no issues on the staging snapshot above. Device model and iOS version were not supplied. This completes the requested download validation for this stage. Production remains unchanged; no Git push was performed.
 
-Evidence lives in `../verification/downloads-check.log`, `downloads-browser-focused.log`, `downloads-chromium-release.log`, `downloads-webkit.log`, `downloads-layout-chromium.log`, `downloads-layout-webkit.log`, `downloads-release-final.log`, and `downloads-hosted.log`. Screenshots are `downloads-csv-*.png`, `downloads-local-*.png` and `downloads-local-light-320.png`. The existing Firefox automation limitation is unchanged. Native iPhone download behavior requires its own check; prior iPhone runtime confirmations did not cover this feature. Production publishing is separate.
+Evidence lives in `../verification/downloads-check.log`, `downloads-browser-focused.log`, `downloads-chromium-release.log`, `downloads-webkit.log`, `downloads-layout-chromium.log`, `downloads-layout-webkit.log`, `downloads-release-final.log`, and `downloads-hosted.log`. Screenshots are `downloads-csv-*.png`, `downloads-local-*.png` and `downloads-local-light-320.png`. The existing Firefox automation limitation is unchanged. The new real-iPhone confirmation covers CSV and plot downloads; it does not extend to a physical-device check of every exported file type. Production publishing is separate.
 
 ## References
 
