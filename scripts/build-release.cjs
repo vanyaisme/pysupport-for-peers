@@ -19,16 +19,16 @@ function buildRelease(
   };
   const worker = fingerprint("pyodide-worker.js", read("pyodide-worker.js"));
   const runnerSource = read("runner.js").toString();
-  if (!runnerSource.includes("./pyodide-worker.js?v=18"))
+  if (!runnerSource.includes("./pyodide-worker.js?v=19"))
     throw new Error("Worker release URL drifted");
-  const runner = fingerprint("runner.js", runnerSource.replace("./pyodide-worker.js?v=18", worker));
+  const runner = fingerprint("runner.js", runnerSource.replace("./pyodide-worker.js?v=19", worker));
   const style = fingerprint("style.css", read("style.css"));
   const prism = fingerprint("prism.js", read("vendor/prism.js"));
   let html = read("index.html").toString();
   for (const [from, to] of [
-    ["runner.js?v=18", runner],
-    ["style.css?v=18", style],
-    ["vendor/prism.js?v=18", prism],
+    ["runner.js?v=19", runner],
+    ["style.css?v=19", style],
+    ["vendor/prism.js?v=19", prism],
   ]) {
     if (!html.includes(from)) throw new Error("Missing release reference: " + from);
     html = html.replaceAll(from, to);

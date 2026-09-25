@@ -110,6 +110,7 @@ let interruptView;
 let cancelView;
 let pyodide = null;
 let busy = false;
+let workspaceRoot;
 let _currentRunId = 0;
 let stdoutBuf = "";
 let stderrBuf = "";
@@ -171,6 +172,7 @@ async function initPyodide() {
   } finally {
     self.fetch = _originalFetch;
   }
+  workspaceRoot = pyodide.FS.cwd();
   pyodide.setInterruptBuffer(interruptView);
   pyodide.setStdout({
     write(bytes) {
@@ -325,6 +327,85 @@ function stdinRead() {
   }
 }
 
+const FILE_SIZE_LIMIT = 4 * 1024 * 1024;
+const FILE_TOTAL_LIMIT = 8 * 1024 * 1024;
+const FILE_COUNT_LIMIT = 20;
+
+// Snapshot only the lesson workspace, never the runtime, mounted devices or symlinks.
+// Bounds also limit the cost of inspecting files made by arbitrary learner code.
+async function snapshotFiles(keepBytes = false) {
+  const entries = new Map();
+  let inspected = 0;
+  let bytesRead = 0;
+  let truncated = false;
+  const fs = pyodide.FS;
+  async function walk(directory, depth) {
+    if (depth > 6) {
+      truncated = true;
+      return;
+    }
+    const names = fs.readdir(directory).sort();
+    for (const name of names) {
+      if (name.startsWith(".") || name === "__pycache__") continue;
+      if (++inspected > 500) {
+        truncated = true;
+        return;
+      }
+      const path = directory + "/" + name;
+      const stat = fs.lstat(path);
+      if (fs.isDir(stat.mode)) await walk(path, depth + 1);
+      else if (fs.isFile(stat.mode)) {
+        const entry = { size: stat.size, modified: Number(stat.mtime), digest: null };
+        if (stat.size <= FILE_SIZE_LIMIT && bytesRead + stat.size <= 16 * 1024 * 1024) {
+          const bytes = fs.readFile(path);
+          bytesRead += bytes.length;
+          entry.digest = Array.from(new Uint8Array(await _cryptoDigest("SHA-256", bytes)), (byte) =>
+            byte.toString(16).padStart(2, "0")
+          ).join("");
+          if (keepBytes) entry.bytes = bytes;
+        }
+        entries.set(path.slice(workspaceRoot.length + 1), entry);
+      }
+      if (inspected > 500) return;
+    }
+  }
+  try {
+    if (
+      fs.isDir(fs.lstat(workspaceRoot).mode) &&
+      fs.getPath(fs.lookupPath(workspaceRoot).node) === workspaceRoot
+    )
+      await walk(workspaceRoot, 0);
+    else truncated = true;
+  } catch {
+    truncated = true;
+  }
+  return { entries, truncated };
+}
+
+async function collectFiles(before) {
+  const after = await snapshotFiles(true);
+  const files = [];
+  let total = 0;
+  let filesTruncated = before.truncated || after.truncated;
+  for (const [name, entry] of after.entries) {
+    const previous = before.entries.get(name);
+    if (
+      previous &&
+      previous.size === entry.size &&
+      previous.modified === entry.modified &&
+      (previous.digest === null || entry.digest === null || previous.digest === entry.digest)
+    )
+      continue;
+    if (!entry.bytes || files.length >= FILE_COUNT_LIMIT || total + entry.size > FILE_TOTAL_LIMIT) {
+      filesTruncated = true;
+      continue;
+    }
+    total += entry.size;
+    files.push({ name, bytes: entry.bytes });
+  }
+  return { files, filesTruncated };
+}
+
 async function runCode(code, args) {
   outputLength = 0;
   outputMessages = 0;
@@ -338,6 +419,7 @@ async function runCode(code, args) {
   let imagesProxy;
   let usesPlots = false;
   let terminalMessage;
+  let beforeFiles;
   try {
     if (!pyodide) throw new Error("Python is not ready. Please retry.");
     checkCancelled();
@@ -356,6 +438,8 @@ _plot_bytes = 0
 _plots_truncated = False
 `);
     }
+    beforeFiles = await snapshotFiles();
+    checkCancelled();
     pyodide.globals.set("_code_to_run", code);
     pyodide.globals.set("_args_json", JSON.stringify(args));
     result = pyodide.runPython("_run(_code_to_run, _args_json)");
@@ -402,5 +486,6 @@ _plots_truncated = False
     flushStdout();
     flushStderr();
   }
+  if (beforeFiles) Object.assign(terminalMessage, await collectFiles(beforeFiles));
   self.postMessage(terminalMessage);
 }

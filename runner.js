@@ -661,7 +661,6 @@ const DEBUG = location.hostname === "localhost";
     );
     retryButton.textContent = "Reload page";
     retryButton.addEventListener("click", () => location.reload());
-    return;
   }
 
   let stdinView = null;
@@ -681,12 +680,13 @@ const DEBUG = location.hostname === "localhost";
   let _inputPanel = null; // active input DOM element
 
   function setRunButtonsEnabled(enabled) {
-    document.querySelectorAll(".run-btn").forEach((btn) => {
+    document.querySelectorAll(".run-btn:not(.local-run-btn)").forEach((btn) => {
       btn.disabled = !enabled;
     });
   }
 
   function getWorker() {
+    if (!window.crossOriginIsolated) return null;
     if (_worker) return _worker;
     _runtimeState = "loading";
     setRunButtonsEnabled(false);
@@ -697,7 +697,7 @@ const DEBUG = location.hostname === "localhost";
       dataView = new Uint8Array(new SharedArrayBuffer(65536));
       interruptView = new Uint8Array(new SharedArrayBuffer(1));
       cancelView = new Int32Array(new SharedArrayBuffer(4));
-      const worker = new Worker("./pyodide-worker.js?v=18");
+      const worker = new Worker("./pyodide-worker.js?v=19");
       _worker = worker;
       worker.addEventListener("message", (event) => {
         if (_worker === worker) handleWorkerMessage(event);
@@ -743,7 +743,7 @@ const DEBUG = location.hostname === "localhost";
     showRuntimeStatus(message, true);
   }
 
-  retryButton.addEventListener("click", () => getWorker());
+  if (window.crossOriginIsolated) retryButton.addEventListener("click", () => getWorker());
 
   const OUTPUT_LIMIT = 100_000;
   const PART_LIMIT = 1000;
@@ -761,6 +761,7 @@ const DEBUG = location.hostname === "localhost";
   resetButton.id = "floatingPythonReset";
   resetButton.className = "floating-python-reset";
   resetButton.type = "button";
+  resetButton.disabled = !window.crossOriginIsolated;
   resetButton.title = "Reset Python — stops code and clears temporary files";
   resetButton.setAttribute("aria-label", "Reset Python");
   resetButton.setAttribute("aria-describedby", "python-reset-help");
@@ -779,7 +780,7 @@ const DEBUG = location.hostname === "localhost";
   resetHelp.textContent = "Stops running code and clears temporary files.";
   document.body.append(resetButton, resetHelp);
   function updateResetVisibility() {
-    const visible = window.scrollY > 500;
+    const visible = window.crossOriginIsolated && window.scrollY > 500;
     resetButton.classList.toggle("visible", visible);
     resetButton.tabIndex = visible ? 0 : -1;
   }
@@ -844,14 +845,14 @@ const DEBUG = location.hostname === "localhost";
     output_truncated: () => markOutputTruncated(),
     need_input: () => showInputPrompt(),
     toast: ({ message }) => toastShow(message),
-    done: ({ images, plotsTruncated, errorMessage }) => {
+    done: ({ images, plotsTruncated, errorMessage, files, filesTruncated }) => {
       if (errorMessage)
         _stdoutParts.push({ kind: "stderr", text: String(errorMessage).slice(0, 4000) });
-      finishRun(images || [], plotsTruncated);
+      finishRun(images || [], plotsTruncated, files || [], filesTruncated);
     },
     error: (data) => {
       _stdoutParts.push({ kind: "stderr", text: String(data.message).slice(0, 4000) + "\n" });
-      finishRun([]);
+      finishRun([], false, data.files || [], data.filesTruncated);
     },
   };
 
@@ -913,10 +914,11 @@ const DEBUG = location.hostname === "localhost";
 
     _livePanel.append(bar, body);
     const panel = _livePanel;
+    const pre = _currentPre;
     panel.querySelector(".py-output-close").addEventListener("click", () => {
-      panel.remove();
+      removeOutputPanel(panel);
       if (_livePanel === panel) _livePanel = null;
-      if (_currentPre) _currentPre.parentElement?.classList.remove("py-open");
+      pre.parentElement?.classList.remove("py-open");
     });
     _currentPre.parentElement?.insertAdjacentElement("afterend", _livePanel);
   }
@@ -936,17 +938,105 @@ const DEBUG = location.hostname === "localhost";
     renderedParts.set(body, parts.length);
   }
 
+  const downloadURLs = new Set();
+
+  function downloadName(name) {
+    return (
+      Array.from(String(name), (char) =>
+        char.codePointAt(0) < 32 || char.codePointAt(0) === 127 ? "_" : char
+      )
+        .join("")
+        .replace(/[<>:"/\\|?*\u202a-\u202e\u2066-\u2069]/g, "_")
+        .replace(/^\.+/, "")
+        .slice(-180) || "download"
+    );
+  }
+
+  function downloadLink(url, name, label) {
+    const link = document.createElement("a");
+    link.className = "py-download";
+    link.href = url;
+    link.download = downloadName(name);
+    link.textContent = label;
+    return link;
+  }
+
+  function fileLink(bytes, name, label) {
+    const url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+    downloadURLs.add(url);
+    const link = downloadLink(url, name, label);
+    link.dataset.downloadUrl = url;
+    return link;
+  }
+
+  function removeOutputPanel(panel) {
+    panel.querySelectorAll("[data-download-url]").forEach((link) => {
+      URL.revokeObjectURL(link.dataset.downloadUrl);
+      downloadURLs.delete(link.dataset.downloadUrl);
+    });
+    panel.remove();
+  }
+  window.addEventListener("pagehide", (event) => {
+    if (event.persisted) return;
+    downloadURLs.forEach((url) => URL.revokeObjectURL(url));
+    downloadURLs.clear();
+  });
+
   function appendOutputImages(body, images) {
     let bytes = 0;
-    images.slice(0, 5).forEach((b64) => {
+    images.slice(0, 5).forEach((b64, index) => {
       if (typeof b64 !== "string" || b64.length > 2_000_000 || bytes + b64.length > 8_000_000)
         return;
       bytes += b64.length;
+      const figure = document.createElement("figure");
+      figure.className = "py-plot";
       const img = document.createElement("img");
       img.src = `data:image/png;base64,${b64}`;
-      img.alt = "matplotlib plot";
-      body.appendChild(img);
+      img.alt = `Plot ${index + 1} from this example`;
+      const caption = document.createElement("figcaption");
+      const exampleId = _currentPre?.querySelector("code")?.dataset.exampleId || "python";
+      caption.appendChild(
+        downloadLink(
+          img.src,
+          `${exampleId}-plot-${index + 1}.png`,
+          `Download plot ${index + 1} (PNG)`
+        )
+      );
+      figure.append(img, caption);
+      body.appendChild(figure);
     });
+  }
+
+  function appendOutputFiles(body, files, truncated) {
+    const group = document.createElement("div");
+    group.className = "py-downloads";
+    const label = document.createElement("p");
+    label.textContent = "Files from this run";
+    group.appendChild(label);
+    let total = 0;
+    for (const file of files.slice(0, 20)) {
+      if (
+        typeof file.name !== "string" ||
+        !(file.bytes instanceof Uint8Array) ||
+        file.bytes.length > 4 * 1024 * 1024 ||
+        total + file.bytes.length > 8 * 1024 * 1024
+      )
+        continue;
+      total += file.bytes.length;
+      const size =
+        file.bytes.length < 1024
+          ? `${file.bytes.length} B`
+          : `${(file.bytes.length / 1024).toFixed(1)} KiB`;
+      group.appendChild(fileLink(file.bytes, file.name, `Download ${file.name} (${size})`));
+    }
+    if (group.childElementCount > 1) body.appendChild(group);
+    if (truncated) {
+      const notice = document.createElement("p");
+      notice.className = "py-download-note";
+      notice.textContent =
+        "Some files were omitted. Downloads support up to 20 files, 4 MiB each and 8 MiB per run, in the lesson workspace.";
+      body.appendChild(notice);
+    }
   }
 
   function flushLiveOutput() {
@@ -1040,7 +1130,7 @@ const DEBUG = location.hostname === "localhost";
   }
 
   // Finish run
-  function finishRun(images, plotsTruncated = false) {
+  function finishRun(images, plotsTruncated = false, files = [], filesTruncated = false) {
     const inputHadFocus = _inputPanel?.contains(document.activeElement);
     if (plotsTruncated)
       _stdoutParts.push({
@@ -1066,7 +1156,8 @@ const DEBUG = location.hostname === "localhost";
         if (body) {
           renderOutputParts(body, _stdoutParts);
           appendOutputImages(body, images);
-          if (!hasTextOutput && !hasImages) {
+          appendOutputFiles(body, files, filesTruncated);
+          if (!hasTextOutput && !hasImages && !files.length && !filesTruncated) {
             const empty = document.createElement("span");
             empty.style.color = "var(--muted)";
             empty.style.fontStyle = "italic";
@@ -1082,7 +1173,8 @@ const DEBUG = location.hostname === "localhost";
         const outputFragment = document.createDocumentFragment();
         renderOutputParts(outputFragment, _stdoutParts);
         appendOutputImages(outputFragment, images);
-        if (!hasTextOutput && !hasImages) {
+        appendOutputFiles(outputFragment, files, filesTruncated);
+        if (!hasTextOutput && !hasImages && !files.length && !filesTruncated) {
           const empty = document.createElement("span");
           empty.style.color = "var(--muted)";
           empty.style.fontStyle = "italic";
@@ -1171,7 +1263,7 @@ const DEBUG = location.hostname === "localhost";
     while (next && (next.classList.contains("py-output") || next.classList.contains("py-form"))) {
       const toRemove = next;
       next = next.nextElementSibling;
-      toRemove.remove();
+      removeOutputPanel(toRemove);
     }
     wrapper.classList.remove("py-open");
   }
@@ -1223,7 +1315,7 @@ const DEBUG = location.hostname === "localhost";
 
     panel.append(bar, body);
     panel.querySelector(".py-output-close")?.addEventListener("click", () => {
-      panel.remove();
+      removeOutputPanel(panel);
       pre.parentElement?.classList.remove("py-open");
     });
     pre.parentElement?.insertAdjacentElement("afterend", panel);
@@ -1334,21 +1426,33 @@ const DEBUG = location.hostname === "localhost";
   }
 
   // ── Per-type handlers ────────────────────────────────────────────
-  function handleShell(pre) {
-    showOutput(
-      pre,
-      "info",
-      "This is a terminal command — run it in your command line, not the Python interpreter."
-    );
-  }
-
-  function handleTurtle(pre) {
-    showOutput(
-      pre,
-      "info",
-      "Turtle graphics require a local Python window.\n" +
-        "This snippet shows the correct loop-based drawing logic — run it in your Python environment!"
-    );
+  function showLocalInstructions(pre, shell = false) {
+    if (pre.parentElement.nextElementSibling?.classList.contains("py-output")) {
+      clearBelow(pre);
+      return;
+    }
+    const example = pre.querySelector("code");
+    const fragment = document.createElement("div");
+    fragment.className = "py-local-help";
+    const explanation = document.createElement("p");
+    explanation.textContent =
+      example.dataset.runReason ||
+      (shell
+        ? "Run this command in a terminal, not in the Python interpreter."
+        : "This example needs a local Python environment.");
+    fragment.appendChild(explanation);
+    const steps = document.createElement("p");
+    steps.textContent = shell
+      ? "Use Copy above, then paste into your terminal. Keep any referenced script in that folder."
+      : "Open the downloaded .py file in your Python editor. Install any required packages before running it.";
+    if (!shell) {
+      const filename = `${example.dataset.exampleId || "example"}.py`;
+      fragment.appendChild(
+        fileLink(example.textContent.trim() + "\n", filename, `Download ${filename}`)
+      );
+    }
+    fragment.appendChild(steps);
+    showOutput(pre, "info", fragment);
   }
 
   function handleArgv(pre, btn, code) {
@@ -1411,22 +1515,18 @@ const DEBUG = location.hostname === "localhost";
     const raw = getCode(pre);
     const example = pre.querySelector("code");
     if (example?.dataset.runMode === "local") {
-      showOutput(
-        pre,
-        "info",
-        example.dataset.runReason || "Run this example in a local Python environment."
-      );
+      showLocalInstructions(pre);
       return;
     }
     const type = detectType(raw);
 
     if (type === "empty") return;
     if (type === "shell") {
-      handleShell(pre);
+      showLocalInstructions(pre, true);
       return;
     }
     if (type === "turtle") {
-      handleTurtle(pre);
+      showLocalInstructions(pre);
       return;
     }
     if (type === "argv" && example?.dataset.argvMode !== "empty") {
@@ -1445,13 +1545,24 @@ const DEBUG = location.hostname === "localhost";
     if (!pre.querySelector("code.language-python")) return;
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "run-btn";
-    btn.textContent = "▶ run";
-    btn.disabled = false;
-    btn.setAttribute("aria-label", "Run Python code");
+    const example = pre.querySelector("code");
+    const local = ["local", "shell"].includes(example.dataset.runMode);
+    const shell = example.dataset.runMode === "shell";
+    btn.className = local ? "run-btn local-run-btn" : "run-btn";
+    btn.textContent = local ? (shell ? "Terminal" : "Run locally") : "▶ run";
+    btn.disabled = !local && !window.crossOriginIsolated;
+    btn.setAttribute(
+      "aria-label",
+      local
+        ? shell
+          ? "Terminal instructions"
+          : "Run locally: instructions and download"
+        : "Run Python code"
+    );
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      handleClick(pre, btn);
+      if (local) showLocalInstructions(pre, shell);
+      else handleClick(pre, btn);
     });
     pre.parentElement.appendChild(btn);
   });

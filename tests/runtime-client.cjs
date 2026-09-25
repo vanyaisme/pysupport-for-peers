@@ -84,6 +84,8 @@ class Runtime {
               .map((m) => m.text || m.message)
               .join(""),
             images: message.images || [],
+            files: message.files || [],
+            filesTruncated: message.filesTruncated || false,
             inputCount: inputIndex,
           });
         }

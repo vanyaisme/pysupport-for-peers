@@ -32,6 +32,10 @@ async function setup({ isolated = true, constructError = false, start = true } =
   w.crossOriginIsolated = isolated;
   w.SharedArrayBuffer = SharedArrayBuffer;
   w.TextEncoder = TextEncoder;
+  const revoked = [];
+  let blobId = 0;
+  w.URL.createObjectURL = () => "blob:test-" + ++blobId;
+  w.URL.revokeObjectURL = (url) => revoked.push(url);
   w.scrollTo = () => {};
   w.Worker = class {
     constructor() {
@@ -73,13 +77,13 @@ async function setup({ isolated = true, constructError = false, start = true } =
       .closest(".code-wrapper")
       .querySelector(".run-btn");
   const status = () => w.document.querySelector(".py-runtime-status");
-  return { dom, w, workers, fire, ready, button, status, close: () => dom.window.close() };
+  return { dom, w, workers, fire, ready, button, status, revoked, close: () => dom.window.close() };
 }
 
 test("normal startup enables every Run button and hides loading status", async () => {
   const e = await setup();
   try {
-    assert.equal(e.w.document.querySelectorAll(".run-btn:disabled").length, 261);
+    assert.equal(e.w.document.querySelectorAll(".run-btn:disabled").length, 247);
     assert.match(e.status().textContent, /Loading Python/);
     e.ready();
     assert.equal(e.w.document.querySelectorAll(".run-btn:disabled").length, 0);
@@ -378,5 +382,58 @@ test("reading stays idle; first Run queues exactly one execution and reset cance
     assert.equal(reset.workers[1].messages.length, 1);
   } finally {
     reset.close();
+  }
+});
+
+test("local and terminal instructions work without starting Python, including missing isolation", async () => {
+  for (const isolated of [true, false]) {
+    const e = await setup({ isolated, start: false });
+    try {
+      assert.equal(e.w.document.querySelectorAll(".local-run-btn").length, 14);
+      assert.equal(e.button("ex-122").textContent, "Run locally");
+      assert.equal(e.button("ex-007").textContent, "Terminal");
+      e.button("ex-122").click();
+      const link = e.w.document.querySelector("a.py-download");
+      assert.equal(link.download, "ex-122.py");
+      const url = link.href;
+      assert.match(e.w.document.querySelector(".py-output").textContent, /desktop graphics/);
+      e.button("ex-122").click();
+      assert.ok(e.revoked.includes(url));
+      e.button("ex-007").click();
+      assert.match(e.w.document.querySelector(".py-output").textContent, /terminal/);
+      assert.equal(e.w.document.querySelectorAll("a.py-download").length, 0);
+      assert.equal(e.workers.length, 0);
+    } finally {
+      e.close();
+    }
+  }
+});
+
+test("file links survive reset, treat names as text, and release blobs on close", async () => {
+  const e = await setup();
+  try {
+    e.ready();
+    e.button().click();
+    const worker = e.workers[0];
+    worker.emit({
+      type: "done",
+      runId: worker.messages.at(-1).runId,
+      images: [],
+      files: [{ name: 'results/<img onerror="bad">.csv', bytes: new e.w.Uint8Array([1, 2, 3]) }],
+    });
+    const link = e.w.document.querySelector(".py-download");
+    assert.equal(e.w.document.querySelector(".py-output img"), null);
+    assert.equal(link.download, "results__img onerror=_bad__.csv");
+    const url = link.href;
+    assert.equal(e.revoked.length, 0);
+    e.w.document.querySelector("#floatingPythonReset").click();
+    e.ready();
+    assert.equal(link.href, url);
+    assert.equal(e.revoked.length, 0);
+    e.w.document.querySelector(".py-output-close").click();
+    assert.deepEqual(e.revoked, [url]);
+    assert.equal(e.button().parentElement.classList.contains("py-open"), false);
+  } finally {
+    e.close();
   }
 });

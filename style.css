@@ -2035,3 +2035,53 @@ pre[class*="language-"] > code {
     width: 100%;
   }
 }
+
+/* Downloads stay with their output so completed results survive Python Reset. */
+.py-plot {
+  margin: 14px 0;
+}
+.py-downloads {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.py-downloads p,
+.py-download-note {
+  margin: 6px 0;
+  color: var(--muted);
+  white-space: normal;
+  font-style: normal;
+}
+.py-download {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 0;
+  color: var(--accent);
+  font-style: normal;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-underline-offset: 3px;
+}
+.py-download:focus-visible,
+.local-run-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.local-run-btn {
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.code-wrapper:has(.local-run-btn) > pre {
+  padding-top: 38px;
+}
+
+.py-output-body:has(.py-local-help) {
+  max-height: none;
+  overflow-y: visible;
+}
+.py-local-help {
+  white-space: normal;
+  font-style: normal;
+}

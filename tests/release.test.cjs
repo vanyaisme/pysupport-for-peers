@@ -100,15 +100,15 @@ test("failed critical precache rejects installation and preserves the previous c
   const sw = serviceWorker({ fail: true });
   await assert.rejects(sw.lifecycle("install"), /Failed required asset/);
   assert.ok(sw.stores.has("python-guide-v15"));
-  assert.equal(sw.stores.get("python-guide-v18").size, 0);
+  assert.equal(sw.stores.get("python-guide-v19").size, 0);
 });
 
 test("activation only deletes this application's old caches", async () => {
   const sw = serviceWorker();
   await sw.lifecycle("install");
   await sw.lifecycle("activate");
-  assert.deepEqual([...sw.stores.keys()].sort(), ["python-guide-v18", "unrelated-app"]);
-  assert.equal((await sw.fetch("/style.css?v=18", "cors")).status, 200);
+  assert.deepEqual([...sw.stores.keys()].sort(), ["python-guide-v19", "unrelated-app"]);
+  assert.equal((await sw.fetch("/style.css?v=19", "cors")).status, 200);
   assert.equal(sw.fetch("/style.css?v=15", "cors"), undefined);
 });
 

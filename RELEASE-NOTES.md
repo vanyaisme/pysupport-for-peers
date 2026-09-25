@@ -88,3 +88,9 @@ The browser harness now accepts `TEST_BROWSER`, preserves isolation headers in i
 Python now starts on demand and the first Run executes after startup. Removed the redundant page loader; syntax highlighting is served locally and available offline. Separate document/worker/service-worker policies block inline script execution and JavaScript eval while preserving verified WebAssembly loading. Updated the Node 22 LTS pin and fixed four development-tool advisories. Tutorial copy and visual styling are unchanged.
 
 Release `305840a9490ddfce4ec0`; source preview v18. The clean pinned-toolchain checks, Chromium/WebKit runtime suites, Chromium release suite, live hosted runtime/header/update checks and a fresh real-iPhone check passed. Staging is restored to the checkpoint; production remains unchanged. See [SECURITY-VALIDATION.md](SECURITY-VALIDATION.md) for evidence, staging status and limits.
+
+## Learner downloads stage — 25 September 2026
+
+Plots can be downloaded as PNGs, and files created or changed by an example can be saved from its output panel. Completed downloads retain their original bytes after Reset; closing their output releases retained file URLs. Local-only examples now offer clearly labelled instructions and Python-source downloads without loading Python; terminal commands have a separate label.
+
+Source preview v19; release `59be8795f96d0c8d137e`. Export size, count and workspace limits keep inspection and transfer bounded. The lesson copy and security policies are unchanged. See [DOWNLOADS-VALIDATION.md](DOWNLOADS-VALIDATION.md) for coverage and staging status.

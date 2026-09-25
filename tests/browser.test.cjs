@@ -105,6 +105,12 @@ ${source}`,
   );
   await context.addInitScript(() => {
     window.__testWorkers = [];
+    window.__revokedDownloads = [];
+    const revoke = URL.revokeObjectURL.bind(URL);
+    URL.revokeObjectURL = (url) => {
+      window.__revokedDownloads.push(url);
+      revoke(url);
+    };
     const OriginalWorker = window.Worker;
     window.Worker = class extends OriginalWorker {
       constructor(...args) {
@@ -187,7 +193,7 @@ test("actual worker download failure is visible and Retry succeeds", async () =>
   try {
     await e.page.locator(".py-runtime-status button").waitFor({ state: "visible", timeout: 40000 });
     assert.match(await e.page.locator(".py-runtime-status").textContent(), /could not load/);
-    assert.equal(await e.page.locator(".run-btn:disabled").count(), 261);
+    assert.equal(await e.page.locator(".run-btn:disabled").count(), 247);
     await e.page.locator(".py-runtime-status button").click();
     await ready(e.page);
     await run(e.page);
@@ -321,6 +327,18 @@ test("cold-start mixed packages render multiple PNG figures", async () => {
     assert.equal(await e.page.locator(".py-output img").count(), 2);
     for (const image of await e.page.locator(".py-output img").all())
       assert.equal(await image.evaluate((el) => el.complete && el.naturalWidth > 0), true);
+    const plot = e.page.getByRole("link", { name: "Download plot 1 (PNG)", exact: true });
+    const downloadEvent = e.page.waitForEvent("download");
+    await plot.click();
+    const download = await downloadEvent;
+    assert.equal(download.suggestedFilename(), "ex-016-plot-1.png");
+    assert.equal(
+      fs
+        .readFileSync(await download.path())
+        .subarray(1, 4)
+        .toString(),
+      "PNG"
+    );
   } finally {
     await e.close();
   }
@@ -636,7 +654,7 @@ test("reading downloads no Python; one Run click starts and executes under stric
         performance.getEntriesByType("resource").find((r) => r.name.includes("pyodide-worker"))
           ?.name
     );
-    const response = await e.context.request.get(workerURL || origin + "/pyodide-worker.js?v=18");
+    const response = await e.context.request.get(workerURL || origin + "/pyodide-worker.js?v=19");
     const policy = response.headers()["content-security-policy"];
     assert.match(policy, /'wasm-unsafe-eval'/);
     assert.ok(!policy.includes("'unsafe-eval'"));
@@ -666,6 +684,69 @@ test("reading downloads no Python; one Run click starts and executes under stric
     assert.ok(
       blocked.violations.filter((directive) => directive === "script-src-elem").length >= 2
     );
+  } finally {
+    await e.close();
+  }
+});
+
+test("local-only code downloads unchanged without loading Python and fits a phone viewport", async () => {
+  const e = await pageFor({ mobile: true });
+  try {
+    const local = block(e.page, "ex-122");
+    const expected = await e.page.locator('[data-example-id="ex-122"]').textContent();
+    await local.getByRole("button", { name: "Run locally: instructions and download" }).click();
+    const link = e.page.getByRole("link", { name: "Download ex-122.py", exact: true });
+    const downloadEvent = e.page.waitForEvent("download");
+    await link.click();
+    const download = await downloadEvent;
+    assert.equal(download.suggestedFilename(), "ex-122.py");
+    assert.equal(fs.readFileSync(await download.path(), "utf8"), expected.trim() + "\n");
+    assert.equal(await e.page.evaluate(() => window.__testWorkers.length), 0);
+    assert.equal(
+      await link.evaluate((el) => {
+        const body = el.closest(".py-output-body");
+        return body.scrollHeight <= body.clientHeight + 1;
+      }),
+      true
+    );
+    const box = await link.boundingBox();
+    assert.ok(box.x >= 0 && box.x + box.width <= 390);
+    await block(e.page, "ex-007").getByRole("button", { name: "Terminal instructions" }).click();
+    assert.equal(await e.page.evaluate(() => window.__testWorkers.length), 0);
+  } finally {
+    await e.close();
+  }
+});
+
+test("generated downloads preserve bytes after Reset and release URLs when output closes", async () => {
+  const e = await pageFor({ mobile: true });
+  try {
+    await code(
+      e.page,
+      "from pathlib import Path\nPath('results.csv').write_text('name,score\\nZoë,42\\n', encoding='utf-8')\nPath('binary.dat').write_bytes(bytes([0,255,128,1]))"
+    );
+    await run(e.page);
+    await finished(e.page);
+    const csv = e.page.getByRole("link", { name: /^Download results.csv/ });
+    const blobURL = await csv.getAttribute("href");
+    const firstEvent = e.page.waitForEvent("download");
+    await csv.click();
+    const first = await firstEvent;
+    assert.equal(first.suggestedFilename(), "results.csv");
+    assert.equal(fs.readFileSync(await first.path(), "utf8"), "name,score\nZoë,42\n");
+    await e.page.getByRole("button", { name: "Reset Python", exact: true }).click();
+    await ready(e.page);
+    const binaryEvent = e.page.waitForEvent("download");
+    await e.page.getByRole("link", { name: /^Download binary.dat/ }).click();
+    const binary = await binaryEvent;
+    assert.deepEqual([...fs.readFileSync(await binary.path())], [0, 255, 128, 1]);
+    await e.page.getByRole("button", { name: "Close output panel", exact: true }).click();
+    assert.ok(await e.page.evaluate((url) => window.__revokedDownloads.includes(url), blobURL));
+    assert.equal(await e.page.locator(`a[href="${blobURL}"]`).count(), 0);
+    await code(e.page, "from pathlib import Path\nprint(Path('results.csv').exists())");
+    await run(e.page);
+    await finished(e.page);
+    assert.match(await output(e.page), /False/);
   } finally {
     await e.close();
   }

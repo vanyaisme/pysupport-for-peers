@@ -185,3 +185,79 @@ test("plot count and oversized canvases are bounded and figures are closed", asy
   assert.equal(next.images.length, 1);
   assert.equal(next.messages.at(-1).plotsTruncated, false);
 });
+
+test("downloads contain newly written text, CSV, JSON, binary and nested files, not unchanged fixtures", async () => {
+  const fresh = new Runtime();
+  try {
+    const result = await fresh.run(`from pathlib import Path
+import csv, json
+Path('exports').mkdir(exist_ok=True)
+Path('exports/notes.txt').write_text('café 🧠', encoding='utf-8')
+with open('results.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['name', 'score'])
+    writer.writerow(['Zoë', 42])
+Path('results.json').write_text(json.dumps({'score': 42}))
+Path('binary.dat').write_bytes(bytes([0, 255, 128, 1]))
+Path('empty.txt').write_bytes(b'')
+print(Path('data.csv').read_text())`);
+    assert.equal(result.stderr, "");
+    const files = new Map(result.files.map((file) => [file.name, Buffer.from(file.bytes)]));
+    assert.equal(files.size, 5);
+    assert.equal(files.get("exports/notes.txt").toString(), "café 🧠");
+    assert.equal(files.get("results.csv").toString(), "name,score\r\nZoë,42\r\n");
+    assert.deepEqual(JSON.parse(files.get("results.json")), { score: 42 });
+    assert.deepEqual([...files.get("binary.dat")], [0, 255, 128, 1]);
+    assert.equal(files.get("empty.txt").length, 0);
+    assert.equal(result.filesTruncated, false);
+    assert.equal((await fresh.run("print('read only')")).files.length, 0);
+    const edited = await fresh.run(
+      "from pathlib import Path\nPath('output.txt').write_text('saved')\nraise ValueError('after saving')"
+    );
+    assert.match(edited.stderr, /ValueError/);
+    assert.equal(
+      Buffer.from(edited.files.find((file) => file.name === "output.txt").bytes).toString(),
+      "saved"
+    );
+    const changed = await fresh.run(
+      "from pathlib import Path\nPath('output.txt').write_text('other')"
+    );
+    assert.equal(Buffer.from(changed.files[0].bytes).toString(), "other");
+  } finally {
+    await fresh.close();
+  }
+});
+
+test("file downloads skip symlinks and runtime paths, cap payloads and recover next run", async () => {
+  const fresh = new Runtime();
+  try {
+    const result = await fresh.run(`from pathlib import Path
+import os
+Path('/tmp/outside.txt').write_text('not an export')
+os.symlink('/tmp', 'linked-directory')
+os.symlink('/tmp/outside.txt', 'linked-file')
+Path('large.bin').write_bytes(b'x' * (4 * 1024 * 1024 + 1))
+for i in range(23):
+    Path(f'small-{i:02}.txt').write_text(str(i))`);
+    assert.equal(result.stderr, "");
+    assert.equal(result.files.length, 20);
+    assert.equal(result.filesTruncated, true);
+    assert.ok(result.files.every((file) => file.name.startsWith("small-")));
+    const next = await fresh.run(
+      "from pathlib import Path\nPath('next.txt').write_text('recovered')"
+    );
+    assert.equal(next.files.length, 1);
+    assert.equal(next.files[0].name, "next.txt");
+    assert.equal(next.filesTruncated, false);
+    const limited = await fresh.run(
+      "from pathlib import Path\nfor n in range(3):\n    Path(f'budget-{n}.bin').write_bytes(b'x' * (3 * 1024 * 1024))"
+    );
+    assert.equal(limited.files.length, 2);
+    assert.equal(limited.filesTruncated, true);
+    assert.ok(
+      limited.files.reduce((total, file) => total + file.bytes.length, 0) <= 8 * 1024 * 1024
+    );
+  } finally {
+    await fresh.close();
+  }
+});
