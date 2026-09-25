@@ -93,4 +93,4 @@ Release `305840a9490ddfce4ec0`; source preview v18. The clean pinned-toolchain c
 
 Plots can be downloaded as PNGs, and files created or changed by an example can be saved from its output panel. Completed downloads retain their original bytes after Reset; closing their output releases retained file URLs. Local-only examples now offer clearly labelled instructions and Python-source downloads without loading Python; terminal commands have a separate label.
 
-Source preview v19; release `59be8795f96d0c8d137e`. Export size, count and workspace limits keep inspection and transfer bounded. The lesson copy and security policies are unchanged. See [DOWNLOADS-VALIDATION.md](DOWNLOADS-VALIDATION.md) for coverage and staging status.
+Source preview v19; release `59be8795f96d0c8d137e`. Export size, count and workspace limits keep inspection and transfer bounded. The lesson copy and security policies are unchanged. Hosted downloads passed Chromium/WebKit verification; the real-iPhone download check is pending. See [DOWNLOADS-VALIDATION.md](DOWNLOADS-VALIDATION.md) for coverage and staging status.

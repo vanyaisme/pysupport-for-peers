@@ -21,10 +21,15 @@ Snapshots compare file size, modification time and content hashes within the ins
 - WebKit: all 17 runtime/interface scenarios passed, including PNG/source/CSV/binary downloads and Reset retention.
 - Downloads were read from real browser download files and compared byte-for-byte. Worker tests cover nested and empty files, modified fixtures, error paths, exclusion of external paths/symlinks, size/count/total limits and subsequent-run recovery. UI tests cover literal handling of HTML-looking filenames, URL revocation, and local actions without isolation.
 - Release: `59be8795f96d0c8d137e`.
-- Desktop (1440px) and 320px phone-width screenshots were inspected in dark/light themes. The first review found local instructions unnecessarily scrolled internally; the final panel expands naturally with its download link above the instructions. The affected download/layout checks passed again in Chromium and WebKit, and release verification was repeated after this refinement.
-- Live staging validation is pending.
+- Desktop dark-theme (1440px) and phone-width dark/light (320px) screenshots were inspected. The first review found local instructions unnecessarily scrolled internally; the final panel expands naturally with its download link above the instructions. The affected download/layout checks passed again in Chromium and WebKit, and release verification was repeated after this refinement.
+- Git implementation checkpoint: `4b34373`.
+- Hosted Chromium and WebKit both passed actual downloads of the unchanged `.py` source, CSV with exact CRLF bytes, a captured PNG and a `savefig` PNG, plus first-Run startup and post-Reset download retention. No uncaught page errors were recorded.
+- Cloudflare smoke checks passed for the homepage, all ten required assets, integrity, document/worker CSP, isolation and cache headers.
+- Snapshot: https://3d022f16.python-peer-support-ref.pages.dev
+- Staging alias: https://approved-preview.python-peer-support-ref.pages.dev
+- Real-iPhone CSV/PNG download check requested; result pending. Production remains unchanged; no Git push was performed.
 
-Evidence lives in `../verification/downloads-check.log`, `downloads-browser-focused.log`, `downloads-chromium-release.log`, `downloads-webkit.log`, `downloads-layout-chromium.log`, `downloads-layout-webkit.log`, and `downloads-release-final.log`. Screenshots are `downloads-csv-*.png`, `downloads-local-*.png` and `downloads-local-light-320.png`. The existing Firefox automation limitation is unchanged. Native iPhone download behavior requires its own check; prior iPhone runtime confirmations did not cover this feature. Production publishing is separate.
+Evidence lives in `../verification/downloads-check.log`, `downloads-browser-focused.log`, `downloads-chromium-release.log`, `downloads-webkit.log`, `downloads-layout-chromium.log`, `downloads-layout-webkit.log`, `downloads-release-final.log`, and `downloads-hosted.log`. Screenshots are `downloads-csv-*.png`, `downloads-local-*.png` and `downloads-local-light-320.png`. The existing Firefox automation limitation is unchanged. Native iPhone download behavior requires its own check; prior iPhone runtime confirmations did not cover this feature. Production publishing is separate.
 
 ## References
 
