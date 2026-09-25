@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net blob:; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; worker-src 'self' blob:; connect-src 'self' cdn.jsdelivr.net; img-src 'self' data:" />
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'" />
   <link rel="icon" type="image/png" href="favicon.png?v=5" />
   <link rel="canonical" href="https://peer-support.live/" />
   <noscript>
@@ -45,21 +45,13 @@
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" />
-  </noscript>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js"
-    integrity="sha384-Hcsv6LxK5rH9vVB+a/+cLJZR3kIIM2Y851r6waxy+9JInvSROiD1bTMk748pYdat" crossorigin="anonymous"
-    defer></script>
-  <link rel="preload" href="style.css?v=17" as="style" />
-  <link rel="preload" href="runner.js?v=17" as="script" />
-  <link rel="stylesheet" href="style.css?v=17" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" />
+  <link rel="preload" href="style.css?v=18" as="style" />
+  <link rel="preload" href="runner.js?v=18" as="script" />
+  <link rel="stylesheet" href="style.css?v=18" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -10717,10 +10709,8 @@ print(f"r = {r:.3f}, p = {p:.3f}")</code></pre>
       </svg>
     </button>
 
-    <script src="runner.js?v=17" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-core.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-python.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-bash.min.js" crossorigin="anonymous"></script>
+    <script src="runner.js?v=18" defer></script>
+    <script src="vendor/prism.js?v=18" defer></script>
   </main>
 <footer class="site-footer">
   made with

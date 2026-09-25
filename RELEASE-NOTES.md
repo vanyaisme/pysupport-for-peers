@@ -81,3 +81,10 @@ The follow-up removes topic-dependent side switching. Labels now stay left when 
 The approved version was saved in Git as `dc71876` before staging checks. Real iPhone review passed input, Stop, Reset, navigation and rotation, but found the floating theme button hidden on mobile. Removed that desktop-only restriction and retained Reset/theme/Back-to-top ordering at all screen widths. The WebKit check verifies theme switching and non-overlapping controls at 320px and 640px.
 
 The browser harness now accepts `TEST_BROWSER`, preserves isolation headers in injected worker failures, and isolates runtime fault tests from service-worker caching. The separate offline/update suite compares offline content with the actual online title instead of an outdated title string. These harness changes do not alter site content. Hosted validation results are recorded separately under `../verification/`. Production has not been deployed.
+
+
+## Security and loading stage — 25 September 2026
+
+Python now starts on demand and the first Run executes after startup. Removed the redundant page loader; syntax highlighting is served locally and available offline. Separate document/worker/service-worker policies block inline script execution and JavaScript eval while preserving verified WebAssembly loading. Updated the Node 22 LTS pin and fixed four development-tool advisories. Tutorial copy and visual styling are unchanged.
+
+Release `305840a9490ddfce4ec0`; source preview v18. The clean pinned-toolchain checks, Chromium/WebKit runtime suites and Chromium release suite passed. See [SECURITY-VALIDATION.md](SECURITY-VALIDATION.md) for evidence, staging status and limits.

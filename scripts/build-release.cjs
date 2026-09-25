@@ -19,14 +19,16 @@ function buildRelease(
   };
   const worker = fingerprint("pyodide-worker.js", read("pyodide-worker.js"));
   const runnerSource = read("runner.js").toString();
-  if (!runnerSource.includes("./pyodide-worker.js?v=17"))
+  if (!runnerSource.includes("./pyodide-worker.js?v=18"))
     throw new Error("Worker release URL drifted");
-  const runner = fingerprint("runner.js", runnerSource.replace("./pyodide-worker.js?v=17", worker));
+  const runner = fingerprint("runner.js", runnerSource.replace("./pyodide-worker.js?v=18", worker));
   const style = fingerprint("style.css", read("style.css"));
+  const prism = fingerprint("prism.js", read("vendor/prism.js"));
   let html = read("index.html").toString();
   for (const [from, to] of [
-    ["runner.js?v=17", runner],
-    ["style.css?v=17", style],
+    ["runner.js?v=18", runner],
+    ["style.css?v=18", style],
+    ["vendor/prism.js?v=18", prism],
   ]) {
     if (!html.includes(from)) throw new Error("Missing release reference: " + from);
     html = html.replaceAll(from, to);
@@ -55,6 +57,7 @@ function buildRelease(
   );
   files.set("release-manifest.json", JSON.stringify(release, null, 2) + "\n");
   files.set("_headers", headers);
+  files.set("vendor/prism-LICENSE.txt", read("vendor/prism-LICENSE.txt"));
   for (const name of ["404.html", "robots.txt", "sitemap.xml", "llms.txt"])
     files.set(name, read(name));
   if (path.resolve(output) === path.resolve(root))

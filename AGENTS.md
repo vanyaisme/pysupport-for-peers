@@ -20,10 +20,10 @@ A static single-page web application providing an interactive Python tutorial wi
 
 ### Load Order & CSP
 
-- **Head**: Pyodide CDN script (`defer` + SRI hash), `style.css` (preload → stylesheet), `runner.js` (preload).
-- **End of main**: `runner.js` (`defer`), Prism scripts (`prism-core`, `prism-python`, `prism-bash` — no defer).
-- **Worker**: Classic Worker via `new Worker("./pyodide-worker.js?v=17")`. CDN scripts are integrity-verified at runtime via `crypto.subtle` SHA-384 before execution.
-- **CSP meta tag**: scripts from `self`/`inline`/`eval`/`cdn.jsdelivr.net`/`blob:`; `worker-src self blob:`.
+- **Head**: `style.css` (preload → stylesheet), `runner.js` (preload), normal Google Fonts stylesheets. No main-document Pyodide loader.
+- **End of main**: deferred `runner.js` and local `vendor/prism.js` (core/Python/Bash, MIT). The release builder fingerprints and precaches both.
+- **Worker**: Classic Worker via `new Worker("./pyodide-worker.js?v=18")`. CDN scripts are integrity-verified at runtime via `crypto.subtle` SHA-384 before execution.
+- **CSP**: page scripts/workers are self-only, no inline/eval scripts. Worker response allows blob scripts plus `wasm-unsafe-eval`, not JS eval; connections to self and the pinned CDN directory. `_headers` supplies separate document, Python worker and service-worker policies; `serve.py` reads the same rules. Keep the document meta policy aligned with its headers.
 
 ### Tooling Note
 
@@ -70,11 +70,11 @@ The site uses `SharedArrayBuffer` and `Atomics` to allow the Python `input()` fu
 
 **Interrupt (protocol v2)**: A separate 1-byte `interruptSAB` is registered with `setInterruptBuffer`; the main thread sets it to SIGINT (2). A 4-byte `cancelSAB` holds a persistent cancellation flag for blocked stdin/package-loading checks. Stop notifies stdin directly; it never relies on a queued worker message. If the run has not ended within 1.5 seconds, terminate and replace the worker and all shared buffers. A forced restart clears temporary files. Ignore messages from old workers and old run IDs.
 
-**Startup**: A 30-second watchdog runs even before the first Run click. Loading, initialization failures, hard crashes and protocol mismatches have visible status and Retry. Every ready message must match protocol v2. Missing isolation shows a reload explanation.
+**Startup**: Python starts on the first Run (queuing that example), explicit Reset or Retry; reading does not start it. A 30-second watchdog runs from the initialization request. Failure or Reset discards pending execution. Loading, initialization failures, hard crashes and protocol mismatches have visible status and Retry. Every ready message must match protocol v2. Missing isolation shows a reload explanation.
 
 ### 2. Python Execution
 
-- **Pyodide**: Loaded from `cdn.jsdelivr.net` (v0.29.3). Main-thread script uses native SRI (`integrity` attribute). Worker scripts are integrity-verified at runtime via `crypto.subtle` SHA-384 hashes before execution (see `fetchWithIntegrity()` in `pyodide-worker.js`).
+- **Pyodide**: Loaded from `cdn.jsdelivr.net` (v0.29.3). Worker scripts are integrity-verified at runtime via `crypto.subtle` SHA-384 hashes before execution (see `fetchWithIntegrity()` in `pyodide-worker.js`).
 - **AST Execution**: The worker uses an AST-based `_run()` helper to provide REPL-style `repr()` output for the last expression in a block.
 - **Practice fixtures**: Synthetic text/CSV/EEG files are written at worker initialization. See README for the list. They persist across runs but are reset on worker replacement/reload.
 - **Lazy packages**: `loadPackagesFromImports(code)` resolves all imported packages, including mixed scientific imports. Load failures are surfaced.
@@ -85,9 +85,9 @@ The site uses `SharedArrayBuffer` and `Atomics` to allow the Python `input()` fu
 
 ### 3. Service Worker & Caching
 
-- **Cache name**: `python-guide-<release ID>` in deployments; `python-guide-v17` in source previews.
+- **Cache name**: `python-guide-<release ID>` in deployments; `python-guide-v18` in source previews.
 - **Build configuration**: `scripts/build-release.cjs` replaces the source `RELEASE` object with generated URLs and SHA-256 integrity. Keep its source-reference checks synchronized with source-preview URL versions.
-- **Offline reading**: Required HTML, CSS, JavaScript, manifest, favicon, PWA icons and social image are atomically precached. Reject installation if any required fetch/integrity check fails. Fonts, Prism and Python CDN dependencies are not precached; do not promise offline execution.
+- **Offline reading**: Required HTML, CSS, JavaScript, manifest, favicon, PWA icons and social image are atomically precached. Reject installation if any required fetch/integrity check fails. Fonts and Python CDN dependencies are not precached; do not promise offline execution.
 - **Fetch strategy**: Cache-first app-shell navigation for `/` and `/index.html` (including queries), and exact required asset URLs. Cache eviction recovery verifies the same release's bytes. Unknown paths and external URLs pass through.
 - **Lifecycle**: No `skipWaiting` or `clients.claim`. Show a waiting-update notice; activate after all old controlled tabs close. Delete only older caches in the `python-guide-` namespace.
 - **Release headers**: HTML, service worker and manifests revalidate; content-hashed `/releases/*` assets are immutable. Preserve COOP/COEP. Disable host HTML rewriting/injection because precached HTML is integrity-checked.
@@ -188,9 +188,9 @@ The sidebar navigation (`.sidebar-nav`) reveals on `mousemove` near the left edg
 
 Production assets, integrity values and release cache IDs are generated by `scripts/build-release.cjs`. Do not hand-edit `dist/`. Any core source change requires rebuilding and verifying the release. Stable runtime URLs must not appear in built HTML or the built runner.
 
-Source-preview versions remain coupled: `index.html` CSS/runner references, `runner.js` worker URL, `sw.js` `RELEASE.id` and asset URLs, and `scripts/build-release.cjs` source URL checks currently use v17. Update them together when bumping the preview version. Close all local site tabs before reopening to activate an update, or use the release preview for isolated verification.
+Source-preview versions remain coupled: `index.html` CSS/runner references, `runner.js` worker URL, `sw.js` `RELEASE.id` and asset URLs, and `scripts/build-release.cjs` source URL checks currently use v18. Update them together when bumping the preview version. Close all local site tabs before reopening to activate an update, or use the release preview for isolated verification.
 
-Pyodide version changes still require coordinated CDN version and SRI changes in `index.html` and `pyodide-worker.js`. Check official compatibility notes before upgrades. Favicon URLs in the page, source SW and builder must agree. Required icons/images are now precached and integrity-checked by the release builder.
+Pyodide version changes still require coordinated CDN version and SRI changes in `pyodide-worker.js`, `_headers` and browser fixtures. Check official compatibility notes before upgrades. Favicon URLs in the page, source SW and builder must agree. Required icons/images are now precached and integrity-checked by the release builder.
 
 Deployment uses Cloudflare Pages with `npm run build` and output directory `dist`. Do not publish the repository root or `node_modules`. CI uses the Node version pinned in `.nvmrc`. Preserve old hashed assets when possible during deployment transitions; never mutate a published hashed URL. See README for update/rollback and host HTML-transformation constraints.
 

@@ -1,12 +1,13 @@
 // The release builder replaces this local-preview configuration with hashed URLs
 // and integrity checks for every required asset.
 const RELEASE = {
-  id: "v17",
+  id: "v18",
   assets: [
     { url: "/index.html" },
-    { url: "/style.css?v=17" },
-    { url: "/runner.js?v=17" },
-    { url: "/pyodide-worker.js?v=17" },
+    { url: "/style.css?v=18" },
+    { url: "/runner.js?v=18" },
+    { url: "/vendor/prism.js?v=18" },
+    { url: "/pyodide-worker.js?v=18" },
     { url: "/manifest.json" },
     { url: "/favicon.png?v=5" },
     { url: "/icon-192.png" },

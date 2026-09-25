@@ -6,7 +6,7 @@ const { JSDOM } = require("jsdom");
 const source = fs.readFileSync(path.join(__dirname, "..", "runner.js"), "utf8");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 
-async function setup({ isolated = true, constructError = false } = {}) {
+async function setup({ isolated = true, constructError = false, start = true } = {}) {
   const dom = new JSDOM(html, {
     url: "https://test.local/",
     runScripts: "outside-only",
@@ -65,7 +65,7 @@ async function setup({ isolated = true, constructError = false } = {}) {
         timer.fn();
       }
   };
-  fire(1500);
+  if (start) w.document.querySelector("#floatingPythonReset")?.click();
   const ready = () => workers.at(-1).emit({ type: "ready", protocolVersion: 2 });
   const button = (id = "ex-016") =>
     w.document
@@ -111,7 +111,7 @@ test("initialization failure offers retry; stale worker messages cannot change t
   }
 });
 
-test("startup timeout is independent of clicking Run", async () => {
+test("startup timeout is enforced after an explicit runtime request", async () => {
   const e = await setup();
   try {
     e.fire(30000);
@@ -351,5 +351,32 @@ test("Reset replaces a blocked worker and shared buffers; late output cannot aff
     assert.equal(e.workers[1].messages.at(-1).type, "run");
   } finally {
     e.close();
+  }
+});
+
+test("reading stays idle; first Run queues exactly one execution and reset cancels it", async () => {
+  const e = await setup({ start: false });
+  try {
+    e.fire(1500);
+    assert.equal(e.workers.length, 0);
+    assert.equal(e.button().disabled, false);
+    assert.ok(e.status().hidden);
+    e.button().click();
+    assert.equal(e.workers.length, 1);
+    assert.equal(e.workers[0].messages.length, 1);
+    e.ready();
+    assert.equal(e.workers[0].messages.at(-1).type, "run");
+    e.workers[0].emit({ type: "done", runId: e.workers[0].messages.at(-1).runId, images: [] });
+  } finally {
+    e.close();
+  }
+  const reset = await setup({ start: false });
+  try {
+    reset.button().click();
+    reset.w.document.querySelector("#floatingPythonReset").click();
+    reset.ready();
+    assert.equal(reset.workers[1].messages.length, 1);
+  } finally {
+    reset.close();
   }
 });

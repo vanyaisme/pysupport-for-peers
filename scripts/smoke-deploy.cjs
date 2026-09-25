@@ -13,6 +13,10 @@ async function smoke(origin) {
   const manifest = await (await get("/release-manifest.json")).json();
   const homepage = await get("/");
   const html = Buffer.from(await homepage.arrayBuffer());
+  const documentPolicy = homepage.headers.get("content-security-policy") || "";
+  assert.match(documentPolicy, /script-src 'self';/);
+  assert.ok(!documentPolicy.includes("'unsafe-eval'"));
+  assert.match(documentPolicy, /frame-ancestors 'self'/);
   assert.equal(
     integrity(html),
     manifest.assets.find((asset) => asset.url === "/index.html").integrity,
@@ -36,6 +40,12 @@ async function smoke(origin) {
       "require-corp",
       asset.url + " COEP"
     );
+    if (asset.url.includes("/pyodide-worker.")) {
+      const policy = response.headers.get("content-security-policy") || "";
+      assert.match(policy, /'wasm-unsafe-eval'/);
+      assert.ok(!policy.includes("'unsafe-eval'"));
+      assert.match(policy, /default-src 'none'/);
+    }
     if (asset.url.startsWith("/releases/"))
       assert.match(response.headers.get("cache-control") || "", /immutable/);
   }

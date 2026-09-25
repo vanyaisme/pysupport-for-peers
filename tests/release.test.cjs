@@ -100,15 +100,15 @@ test("failed critical precache rejects installation and preserves the previous c
   const sw = serviceWorker({ fail: true });
   await assert.rejects(sw.lifecycle("install"), /Failed required asset/);
   assert.ok(sw.stores.has("python-guide-v15"));
-  assert.equal(sw.stores.get("python-guide-v17").size, 0);
+  assert.equal(sw.stores.get("python-guide-v18").size, 0);
 });
 
 test("activation only deletes this application's old caches", async () => {
   const sw = serviceWorker();
   await sw.lifecycle("install");
   await sw.lifecycle("activate");
-  assert.deepEqual([...sw.stores.keys()].sort(), ["python-guide-v17", "unrelated-app"]);
-  assert.equal((await sw.fetch("/style.css?v=17", "cors")).status, 200);
+  assert.deepEqual([...sw.stores.keys()].sort(), ["python-guide-v18", "unrelated-app"]);
+  assert.equal((await sw.fetch("/style.css?v=18", "cors")).status, 200);
   assert.equal(sw.fetch("/style.css?v=15", "cors"), undefined);
 });
 
@@ -176,4 +176,30 @@ test("operator table's equivalent expressions agree with its displayed result", 
   } finally {
     dom.window.close();
   }
+});
+
+test("document restrictions, local Prism provenance and offline inclusion stay consistent", () => {
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  const document = new JSDOM(html).window.document;
+  const policy = document.querySelector('meta[http-equiv="Content-Security-Policy"]').content;
+  assert.match(policy, /script-src 'self';/);
+  assert.doesNotMatch(policy, /'unsafe-eval'|script-src[^;]*'unsafe-inline'/);
+  assert.ok(fs.readFileSync(path.join(root, "_headers"), "utf8").includes(policy));
+  assert.equal(document.querySelectorAll('script[src^="https:"]').length, 0);
+  assert.equal(document.querySelectorAll("[onload]").length, 0);
+  const expected =
+    "/*! PrismJS 1.30.0 — MIT license; see prism-LICENSE.txt. */\n" +
+    ["core", "python", "bash"]
+      .map((part) =>
+        fs.readFileSync(
+          path.join(root, "node_modules/prismjs/components/prism-" + part + ".js"),
+          "utf8"
+        )
+      )
+      .join("\n");
+  assert.equal(fs.readFileSync(path.join(root, "vendor/prism.js"), "utf8"), expected);
+  assert.equal(
+    fs.readFileSync(path.join(root, "vendor/prism-LICENSE.txt"), "utf8"),
+    fs.readFileSync(path.join(root, "node_modules/prismjs/LICENSE"), "utf8")
+  );
 });

@@ -9,13 +9,25 @@ Usage:
 
 import os
 import sys
+from pathlib import Path
+from urllib.parse import urlsplit
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
 class COIHandler(SimpleHTTPRequestHandler):
     def end_headers(self):
-        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-        self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
+        pathname = urlsplit(self.path).path
+        matches = False
+        for line in Path("_headers").read_text().splitlines():
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not line.startswith(" "):
+                pattern = line.strip()
+                matches = (pathname.startswith(pattern[:-1]) if pattern.endswith("*")
+                           else pathname == pattern)
+            elif matches:
+                name, value = line.strip().split(":", 1)
+                self.send_header(name, value.strip())
         super().end_headers()
 
     def log_message(self, fmt, *args):

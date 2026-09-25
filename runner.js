@@ -670,6 +670,7 @@ const DEBUG = location.hostname === "localhost";
   let cancelView = null;
 
   let _worker = null;
+  let _pendingRun = null;
   let _runtimeState = "idle";
   let _startupTimer = null;
   let _cancelTimer = null;
@@ -696,7 +697,7 @@ const DEBUG = location.hostname === "localhost";
       dataView = new Uint8Array(new SharedArrayBuffer(65536));
       interruptView = new Uint8Array(new SharedArrayBuffer(1));
       cancelView = new Int32Array(new SharedArrayBuffer(4));
-      const worker = new Worker("./pyodide-worker.js?v=17");
+      const worker = new Worker("./pyodide-worker.js?v=18");
       _worker = worker;
       worker.addEventListener("message", (event) => {
         if (_worker === worker) handleWorkerMessage(event);
@@ -727,6 +728,7 @@ const DEBUG = location.hostname === "localhost";
   }
 
   function failWorker(message) {
+    _pendingRun = null;
     clearTimeout(_startupTimer);
     clearTimeout(_cancelTimer);
     const worker = _worker;
@@ -828,6 +830,9 @@ const DEBUG = location.hostname === "localhost";
       showRuntimeStatus("");
       setRunButtonsEnabled(true);
       resetButton.disabled = false;
+      const pending = _pendingRun;
+      _pendingRun = null;
+      if (pending) execCode(...pending);
     },
     init_error: (data) => failWorker(data.message),
     stdout: ({ text }) => {
@@ -1293,6 +1298,7 @@ const DEBUG = location.hostname === "localhost";
   async function execCode(pre, btn, code, args = []) {
     if (_running) return;
     if (_runtimeState !== "ready") {
+      _pendingRun = [pre, btn, code, args];
       getWorker();
       return;
     }
@@ -1441,18 +1447,13 @@ const DEBUG = location.hostname === "localhost";
     btn.type = "button";
     btn.className = "run-btn";
     btn.textContent = "▶ run";
-    btn.disabled = true;
+    btn.disabled = false;
     btn.setAttribute("aria-label", "Run Python code");
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       handleClick(pre, btn);
     });
     pre.parentElement.appendChild(btn);
-  });
-
-  // ── Warm up worker on load ───────────────────────────────────────
-  window.addEventListener("load", () => {
-    setTimeout(() => getWorker(), 1500);
   });
 })();
 

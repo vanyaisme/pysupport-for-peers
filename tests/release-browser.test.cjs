@@ -103,6 +103,7 @@ async function installed(page) {
   });
 }
 async function ready(page) {
+  await page.locator("#floatingPythonReset").evaluate((el) => el.click());
   await page.waitForFunction(() => document.querySelector(".run-btn")?.disabled === false, null, {
     timeout: 45000,
   });
@@ -126,6 +127,7 @@ test("first visit prepares offline reading, icons and isolation; local release s
     assert.equal(await e.page.evaluate(() => crossOriginIsolated), true);
     assert.equal(await e.page.evaluate(async () => (await fetch("/icon-192.png")).status), 200);
     assert.equal(await e.page.locator(".run-btn").count(), 261);
+    assert.ok((await e.page.locator(".token.keyword").count()) > 0, "highlighting works offline");
   } finally {
     await e.close();
   }

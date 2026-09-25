@@ -70,6 +70,8 @@ async function pageFor({ failFirst = false, corruptFirst = false, mobile = false
       return route.fulfill({
         contentType: "application/javascript",
         headers: {
+          "content-security-policy":
+            "default-src 'none'; script-src blob: 'wasm-unsafe-eval'; connect-src 'self' https://cdn.jsdelivr.net/pyodide/v0.29.3/full/",
           "cross-origin-opener-policy": "same-origin",
           "cross-origin-embedder-policy": "require-corp",
         },
@@ -98,16 +100,6 @@ ${source}`,
       });
     });
   }
-  await context.route("https://cdn.jsdelivr.net/npm/prismjs@1.30.0/**", (route) =>
-    route.fulfill({
-      path: path.join(
-        path.dirname(require.resolve("prismjs/package.json")),
-        new URL(route.request().url()).pathname.split("/prismjs@1.30.0/")[1]
-      ),
-      contentType: "application/javascript",
-      headers: { "access-control-allow-origin": "*" },
-    })
-  );
   await context.route("https://fonts.googleapis.com/**", (route) =>
     route.fulfill({ body: "", contentType: "text/css" })
   );
@@ -125,9 +117,13 @@ ${source}`,
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(origin, { waitUntil: "load" });
   assert.equal(await page.evaluate(() => crossOriginIsolated), true);
+  if (failFirst || corruptFirst)
+    await page.locator("#floatingPythonReset").evaluate((el) => el.click());
   return { context, page, close: () => context.close() };
 }
 async function ready(page) {
+  if (await page.evaluate(() => window.__testWorkers.length === 0))
+    await page.locator("#floatingPythonReset").evaluate((el) => el.click());
   await page.waitForFunction(
     () => document.querySelector(".run-btn") && !document.querySelector(".run-btn").disabled,
     null,
@@ -612,6 +608,64 @@ test("hovering chapter numbers reveals animated topic names across desktop width
         });
       }
     }
+  } finally {
+    await e.close();
+  }
+});
+
+test("reading downloads no Python; one Run click starts and executes under strict CSP", async () => {
+  const e = await pageFor();
+  try {
+    await e.page.waitForTimeout(1800);
+    assert.equal(await e.page.evaluate(() => window.__testWorkers.length), 0);
+    assert.equal(
+      await e.page.evaluate(() =>
+        performance
+          .getEntriesByType("resource")
+          .some((r) => /pyodide|cdn.jsdelivr.net/.test(r.name))
+      ),
+      false
+    );
+    assert.ok((await e.page.locator(".token.keyword").count()) > 0);
+    await run(e.page);
+    await finished(e.page);
+    assert.match(await output(e.page), /Total: 255/);
+    assert.equal(await e.page.evaluate(() => window.__testWorkers.length), 1);
+    const workerURL = await e.page.evaluate(
+      () =>
+        performance.getEntriesByType("resource").find((r) => r.name.includes("pyodide-worker"))
+          ?.name
+    );
+    const response = await e.context.request.get(workerURL || origin + "/pyodide-worker.js?v=18");
+    const policy = response.headers()["content-security-policy"];
+    assert.match(policy, /'wasm-unsafe-eval'/);
+    assert.ok(!policy.includes("'unsafe-eval'"));
+    await run(e.page); // Close the previous output.
+    await code(
+      e.page,
+      'import js\ntry:\n    js.eval("1+1")\nexcept Exception:\n    print("JavaScript eval blocked")\nelse:\n    print("EVAL WAS ALLOWED")'
+    );
+    await run(e.page);
+    await finished(e.page);
+    assert.match(await output(e.page), /JavaScript eval blocked/);
+    const blocked = await e.page.evaluate(async () => {
+      const violations = [];
+      document.addEventListener("securitypolicyviolation", (event) =>
+        violations.push(event.effectiveDirective)
+      );
+      const script = document.createElement("script");
+      script.textContent = "window.__inlineExecuted = true";
+      document.body.appendChild(script);
+      const remote = document.createElement("script");
+      remote.src = "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/components/prism-core.min.js";
+      document.body.appendChild(remote);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return { executed: !!window.__inlineExecuted, violations };
+    });
+    assert.equal(blocked.executed, false);
+    assert.ok(
+      blocked.violations.filter((directive) => directive === "script-src-elem").length >= 2
+    );
   } finally {
     await e.close();
   }
