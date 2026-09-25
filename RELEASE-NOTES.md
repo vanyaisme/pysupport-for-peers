@@ -87,4 +87,4 @@ The browser harness now accepts `TEST_BROWSER`, preserves isolation headers in i
 
 Python now starts on demand and the first Run executes after startup. Removed the redundant page loader; syntax highlighting is served locally and available offline. Separate document/worker/service-worker policies block inline script execution and JavaScript eval while preserving verified WebAssembly loading. Updated the Node 22 LTS pin and fixed four development-tool advisories. Tutorial copy and visual styling are unchanged.
 
-Release `305840a9490ddfce4ec0`; source preview v18. The clean pinned-toolchain checks, Chromium/WebKit runtime suites and Chromium release suite passed. See [SECURITY-VALIDATION.md](SECURITY-VALIDATION.md) for evidence, staging status and limits.
+Release `305840a9490ddfce4ec0`; source preview v18. The clean pinned-toolchain checks, Chromium/WebKit runtime suites, Chromium release suite, live hosted runtime/header/update checks and a fresh real-iPhone check passed. Staging is restored to the checkpoint; production remains unchanged. See [SECURITY-VALIDATION.md](SECURITY-VALIDATION.md) for evidence, staging status and limits.

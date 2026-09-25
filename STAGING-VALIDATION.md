@@ -10,7 +10,7 @@
 - iPhone-reviewed snapshot with the same final application bytes: https://d94fd013.python-peer-support-ref.pages.dev
 - Cloudflare Pages project: `python-peer-support-ref`; preview branch: `approved-preview`.
 
-Commits are local. No Git push or production deployment was performed. Production remains separate on `main`. The security/loading development stage has not started.
+Commits are local. No Git push or production deployment was performed. Production remains separate on `main`. This report covers the preceding reliability/UI checkpoint. The subsequent security/loading stage is recorded in [SECURITY-VALIDATION.md](SECURITY-VALIDATION.md).
 
 ## Completed checks
 
