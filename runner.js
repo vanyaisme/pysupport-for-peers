@@ -374,7 +374,19 @@
     topBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
   const themeBtn = document.getElementById("themeToggle");
-  const saved = localStorage.getItem("theme");
+  let saved = null;
+  try {
+    saved = localStorage.getItem("theme");
+  } catch {
+    // Browsers may disable storage; theme and lesson controls must still work.
+  }
+  function saveTheme(value) {
+    try {
+      localStorage.setItem("theme", value);
+    } catch {
+      // The selected theme still applies for this page visit.
+    }
+  }
   const VALID_THEMES = new Set(["light", "dark", ""]);
   if (saved !== null && VALID_THEMES.has(saved)) {
     document.documentElement.dataset.theme = saved;
@@ -398,7 +410,7 @@
       themeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
       if (floatingThemeBtn)
         floatingThemeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
-      localStorage.setItem("theme", isLight ? "" : "light");
+      saveTheme(isLight ? "" : "light");
     });
 
   if (floatingThemeBtn)
@@ -407,7 +419,7 @@
       document.documentElement.dataset.theme = isLight ? "" : "light";
       floatingThemeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
       if (themeBtn) themeBtn.setAttribute("aria-pressed", isLight ? "true" : "false");
-      localStorage.setItem("theme", isLight ? "" : "light");
+      saveTheme(isLight ? "" : "light");
     });
 
   // Collapsible scenario cards
@@ -623,6 +635,157 @@
 
 const DEBUG = location.hostname === "localhost";
 
+(function () {
+  "use strict";
+  const storageKey = "pysupport-reading-place-v1";
+  const card = document.getElementById("readingResume");
+  const link = document.getElementById("readingResumeLink");
+  const label = document.getElementById("readingResumeTitle");
+  const clear = document.getElementById("clearReadingProgress");
+  const lessons = Array.from(document.querySelectorAll(".section[id]"))
+    .filter((section) => /^s\d+$/.test(section.id))
+    .map((section) => ({
+      section,
+      heading: section.querySelector(".section-header h2"),
+      panels: Array.from(section.querySelectorAll(".scenario-title")).filter(
+        (title) => title.closest(".section") === section && !title.closest('[role="dialog"]')
+      ),
+    }));
+  const titleText = (el) => el.textContent.replace(/\s+/g, " ").trim().slice(0, 200);
+  function decode(value) {
+    try {
+      const data = JSON.parse(value);
+      const lesson = lessons.find((item) => item.section.id === data?.section);
+      if (data?.version !== 1 || !lesson || !Number.isInteger(data.panel) || data.panel < -1)
+        return null;
+      // A content edit can move/remove a panel. Fall back to the chapter rather
+      // than resume at a different panel that inherited its index.
+      const panel = lesson.panels[data.panel];
+      const index = panel && titleText(panel) === data.title ? data.panel : -1;
+      return {
+        version: 1,
+        section: lesson.section.id,
+        panel: index,
+        title: index < 0 ? "" : titleText(panel),
+      };
+    } catch {
+      return null;
+    }
+  }
+  let saved = null;
+  let writable = true;
+  try {
+    saved = decode(localStorage.getItem(storageKey));
+  } catch {
+    writable = false;
+  }
+  function render() {
+    card.hidden = !saved;
+    if (!saved) return;
+    const lesson = lessons.find((item) => item.section.id === saved.section);
+    link.href = "#" + saved.section;
+    const chapter = `${saved.section.slice(1).padStart(2, "0")} · ${titleText(lesson.heading)}`;
+    label.textContent = chapter + (saved.title ? ` — ${saved.title}` : "");
+  }
+  render();
+
+  let timer = null;
+  function savePosition() {
+    timer = null;
+    if (!writable || document.body.style.position === "fixed") return;
+    const line = Math.min(window.innerHeight * 0.25, 160);
+    // Some legacy chapter containers enclose later chapters. Use the last
+    // heading passed, so an enclosing chapter cannot take over their bookmarks.
+    const lesson = lessons
+      .slice()
+      .reverse()
+      .find(({ section }) => section.getBoundingClientRect().top <= line);
+    // Returning to Contents or reading an exercise dialog must not erase a place.
+    if (!lesson || lesson.section.getBoundingClientRect().bottom <= line) return;
+    let panel = -1;
+    lesson.panels.forEach((title, index) => {
+      if (!title.getClientRects().length) return;
+      if (
+        title.getBoundingClientRect().top <= line &&
+        title.closest(".scenario").getBoundingClientRect().bottom > line
+      )
+        panel = index;
+    });
+    const next = {
+      version: 1,
+      section: lesson.section.id,
+      panel,
+      title: panel < 0 ? "" : titleText(lesson.panels[panel]),
+    };
+    if (JSON.stringify(next) === JSON.stringify(saved)) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      saved = next;
+      render();
+    } catch {
+      writable = false;
+    }
+  }
+  window.addEventListener(
+    "scroll",
+    () => {
+      clearTimeout(timer);
+      timer = setTimeout(savePosition, 400);
+    },
+    { passive: true }
+  );
+  function flush() {
+    if (timer === null) return;
+    clearTimeout(timer);
+    savePosition();
+  }
+  window.addEventListener("pagehide", flush);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flush();
+  });
+  window.addEventListener("storage", (event) => {
+    if (event.key !== storageKey && event.key !== null) return;
+    clearTimeout(timer);
+    timer = null;
+    saved = decode(event.newValue);
+    render();
+  });
+
+  link.addEventListener("click", (event) => {
+    if (!saved || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const lesson = lessons.find((item) => item.section.id === saved.section);
+    const target = lesson.panels[saved.panel] || lesson.heading;
+    let panel = target.closest(".scenario");
+    while (panel) {
+      panel.classList.remove("collapsed");
+      panel.querySelector(":scope > .scenario-title")?.setAttribute("aria-expanded", "true");
+      panel = panel.parentElement?.closest(".scenario");
+    }
+    history.pushState(null, "", "#" + saved.section);
+    if (!target.hasAttribute("tabindex")) target.tabIndex = -1;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: "start", behavior: "instant" });
+  });
+  clear.addEventListener("click", () => {
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {
+      document.getElementById("_sr_status").textContent =
+        "The saved place could not be cleared. Check your browser's storage settings.";
+      return;
+    }
+    clearTimeout(timer);
+    timer = null;
+    saved = null;
+    render();
+    const heading = document.querySelector(".toc h2");
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+    document.getElementById("_sr_status").textContent = "Saved reading place cleared.";
+  });
+})();
+
 // PYTHON RUNNER — Web Worker + SharedArrayBuffer + Atomics
 (function () {
   "use strict";
@@ -697,7 +860,7 @@ const DEBUG = location.hostname === "localhost";
       dataView = new Uint8Array(new SharedArrayBuffer(65536));
       interruptView = new Uint8Array(new SharedArrayBuffer(1));
       cancelView = new Int32Array(new SharedArrayBuffer(4));
-      const worker = new Worker("./pyodide-worker.js?v=19");
+      const worker = new Worker("./pyodide-worker.js?v=20");
       _worker = worker;
       worker.addEventListener("message", (event) => {
         if (_worker === worker) handleWorkerMessage(event);

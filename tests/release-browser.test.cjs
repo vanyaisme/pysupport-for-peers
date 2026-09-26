@@ -140,6 +140,13 @@ test("first visit prepares offline reading, icons and isolation; local release s
     await smoke(e.origin);
     const onlineTitle = await e.page.title();
     assert.ok(onlineTitle.trim(), "the online page must have a title");
+    await e.page
+      .locator("#s16 .scenario-title")
+      .first()
+      .evaluate((el) => el.scrollIntoView({ block: "start", behavior: "instant" }));
+    await e.page.waitForFunction(
+      () => JSON.parse(localStorage.getItem("pysupport-reading-place-v1"))?.section === "s16"
+    );
     await e.setOffline(true);
     await e.page.goto(e.origin + "/?from=offline");
     assert.equal(await e.page.title(), onlineTitle);
@@ -147,6 +154,15 @@ test("first visit prepares offline reading, icons and isolation; local release s
     assert.equal(await e.page.evaluate(async () => (await fetch("/icon-192.png")).status), 200);
     assert.equal(await e.page.locator(".run-btn").count(), 261);
     assert.ok((await e.page.locator(".token.keyword").count()) > 0, "highlighting works offline");
+    await e.page.getByRole("link", { name: /Continue reading/ }).click();
+    assert.equal(new URL(e.page.url()).hash, "#s16");
+    assert.equal(
+      await e.page
+        .locator("#s16 .scenario-title")
+        .first()
+        .evaluate((el) => el === document.activeElement),
+      true
+    );
   } finally {
     await e.close();
   }

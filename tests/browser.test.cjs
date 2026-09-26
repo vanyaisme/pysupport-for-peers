@@ -546,6 +546,90 @@ test("reset control and dialogs reflow on narrow and enlarged layouts", async ()
   }
 });
 
+test("reading place persists, resumes a collapsed panel and respects explicit chapter links", async () => {
+  const e = await pageFor();
+  try {
+    const key = "pysupport-reading-place-v1";
+    assert.equal(await e.page.locator("#readingResume").isVisible(), false);
+    const target = e.page.locator("#s16 .scenario-title").first();
+    await target.evaluate((el) => el.scrollIntoView({ block: "start", behavior: "instant" }));
+    await e.page.waitForFunction(
+      (key) => JSON.parse(localStorage.getItem(key))?.section === "s16",
+      key
+    );
+    const saved = await e.page.evaluate((key) => localStorage.getItem(key), key);
+    assert.equal(JSON.parse(saved).panel, 0);
+    await e.page.goto(origin);
+    await e.page.getByRole("link", { name: /Continue reading/ }).waitFor();
+    assert.ok(await e.page.evaluate(() => scrollY < 400), "no automatic resume");
+    assert.equal(await e.page.evaluate((key) => localStorage.getItem(key), key), saved);
+    await e.page
+      .locator("#s16 .scenario-title")
+      .first()
+      .evaluate((el) => {
+        el.closest(".scenario").classList.add("collapsed");
+        el.setAttribute("aria-expanded", "false");
+      });
+    await e.page.getByRole("link", { name: /Continue reading/ }).click();
+    assert.equal(await target.getAttribute("aria-expanded"), "true");
+    assert.equal(await target.evaluate((el) => el === document.activeElement), true);
+    assert.ok(Math.abs((await target.boundingBox()).y) < 80);
+    assert.equal(await e.page.evaluate(() => window.__testWorkers.length), 0);
+    await e.page.goto(origin + "/#s3");
+    await e.page.waitForFunction(
+      () => Math.abs(document.querySelector("#s3").getBoundingClientRect().top) < 150
+    );
+    assert.equal(new URL(e.page.url()).hash, "#s3");
+    await e.page.goto(origin);
+    await e.page.evaluate(() => {
+      localStorage.setItem("theme", "light");
+      localStorage.setItem("unrelated", "keep");
+    });
+    await e.page.getByRole("button", { name: "Clear saved reading place" }).click();
+    assert.equal(await e.page.locator("#readingResume").isVisible(), false);
+    assert.equal(await e.page.evaluate((key) => localStorage.getItem(key), key), null);
+    assert.equal(await e.page.evaluate(() => localStorage.getItem("unrelated")), "keep");
+    assert.equal(await e.page.evaluate(() => localStorage.getItem("theme")), "light");
+  } finally {
+    await e.close();
+  }
+});
+
+test("saved-place controls reflow on phones and clearing synchronizes across tabs", async () => {
+  const e = await pageFor({ mobile: true });
+  try {
+    await e.page
+      .locator("#s28 .scenario-title")
+      .first()
+      .evaluate((el) => el.scrollIntoView({ block: "start", behavior: "instant" }));
+    await e.page.waitForFunction(
+      () => JSON.parse(localStorage.getItem("pysupport-reading-place-v1"))?.section === "s28"
+    );
+    const other = await e.context.newPage();
+    await other.goto(origin);
+    await e.page.goto(origin);
+    for (const width of [320, 390, 768]) {
+      await e.page.setViewportSize({ width, height: 844 });
+      const box = await e.page.locator("#readingResume").boundingBox();
+      assert.ok(box.x >= 0 && box.x + box.width <= width);
+      for (const selector of ["#readingResumeLink", "#clearReadingProgress"]) {
+        const control = await e.page.locator(selector).boundingBox();
+        assert.ok(control.width >= 44 && control.height >= 44);
+        assert.ok(control.x >= box.x && control.x + control.width <= box.x + box.width);
+      }
+      if (process.env.TEST_SCREENSHOT_DIR)
+        await e.page.screenshot({
+          path: path.join(process.env.TEST_SCREENSHOT_DIR, `reading-place-${width}.png`),
+        });
+    }
+    await e.page.getByRole("button", { name: "Clear saved reading place" }).click();
+    await other.locator("#readingResume").waitFor({ state: "hidden" });
+    await other.close();
+  } finally {
+    await e.close();
+  }
+});
+
 test("no uncaught page JavaScript errors during browser scenarios", () => {
   assert.deepEqual(errors, []);
 });

@@ -1,3 +1,9 @@
+# Saved reading place — staging
+
+The guide now remembers the current chapter and panel in this browser. A **Continue reading** card in Contents resumes there and opens collapsed panels. **Clear** removes the bookmark. Arrival and direct chapter links never automatically redirect to it. Reading progress is local to this browser/site address and works with cached offline reading; Python inputs, outputs and files are not stored. Reset Python leaves the bookmark intact. Storage failures no longer interrupt theme or lesson controls.
+
+Preview: https://9e7d1d03.python-peer-support-ref.pages.dev — release `88192cd50b45ed745bc7`, source preview v20. Lesson search is deferred. See [READING-PROGRESS-VALIDATION.md](READING-PROGRESS-VALIDATION.md) for tests and scope. Production remains unchanged.
+
 # Release verification — 26 September 2026
 
 See [RELEASE-CHECK.md](RELEASE-CHECK.md) for the current six-area readiness matrix and evidence. Clean Parallels Ubuntu validation now passes 32 runtime/UI, 265 corpus and six release checks, plus 17 runtime/interface scenarios and six lifecycle scenarios in each of Chromium, Firefox and WebKit. See [VM-VALIDATION.md](VM-VALIDATION.md). A Git-built Cloudflare preview passed hosted integrity, headers and real downloads. The development server now handles idle browser connections concurrently; lifecycle tests use portable activation checks, a verified origin outage for WebKit and Firefox offline emulation without conflicting test request interception.

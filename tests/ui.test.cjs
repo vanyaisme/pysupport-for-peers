@@ -6,7 +6,13 @@ const { JSDOM } = require("jsdom");
 const source = fs.readFileSync(path.join(__dirname, "..", "runner.js"), "utf8");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 
-async function setup({ isolated = true, constructError = false, start = true } = {}) {
+async function setup({
+  isolated = true,
+  constructError = false,
+  start = true,
+  readingPlace,
+  blockStorage = false,
+} = {}) {
   const dom = new JSDOM(html, {
     url: "https://test.local/",
     runScripts: "outside-only",
@@ -15,6 +21,14 @@ async function setup({ isolated = true, constructError = false, start = true } =
   const w = dom.window;
   await new Promise((resolve) => w.addEventListener("load", resolve, { once: true }));
   const workers = [];
+  if (readingPlace !== undefined)
+    w.localStorage.setItem("pysupport-reading-place-v1", readingPlace);
+  if (blockStorage) {
+    for (const method of ["getItem", "setItem", "removeItem"])
+      w.Storage.prototype[method] = () => {
+        throw new Error("Storage blocked");
+      };
+  }
   const timers = new Map();
   let nextTimer = 0;
   w.setTimeout = (fn, ms) => {
@@ -37,6 +51,7 @@ async function setup({ isolated = true, constructError = false, start = true } =
   w.URL.createObjectURL = () => "blob:test-" + ++blobId;
   w.URL.revokeObjectURL = (url) => revoked.push(url);
   w.scrollTo = () => {};
+  w.HTMLElement.prototype.scrollIntoView = () => {};
   w.Worker = class {
     constructor() {
       if (constructError) throw new Error("Worker unavailable");
@@ -79,6 +94,77 @@ async function setup({ isolated = true, constructError = false, start = true } =
   const status = () => w.document.querySelector(".py-runtime-status");
   return { dom, w, workers, fire, ready, button, status, revoked, close: () => dom.window.close() };
 }
+
+test("saved reading place resumes nested panels without starting Python, then clears only its key", async () => {
+  const e = await setup({ start: false });
+  try {
+    const d = e.w.document;
+    const section = d.querySelector("#s16");
+    const titles = [...section.querySelectorAll(".scenario-title")].filter(
+      (el) => !el.closest('[role="dialog"]')
+    );
+    const target = titles.at(-1);
+    const title = target.textContent.replace(/\s+/g, " ").trim().slice(0, 200);
+    const record = JSON.stringify({ version: 1, section: "s16", panel: titles.length - 1, title });
+    e.w.localStorage.setItem("pysupport-reading-place-v1", record);
+    e.w.localStorage.setItem("theme", "light");
+    e.w.localStorage.setItem("unrelated", "keep");
+    e.w.dispatchEvent(
+      new e.w.StorageEvent("storage", { key: "pysupport-reading-place-v1", newValue: record })
+    );
+    target.closest(".scenario").classList.add("collapsed");
+    assert.equal(d.querySelector("#readingResume").hidden, false);
+    d.querySelector("#readingResumeLink").click();
+    assert.equal(target.closest(".scenario").classList.contains("collapsed"), false);
+    assert.equal(target.getAttribute("aria-expanded"), "true");
+    assert.equal(d.activeElement, target);
+    assert.equal(e.w.location.hash, "#s16");
+    assert.equal(e.workers.length, 0);
+    d.querySelector("#clearReadingProgress").click();
+    assert.equal(d.querySelector("#readingResume").hidden, true);
+    assert.equal(e.w.localStorage.getItem("pysupport-reading-place-v1"), null);
+    assert.equal(e.w.localStorage.getItem("theme"), "light");
+    assert.equal(e.w.localStorage.getItem("unrelated"), "keep");
+  } finally {
+    e.close();
+  }
+});
+
+test("invalid/stale bookmarks and blocked storage do not break reading or runtime controls", async () => {
+  for (const readingPlace of [
+    "{invalid",
+    JSON.stringify({ version: 99, section: "s16", panel: 0 }),
+    JSON.stringify({ version: 1, section: "s999", panel: 0 }),
+  ]) {
+    const e = await setup({ start: false, readingPlace });
+    try {
+      assert.equal(e.w.document.querySelector("#readingResume").hidden, true);
+      assert.equal(e.workers.length, 0);
+    } finally {
+      e.close();
+    }
+  }
+  const stale = await setup({
+    start: false,
+    readingPlace: JSON.stringify({ version: 1, section: "s16", panel: 0, title: "Removed panel" }),
+  });
+  try {
+    stale.w.document.querySelector("#readingResumeLink").click();
+    assert.equal(stale.w.document.activeElement, stale.w.document.querySelector("#s16 h2"));
+  } finally {
+    stale.close();
+  }
+  const blocked = await setup({ start: false, blockStorage: true });
+  try {
+    assert.equal(blocked.w.document.querySelector("#readingResume").hidden, true);
+    blocked.w.document.querySelector("#themeToggle").click();
+    assert.equal(blocked.w.document.documentElement.dataset.theme, "light");
+    blocked.button().click();
+    assert.equal(blocked.workers.length, 1);
+  } finally {
+    blocked.close();
+  }
+});
 
 test("normal startup enables every Run button and hides loading status", async () => {
   const e = await setup();
