@@ -103,6 +103,10 @@ async function environment({ fail = "", corrupt = false } = {}) {
         originUnavailable = value;
         if (value) await assert.rejects(fetch(origin + "/offline-probe"));
       } else {
+        // Firefox interception can reject SW responses as NS_ERROR_OFFLINE,
+        // even when only an unrelated font URL is routed. Leave network handling
+        // to the browser for the offline phase and any subsequent online retry.
+        if (value && browserName === "firefox") await context.unrouteAll({ behavior: "wait" });
         await context.setOffline(value);
       }
     },
