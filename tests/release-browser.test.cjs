@@ -36,9 +36,14 @@ after(async () => {
 
 async function environment({ fail = "", corrupt = false } = {}) {
   let folder = first;
+  let originUnavailable = false;
   const server = createPreview(
     () => folder,
     (request, response) => {
+      if (originUnavailable) {
+        request.socket.destroy();
+        return true;
+      }
       if (!fail || !request.url.includes(fail)) return false;
       response.setHeader("Cross-Origin-Opener-Policy", "same-origin");
       response.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
@@ -91,6 +96,16 @@ async function environment({ fail = "", corrupt = false } = {}) {
       fail = name;
       corrupt = damaged;
     },
+    async setOffline(value) {
+      if (browserName === "webkit") {
+        // WebKit's emulation rejects even literal SW responses (#42775).
+        // Drop real origin connections instead; this does not emulate navigator.onLine.
+        originUnavailable = value;
+        if (value) await assert.rejects(fetch(origin + "/offline-probe"));
+      } else {
+        await context.setOffline(value);
+      }
+    },
     async close() {
       await context.close();
       await new Promise((resolve) => server.close(resolve));
@@ -121,7 +136,7 @@ test("first visit prepares offline reading, icons and isolation; local release s
     await smoke(e.origin);
     const onlineTitle = await e.page.title();
     assert.ok(onlineTitle.trim(), "the online page must have a title");
-    await e.context.setOffline(true);
+    await e.setOffline(true);
     await e.page.goto(e.origin + "/?from=offline");
     assert.equal(await e.page.title(), onlineTitle);
     assert.equal(await e.page.evaluate(() => crossOriginIsolated), true);
@@ -172,12 +187,16 @@ test("update waits during Python input; old tabs stay coherent, then new release
       .click();
     await e.page.getByRole("textbox", { name: "Python input()" }).waitFor();
     e.next();
-    const newWorker = e.context.waitForEvent("serviceworker");
     await e.page.evaluate(async () => {
       await (await navigator.serviceWorker.getRegistration()).update();
     });
-    const updated = await newWorker;
     await e.page.locator(".site-update-status").waitFor();
+    assert.equal(
+      await e.page.evaluate(
+        async () => (await navigator.serviceWorker.getRegistration()).waiting?.state
+      ),
+      "installed"
+    );
     assert.equal(await e.page.getByRole("textbox", { name: "Python input()" }).count(), 1);
     await e.page.getByRole("textbox", { name: "Python input()" }).fill("Zoë 🧠");
     await e.page.getByRole("textbox", { name: "Python input()" }).press("Enter");
@@ -187,23 +206,30 @@ test("update waits during Python input; old tabs stay coherent, then new release
     const other = await e.context.newPage();
     await other.goto(e.origin);
     assert.ok(!(await other.title()).startsWith("Updated release"));
-    await e.context.setOffline(true);
+    await e.setOffline(true);
     await other.reload();
     assert.ok(!(await other.title()).startsWith("Updated release"));
     const firstRunner = release1.assets.find((asset) => asset.url.includes("/runner.")).url;
     assert.ok(await other.locator(`script[src="${firstRunner}"]`).count());
-    const activation = updated.evaluate(
-      () =>
-        new Promise((resolve) =>
-          self.addEventListener("activate", () => resolve(true), { once: true })
-        )
-    );
     await e.page.close();
     await other.close();
-    await activation;
-    await e.context.setOffline(false);
-    const monitor = await e.context.newPage();
-    await monitor.goto(e.origin);
+    await e.setOffline(false);
+    // Worker inspection events are Chromium-only. Observe activation through
+    // a real new document, closing any probe that raced the last client teardown.
+    let monitor;
+    const deadline = Date.now() + 10000;
+    do {
+      monitor = await e.context.newPage();
+      await monitor.goto(e.origin);
+      if ((await monitor.title()).startsWith("Updated release")) break;
+      await monitor.close();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } while (Date.now() < deadline);
+    assert.equal(
+      monitor.isClosed(),
+      false,
+      "the waiting release must activate after all old tabs close"
+    );
     assert.ok((await monitor.title()).startsWith("Updated release"));
     await ready(monitor);
     await example(monitor, "ex-016")
@@ -244,11 +270,11 @@ test("failed upgrade retains the working release and a later retry installs succ
       return result;
     });
     assert.equal(rejected, "redundant");
-    await e.context.setOffline(true);
+    await e.setOffline(true);
     await e.page.reload();
     assert.ok(!(await e.page.title()).startsWith("Updated release"));
     assert.ok((await e.page.evaluate(() => caches.keys())).includes("python-guide-" + release1.id));
-    await e.context.setOffline(false);
+    await e.setOffline(false);
     e.fail("");
     await e.page.evaluate(async () => {
       await (await navigator.serviceWorker.getRegistration()).update();

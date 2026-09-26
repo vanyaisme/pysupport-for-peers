@@ -1,3 +1,9 @@
+# Release verification — 26 September 2026
+
+See [RELEASE-CHECK.md](RELEASE-CHECK.md) for the current six-area readiness matrix and evidence. Chromium and WebKit passed 17 runtime/interface scenarios and six lifecycle scenarios each. A Git-built Cloudflare preview passed hosted integrity, headers and real downloads. The development server now handles idle browser connections concurrently; lifecycle tests use portable activation checks and a verified origin outage for WebKit.
+
+Cloudflare's automatic build settings now build and publish `dist`. Production remains unchanged. GitHub history was pushed on a release-check branch and CI was expanded to Chromium/Firefox/WebKit, but GitHub blocked execution because of an account billing lock. Actual screen-reader speech verification is still pending. These are release-verification gaps, so enhancements and production publishing remain separate. Earlier sections below retain their original historical scope.
+
 # First reliability release
 
 Completed locally: 24 September 2026. Production has not been changed.

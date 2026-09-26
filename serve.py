@@ -11,7 +11,7 @@ import os
 import sys
 from pathlib import Path
 from urllib.parse import urlsplit
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 
 class COIHandler(SimpleHTTPRequestHandler):
@@ -36,6 +36,7 @@ class COIHandler(SimpleHTTPRequestHandler):
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-server = HTTPServer(("127.0.0.1", port), COIHandler)
+# Browsers may pre-open idle sockets; one must not block all asset requests.
+server = ThreadingHTTPServer(("127.0.0.1", port), COIHandler)
 print(f"Serving at http://127.0.0.1:{server.server_port}  (COOP + COEP enabled)")
 server.serve_forever()

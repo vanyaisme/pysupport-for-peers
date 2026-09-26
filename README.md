@@ -282,6 +282,8 @@ Optional environment variables: `TEST_BROWSER=chromium|firefox|webkit` selects t
 
 The GitHub workflow installs the locked dependencies on Linux, runs the complete code/example/release checks, and then runs both browser suites in Chromium, Firefox and WebKit. A configured workflow is not evidence of a successful run: inspect its actual result before release. See `RELEASE-CHECK.md` for the latest evidence and blockers.
 
+Lifecycle tests use browser offline emulation in Chromium/Firefox and a verified origin outage in WebKit because its offline emulation currently rejects service-worker navigations. The development server handles concurrent connections so browser pre-opened sockets cannot stall page loading. The release-check report records the test methods and their limits.
+
 Cloudflare's connected Git project uses `main` for automatic production deployments and other branches for previews. Its build command must be `npm run build`, with output directory `dist` and the repository root as the working directory. The local `site/` folder is the Git root, so do not enter `site` as Cloudflare's root directory. These settings were corrected on 26 September 2026; the preceding settings were blank. Pushing or merging to remote `main` publishes production independently of GitHub Actions, so do that only after explicit release approval and passing checks. Use a release-check branch for validation.
 
 ### Dependency maintenance
