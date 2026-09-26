@@ -861,7 +861,7 @@ const DEBUG = location.hostname === "localhost";
       dataView = new Uint8Array(new SharedArrayBuffer(65536));
       interruptView = new Uint8Array(new SharedArrayBuffer(1));
       cancelView = new Int32Array(new SharedArrayBuffer(4));
-      const worker = new Worker("./pyodide-worker.js?v=21");
+      const worker = new Worker("./pyodide-worker.js?v=22");
       _worker = worker;
       worker.addEventListener("message", (event) => {
         if (_worker === worker) handleWorkerMessage(event);

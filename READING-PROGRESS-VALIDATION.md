@@ -1,8 +1,14 @@
 # Saved reading place validation
 
+## Borderless refinement
+
+Current preview: https://7362a814.python-peer-support-ref.pages.dev — release `43fb666113e638b94c2b`, source preview v22.
+
+Removed the button-group border and fill. Resume now uses a small, spaced label and normal chapter text; the accent/background appears on interaction. A thin SVG clear icon replaces the heavy text glyph while retaining its 44px target and accessible name. This is a visual change only. Lint, formatting, six release tests, and both bookmark interaction/layout tests in Chromium and WebKit passed. Long labels and both themes were visually reviewed at 320/768/1440px. Evidence: `../verification/soft-resume-*`.
+
 ## Compact control refinement
 
-Current preview: https://664629f5.python-peer-support-ref.pages.dev — release `2040845ac76f92591d58`, source preview v21.
+Previous preview: https://664629f5.python-peer-support-ref.pages.dev — release `2040845ac76f92591d58`, source preview v21.
 
 The large saved-place card was replaced by **Resume · chapter name ×** beside Contents. The panel name and local-device note remain in the link tooltip; the visible label is just the chapter. The separate × button retains its accessible Clear name and a 44px target. On narrow screens the control moves onto one compact row beneath the header; long labels truncate visually while their full text remains available to assistive technology. Colors use the existing light/dark theme variables. Bookmark storage and resume behavior are unchanged.
 

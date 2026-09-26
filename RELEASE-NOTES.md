@@ -1,6 +1,8 @@
 # Saved reading place — staging
 
-Visual refinement: **Resume · chapter name ×** now sits beside Contents, using the current theme colors. The large card is removed; phones use one compact row below the heading. Current preview: https://664629f5.python-peer-support-ref.pages.dev — release `2040845ac76f92591d58`, source preview v21. Resume/Clear behavior and stored bookmarks are unchanged. Targeted Chromium/WebKit checks and long-label light/dark layout review passed.
+Latest visual refinement: Resume is now a borderless text control with a quiet uppercase label, theme-colored chapter name and thin clear icon. Background and accent feedback appear on hover/focus. Preview: https://7362a814.python-peer-support-ref.pages.dev — release `43fb666113e638b94c2b`, source preview v22. Bookmark behavior is unchanged; targeted browser/layout and release checks passed.
+
+Previous refinement: **Resume · chapter name ×** moved beside Contents, using the theme colors. The large card was removed; phones use one compact row below the heading. Previous preview: https://664629f5.python-peer-support-ref.pages.dev — release `2040845ac76f92591d58`, source preview v21. Resume/Clear behavior and stored bookmarks were unchanged. Targeted Chromium/WebKit checks and long-label light/dark layout review passed.
 
 Initial implementation:
 

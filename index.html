@@ -49,9 +49,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" />
-  <link rel="preload" href="style.css?v=21" as="style" />
-  <link rel="preload" href="runner.js?v=21" as="script" />
-  <link rel="stylesheet" href="style.css?v=21" />
+  <link rel="preload" href="style.css?v=22" as="style" />
+  <link rel="preload" href="runner.js?v=22" as="script" />
+  <link rel="stylesheet" href="style.css?v=22" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -136,8 +136,13 @@
       <div class="toc-header">
         <h2>Contents</h2>
         <div class="reading-resume" id="readingResume" role="group" aria-label="Saved reading place" hidden>
-          <a id="readingResumeLink" href="#s1"><span class="reading-resume-prefix">Resume ·</span><span id="readingResumeTitle"></span></a>
-          <button type="button" id="clearReadingProgress" aria-label="Clear saved reading place" title="Clear saved reading place">×</button>
+          <a id="readingResumeLink" href="#s1"><span class="reading-resume-prefix">Resume</span><span id="readingResumeTitle"></span></a>
+          <button type="button" id="clearReadingProgress" aria-label="Clear saved reading place" title="Clear saved reading place">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <title>Clear saved reading place</title>
+              <path stroke-linecap="round" d="m6 6 12 12M18 6 6 18" />
+            </svg>
+          </button>
         </div>
         <button type="button" class="theme-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle dark/light theme"
           aria-pressed="true">
@@ -10713,8 +10718,8 @@ print(f"r = {r:.3f}, p = {p:.3f}")</code></pre>
       </svg>
     </button>
 
-    <script src="runner.js?v=21" defer></script>
-    <script src="vendor/prism.js?v=21" defer></script>
+    <script src="runner.js?v=22" defer></script>
+    <script src="vendor/prism.js?v=22" defer></script>
   </main>
 <footer class="site-footer">
   made with
