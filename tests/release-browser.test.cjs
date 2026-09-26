@@ -154,7 +154,7 @@ test("first visit prepares offline reading, icons and isolation; local release s
     assert.equal(await e.page.evaluate(async () => (await fetch("/icon-192.png")).status), 200);
     assert.equal(await e.page.locator(".run-btn").count(), 261);
     assert.ok((await e.page.locator(".token.keyword").count()) > 0, "highlighting works offline");
-    await e.page.getByRole("link", { name: /Continue reading/ }).click();
+    await e.page.getByRole("link", { name: /Resume/ }).click();
     assert.equal(new URL(e.page.url()).hash, "#s16");
     assert.equal(
       await e.page

@@ -1,5 +1,9 @@
 # Saved reading place — staging
 
+Visual refinement: **Resume · chapter name ×** now sits beside Contents, using the current theme colors. The large card is removed; phones use one compact row below the heading. Current preview: https://664629f5.python-peer-support-ref.pages.dev — release `2040845ac76f92591d58`, source preview v21. Resume/Clear behavior and stored bookmarks are unchanged. Targeted Chromium/WebKit checks and long-label light/dark layout review passed.
+
+Initial implementation:
+
 The guide now remembers the current chapter and panel in this browser. A **Continue reading** card in Contents resumes there and opens collapsed panels. **Clear** removes the bookmark. Arrival and direct chapter links never automatically redirect to it. Reading progress is local to this browser/site address and works with cached offline reading; Python inputs, outputs and files are not stored. Reset Python leaves the bookmark intact. Storage failures no longer interrupt theme or lesson controls.
 
 Preview: https://9e7d1d03.python-peer-support-ref.pages.dev — release `88192cd50b45ed745bc7`, source preview v20. Lesson search is deferred. See [READING-PROGRESS-VALIDATION.md](READING-PROGRESS-VALIDATION.md) for tests and scope. Production remains unchanged.

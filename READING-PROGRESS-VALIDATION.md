@@ -1,5 +1,15 @@
 # Saved reading place validation
 
+## Compact control refinement
+
+Current preview: https://664629f5.python-peer-support-ref.pages.dev — release `2040845ac76f92591d58`, source preview v21.
+
+The large saved-place card was replaced by **Resume · chapter name ×** beside Contents. The panel name and local-device note remain in the link tooltip; the visible label is just the chapter. The separate × button retains its accessible Clear name and a 44px target. On narrow screens the control moves onto one compact row beneath the header; long labels truncate visually while their full text remains available to assistive technology. Colors use the existing light/dark theme variables. Bookmark storage and resume behavior are unchanged.
+
+Verified lint, formatting, six release/build checks, and the two existing bookmark/reflow tests in both Chromium and WebKit. Reviewed light/dark screenshots with a long chapter title at 320, 768 and 1440px; existing layout checks also include 390px. Earlier functional validation below remains evidence for the unchanged persistence/runtime behavior. Logs and screenshots: `../verification/compact-resume-*`.
+
+## Initial implementation
+
 Preview: https://9e7d1d03.python-peer-support-ref.pages.dev
 
 Release: `88192cd50b45ed745bc7` (source preview v20). Approved pre-enhancement baseline: `6fb8bdb`, application release `59be8795f96d0c8d137e`. Production has not been published. Lesson search is deferred; the existing table of contents remains the navigation structure.

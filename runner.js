@@ -684,8 +684,9 @@ const DEBUG = location.hostname === "localhost";
     if (!saved) return;
     const lesson = lessons.find((item) => item.section.id === saved.section);
     link.href = "#" + saved.section;
-    const chapter = `${saved.section.slice(1).padStart(2, "0")} · ${titleText(lesson.heading)}`;
-    label.textContent = chapter + (saved.title ? ` — ${saved.title}` : "");
+    const chapter = titleText(lesson.heading);
+    label.textContent = chapter;
+    link.title = `Resume ${chapter}${saved.title ? ` — ${saved.title}` : ""}. Saved on this device.`;
   }
   render();
 
@@ -860,7 +861,7 @@ const DEBUG = location.hostname === "localhost";
       dataView = new Uint8Array(new SharedArrayBuffer(65536));
       interruptView = new Uint8Array(new SharedArrayBuffer(1));
       cancelView = new Int32Array(new SharedArrayBuffer(4));
-      const worker = new Worker("./pyodide-worker.js?v=20");
+      const worker = new Worker("./pyodide-worker.js?v=21");
       _worker = worker;
       worker.addEventListener("message", (event) => {
         if (_worker === worker) handleWorkerMessage(event);

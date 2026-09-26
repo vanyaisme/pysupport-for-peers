@@ -560,7 +560,7 @@ test("reading place persists, resumes a collapsed panel and respects explicit ch
     const saved = await e.page.evaluate((key) => localStorage.getItem(key), key);
     assert.equal(JSON.parse(saved).panel, 0);
     await e.page.goto(origin);
-    await e.page.getByRole("link", { name: /Continue reading/ }).waitFor();
+    await e.page.getByRole("link", { name: /Resume/ }).waitFor();
     assert.ok(await e.page.evaluate(() => scrollY < 400), "no automatic resume");
     assert.equal(await e.page.evaluate((key) => localStorage.getItem(key), key), saved);
     await e.page
@@ -570,7 +570,7 @@ test("reading place persists, resumes a collapsed panel and respects explicit ch
         el.closest(".scenario").classList.add("collapsed");
         el.setAttribute("aria-expanded", "false");
       });
-    await e.page.getByRole("link", { name: /Continue reading/ }).click();
+    await e.page.getByRole("link", { name: /Resume/ }).click();
     assert.equal(await target.getAttribute("aria-expanded"), "true");
     assert.equal(await target.evaluate((el) => el === document.activeElement), true);
     assert.ok(Math.abs((await target.boundingBox()).y) < 80);
@@ -608,7 +608,7 @@ test("saved-place controls reflow on phones and clearing synchronizes across tab
     const other = await e.context.newPage();
     await other.goto(origin);
     await e.page.goto(origin);
-    for (const width of [320, 390, 768]) {
+    for (const width of [320, 390, 768, 1440]) {
       await e.page.setViewportSize({ width, height: 844 });
       const box = await e.page.locator("#readingResume").boundingBox();
       assert.ok(box.x >= 0 && box.x + box.width <= width);
